@@ -25,7 +25,12 @@ _Last updated: 2026-06-06_
 - iOS later needs a Mac + Apple acct ($99/yr); user has no Mac. Android works on Windows.
 - Lebanon legal: Law No. 81 (2018) on Electronic Transactions & Personal Data governs medical/personal data — handle in Stage E.
 
-## Current state of the build (v0.5)
+## Current state of the build (v0.6)
+- **v0.6 (2026-06-06): profile phone + Maps link.** Added genTel(d) (uses d.tel from sign-up, else stable fake Lebanese number from id) → tappable `tel:` link; mapsURL(d) (encodeURIComponent of AREAS+city+Lebanon) → address is a Google Maps link (target _blank). Added a Phone field to the sign-up form (dPhone) stored as `tel`. Profile grid now: Address(map link), Phone(tel link), Languages, Fee, Experience. New CSS `.plink`. Footer v0.6. Reused existing i18n key `phone`/`phPhone` (no new keys). CODE-EXPLAINED §13.
+- Idea origin: user asked for phone (was missing) + interactive address→maps. Deeper version (verified numbers, embedded GPS map) deferred to Stage C+.
+- (history) v0.5 polish/mobile; v0.4 profiles; v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.
+
+## (previous) Current state of the build (v0.5)
 - **v0.5 (2026-06-06): polish & mobile.** CSS-only refinements: input :focus glow, .btn:active press, hero radial overlay + card base shadow, responsive grid `minmax(min(100%,300px),1fr)`, expanded `@media(max-width:560px)` (full-width search button, tighter nav/main/modal padding, RTL border fix). Footer bumped to v0.5. No new translatable strings. CODE-EXPLAINED §12.
 - **STAGE A COMPLETE.** All Stage A items done.
 - (history) v0.4 profiles; v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.

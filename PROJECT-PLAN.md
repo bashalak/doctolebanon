@@ -122,6 +122,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.6:** profile now shows a tappable phone (`tel:`) and a clickable address that opens Google Maps; phone added to doctor sign-up | `index.html` |
 | 2026-06-06 | **v0.5:** polish & mobile — input focus states, hero/card depth, tactile buttons, full-width mobile search, tighter modals, responsive grid | `index.html` |
 | 2026-06-06 | **v0.4:** doctor profile (address, languages, fee, experience, About bio) shown before booking; all translated | `index.html` |
 | 2026-06-06 | **v0.3:** trilingual UI (EN/FR/AR) with a language switcher + right-to-left layout for Arabic; choice remembered | `index.html` |

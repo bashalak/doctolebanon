@@ -368,3 +368,35 @@ No new features here — just making it look and feel better, especially on phon
 
 ### Concept introduced
 - **Media queries** (`@media`) — the foundation of mobile-friendly ("responsive") websites.
+
+---
+
+## 13. New in v0.6 — Tappable phone + Maps link
+
+Two small but useful profile upgrades, and they show how **links can trigger phone/map apps**, not just open web pages.
+
+### A phone number that calls
+```js
+const TEL_PREFIX = ["03","70","71","76","78","81"];
+function genTel(d){
+  if(d.tel) return d.tel;                          // doctor's own number if they signed up with one
+  const p = TEL_PREFIX[d.id % TEL_PREFIX.length];  // otherwise a stable fake Lebanese number
+  const s = String(100000 + (d.id*73813) % 900000);
+  return `${p} ${s.slice(0,3)} ${s.slice(3)}`;
+}
+```
+Then in the profile: `<a href="tel:03123456">📞 ...</a>`. The special **`tel:` link** tells a phone "dial this number." (We strip spaces with `.replace(/\s/g,'')` so the dialer gets clean digits.)
+
+### An address that opens Maps
+```js
+function mapsURL(d){
+  const q = encodeURIComponent(`${AREAS[d.id % AREAS.length]}, ${d.c}, Lebanon`);
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+```
+- `encodeURIComponent(...)` makes the text **safe to put in a web address** (turns spaces and commas into codes like `%20`). Always do this when building a URL from text.
+- `target="_blank" rel="noopener"` opens Maps in a new tab safely.
+
+### Concepts introduced
+- **Special link schemes** — `tel:` (call) and Maps URLs (navigate). Same `<a href>` you know, pointed at an app instead of a page.
+- **`encodeURIComponent`** — safely putting text into a URL.
