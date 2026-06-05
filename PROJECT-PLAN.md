@@ -70,7 +70,8 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [ ] Add a doctor **profile page** (bio, address, photo)
 
 ### Stage B — Get it ONLINE (fast morale boost)
-- [ ] Create a free **GitHub** account (to store the code safely)
+- [x] Create a free **GitHub** account (`bashalak`)
+- [x] Push the code to GitHub → https://github.com/bashalak/doctolebanon (private)
 - [ ] Create a free **Netlify** account
 - [ ] Deploy `index.html` → get a real link like `doctolebanon.netlify.app`
 - [ ] Open it on your phone — share with a friend
@@ -120,6 +121,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | Set up Git, made first commit, pushed to GitHub (private repo `bashalak/doctolebanon`) | `README.md`, `.gitignore`, all |
 | 2026-06-06 | Created learning notebook + Claude's context file; delivered Lesson 1 (Variables + Arrays) | `MY-NOTES.md`, `CONTEXT-FOR-CLAUDE.md` |
 | 2026-06-05 | Created project plan & code-explained docs | `PROJECT-PLAN.md`, `CODE-EXPLAINED.md` |
 | 2026-06-05 | Built v0.1 clickable prototype (search, booking, my-appointments, localStorage) | `index.html` |

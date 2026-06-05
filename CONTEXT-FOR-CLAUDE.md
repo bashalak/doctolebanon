@@ -31,6 +31,14 @@ _Last updated: 2026-06-06_
   - Fake Lebanese doctors in a `DOCTORS` array. Green/cedar theme. Yellow "fake data" demo banner.
   - NOT yet: shared database, real logins, online hosting, security, SMS. Bookings live only in the user's browser.
 
+## Git / GitHub
+- Git installed (C:\Program Files\Git). GitHub CLI NOT installed.
+- Repo initialized in D:\doctolebanon\, branch `main`. First commit pushed 2026-06-06.
+- GitHub: user `bashalak`, email `bakerchlak1991@gmail.com`, repo **https://github.com/bashalak/doctolebanon (PRIVATE)**.
+- AUTH GOTCHA: this tool env is non-interactive; first `git push` failed once ("User cancelled dialog" / no tty) because the Git Credential Manager popup appeared BEHIND other windows. Retrying the push and having the user complete the GCM browser sign-in worked. For future pushes, credentials are now stored, should be silent. If auth breaks again, consider a PAT.
+- Added `README.md` and `.gitignore` for the repo.
+- New files in git: README.md, .gitignore (+ the 5 prior files).
+
 ## Files in D:\doctolebanon\
 - `index.html` — the app (v0.1).
 - `PROJECT-PLAN.md` — LIVING: decisions, glossary, progress, roadmap Stages A–F, changelog. UPDATE on every build/change.
