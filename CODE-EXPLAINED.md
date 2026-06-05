@@ -400,3 +400,34 @@ function mapsURL(d){
 ### Concepts introduced
 - **Special link schemes** — `tel:` (call) and Maps URLs (navigate). Same `<a href>` you know, pointed at an app instead of a page.
 - **`encodeURIComponent`** — safely putting text into a URL.
+
+---
+
+## 14. New in v0.7 — Reason for visit (radios) + attach a document
+
+The booking step now asks **why** you're coming and lets you **attach a file** (like previous test results) — just like the real Doctolib.
+
+### Radio buttons = "pick exactly one"
+```html
+<label class="radio"><input type="radio" name="bReason" value="new" checked> New consultation</label>
+<label class="radio"><input type="radio" name="bReason" value="follow"> Follow-up</label>
+<label class="radio"><input type="radio" name="bReason" value="urgent"> Urgent</label>
+```
+- The trick: **all three share the same `name="bReason"`**. That's what makes them a group where only one can be selected. (Checkboxes — which we used for languages — allow *many*; radios allow *one*.)
+- Reading the choice in JavaScript:
+```js
+const reason = document.querySelector('input[name="bReason"]:checked').value;  // "new" | "follow" | "urgent"
+```
+- We store the short `value` (`"follow"`) and translate it for display with `reasonText()` — same "store the value, show a translated label" idea from the language feature.
+
+### The file attachment (and an honest limit)
+```js
+const docFile = $("bDoc").files[0];          // the file the user picked
+const docName = docFile ? docFile.name : ""; // we keep only its NAME for now
+```
+- A `<input type="file">` gives us a list of chosen files; `files[0]` is the first one.
+- ⚠️ We deliberately store only the **file name**, not the file's contents. Real file *upload* (saving the actual document somewhere safe) needs a backend server — that's Stage C. For medical documents this also has privacy/security implications (Lebanon's Law No. 81), so it's correct to wait and do it properly.
+
+### Concepts introduced
+- **Radio groups** (shared `name`) vs checkboxes — one choice vs many.
+- **File inputs** (`type="file"`, `.files`) — and *why* truly storing files needs a backend.

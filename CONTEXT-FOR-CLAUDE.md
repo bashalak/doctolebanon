@@ -25,7 +25,12 @@ _Last updated: 2026-06-06_
 - iOS later needs a Mac + Apple acct ($99/yr); user has no Mac. Android works on Windows.
 - Lebanon legal: Law No. 81 (2018) on Electronic Transactions & Personal Data governs medical/personal data — handle in Stage E.
 
-## Current state of the build (v0.6)
+## Current state of the build (v0.7)
+- **v0.7 (2026-06-06): booking reason + document attach.** pickSlot form now has a radio group `name="bReason"` (new/follow/urgent, default new) and a `<input type="file" id="bDoc">`. confirmBooking reads the checked radio + `bDoc.files[0]?.name` and stores `reason` + `docName` on the appt (only the NAME is stored — real upload deferred to Stage C for privacy/Law 81). reasonText(key) translates the reason; shown in success screen + My appointments. New CSS `.radios`/`.radio`. New i18n keys reasonLabel/reasonNew/reasonFollow/reasonUrgent/attachLabel/attachHint/reasonWord/attachedWord. Footer v0.7. CODE-EXPLAINED §14.
+- Idea origin: user wanted a richer confirm step (radios / attach test documents) like Doctolib.
+- (history) v0.6 phone+maps; v0.5 polish; v0.4 profiles; v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.
+
+## (previous) Current state of the build (v0.6)
 - **v0.6 (2026-06-06): profile phone + Maps link.** Added genTel(d) (uses d.tel from sign-up, else stable fake Lebanese number from id) → tappable `tel:` link; mapsURL(d) (encodeURIComponent of AREAS+city+Lebanon) → address is a Google Maps link (target _blank). Added a Phone field to the sign-up form (dPhone) stored as `tel`. Profile grid now: Address(map link), Phone(tel link), Languages, Fee, Experience. New CSS `.plink`. Footer v0.6. Reused existing i18n key `phone`/`phPhone` (no new keys). CODE-EXPLAINED §13.
 - Idea origin: user asked for phone (was missing) + interactive address→maps. Deeper version (verified numbers, embedded GPS map) deferred to Stage C+.
 - (history) v0.5 polish/mobile; v0.4 profiles; v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.

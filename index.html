@@ -90,6 +90,8 @@
   .psec{margin:18px 0 0;font-size:15px}
   .plink{color:var(--green);font-weight:600;text-decoration:none}
   .plink:hover{text-decoration:underline}
+  .radios{display:flex;flex-direction:column;gap:8px;padding-top:4px}
+  .radio{font-weight:400;display:flex;gap:8px;align-items:center;cursor:pointer}
   @media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
   .form-row{margin:12px 0}
   .form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
@@ -192,7 +194,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.6 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.7 · Made to test an idea, not for real medical use yet.</footer>
 
 <script>
 /* ============ FAKE DATA (Lebanon) ============ */
@@ -241,7 +243,8 @@ const I18N = {
     profileLive:"Your profile is now live — patients can find and book you in the listings.",
     seeListing:"See my profile in the listings",
     viewProfile:"View profile", about:"About", address:"Address", experience:"Experience", availability:"Availability", languagesWord:"Languages", newOnPlatform:"New on DoctoLebanon",
-    footer:"DoctoLebanon — prototype v0.6 · Made to test an idea, not for real medical use yet." },
+    reasonLabel:"Reason for visit", reasonNew:"New consultation", reasonFollow:"Follow-up", reasonUrgent:"Urgent", attachLabel:"Attach a document (optional)", attachHint:"e.g. previous test or lab results", reasonWord:"Reason:", attachedWord:"Attached:",
+    footer:"DoctoLebanon — prototype v0.7 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -265,7 +268,8 @@ const I18N = {
     profileLive:"Votre profil est maintenant en ligne — les patients peuvent vous trouver et réserver.",
     seeListing:"Voir mon profil dans la liste",
     viewProfile:"Voir le profil", about:"À propos", address:"Adresse", experience:"Expérience", availability:"Disponibilités", languagesWord:"Langues", newOnPlatform:"Nouveau sur DoctoLebanon",
-    footer:"DoctoLebanon — prototype v0.6 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    reasonLabel:"Motif de la visite", reasonNew:"Nouvelle consultation", reasonFollow:"Suivi", reasonUrgent:"Urgent", attachLabel:"Joindre un document (facultatif)", attachHint:"ex. résultats d'analyses précédents", reasonWord:"Motif :", attachedWord:"Document :",
+    footer:"DoctoLebanon — prototype v0.7 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -289,7 +293,8 @@ const I18N = {
     profileLive:"ملفك الشخصي أصبح متاحاً الآن — يمكن للمرضى إيجادك وحجز موعد معك.",
     seeListing:"عرض ملفي في القائمة",
     viewProfile:"عرض الملف", about:"نبذة", address:"العنوان", experience:"الخبرة", availability:"المواعيد المتاحة", languagesWord:"اللغات", newOnPlatform:"جديد على دكتو لبنان",
-    footer:"دكتو لبنان — نموذج تجريبي v0.6 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    reasonLabel:"سبب الزيارة", reasonNew:"استشارة جديدة", reasonFollow:"متابعة", reasonUrgent:"حالة عاجلة", attachLabel:"إرفاق مستند (اختياري)", attachHint:"مثال: نتائج فحوصات سابقة", reasonWord:"السبب:", attachedWord:"مرفق:",
+    footer:"دكتو لبنان — نموذج تجريبي v0.7 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -344,6 +349,7 @@ function mapsURL(d){
   const q = encodeURIComponent(`${AREAS[d.id % AREAS.length]}, ${d.c}, Lebanon`);
   return `https://www.google.com/maps/search/?api=1&query=${q}`;
 }
+function reasonText(k){ return k==="follow" ? t("reasonFollow") : k==="urgent" ? t("reasonUrgent") : t("reasonNew"); }
 
 /* Build a few upcoming days of fake slots (deterministic-ish per doctor) */
 function slotsFor(doc){
@@ -460,6 +466,14 @@ function pickSlot(id, dayLabel, time){
       <div class="notice">📅 ${specLabel(d.s)} — ${d.n}<br>🕒 ${dayLabel} ${t("atTime")} ${time} · 📍 ${cityLabel(d.c)} · 💵 ${d.fee}</div>
       <div class="form-row"><label>${t("yourName")}</label><input id="bName" placeholder="${t("phYourName")}" /></div>
       <div class="form-row"><label>${t("phone")}</label><input id="bPhone" placeholder="${t("phPhone")}" /></div>
+      <div class="form-row"><label>${t("reasonLabel")}</label>
+        <div class="radios">
+          <label class="radio"><input type="radio" name="bReason" value="new" checked /> ${t("reasonNew")}</label>
+          <label class="radio"><input type="radio" name="bReason" value="follow" /> ${t("reasonFollow")}</label>
+          <label class="radio"><input type="radio" name="bReason" value="urgent" /> ${t("reasonUrgent")}</label>
+        </div>
+      </div>
+      <div class="form-row"><label>${t("attachLabel")}</label><input type="file" id="bDoc" /><div style="font-size:12px;color:var(--muted);margin-top:4px">${t("attachHint")}</div></div>
       <button class="btn" style="width:100%;padding:13px" onclick="confirmBooking()">${t("confirmBooking")}</button>
     </div>`;
 }
@@ -467,9 +481,11 @@ function pickSlot(id, dayLabel, time){
 function confirmBooking(){
   const name=$("bName").value.trim(), phone=$("bPhone").value.trim();
   if(!name||!phone){alert(t("needNamePhone"));return;}
+  const reason=(document.querySelector('input[name="bReason"]:checked')||{}).value||"new";
+  const docFile=$("bDoc").files[0]; const docName=docFile?docFile.name:"";  // keep only the file NAME for now (real upload comes with the backend in Stage C)
   const a=loadAppts();
   a.push({doc:pending.doc.n, spec:pending.doc.s, city:pending.doc.c, color:pending.doc.color,
-          init:pending.doc.init, day:pending.day, time:pending.time, name, phone, fee:pending.doc.fee});
+          init:pending.doc.init, day:pending.day, time:pending.time, name, phone, fee:pending.doc.fee, reason, docName});
   saveAppts(a); updateBadge();
   const sms = lang==="fr" ? `Une confirmation serait normalement envoyée au ${phone} par SMS.`
             : lang==="ar" ? `عادةً ما يتم إرسال تأكيد إلى ${phone} عبر رسالة نصية.`
@@ -478,7 +494,7 @@ function confirmBooking(){
     <div class="modal-body" style="text-align:center;padding:38px 26px">
       <div style="font-size:54px">✅</div>
       <h2 style="margin:8px 0">${t("booked")}</h2>
-      <p style="color:var(--muted)">${pending.doc.n} · ${pending.day} ${t("atTime")} ${pending.time}<br>${sms}</p>
+      <p style="color:var(--muted)">${pending.doc.n} · ${pending.day} ${t("atTime")} ${pending.time}<br>${reasonText(reason)}${docName?` · 📎 ${docName}`:""}<br>${sms}</p>
       <button class="btn" onclick="closeModal();showAppointments()">${t("viewMyAppts")}</button>
     </div>`;
 }
@@ -499,7 +515,9 @@ function showAppointments(){
       <div class="when"><div class="d">${parts[1]||""}</div><div class="m">${parts[2]||""}</div></div>
       <div class="info"><b>${ap.doc}</b><div>${specLabel(ap.spec)} · 📍 ${cityLabel(ap.city)}</div>
         <div>🕒 ${ap.day} ${t("atTime")} ${ap.time} · 💵 ${ap.fee}</div>
-        <div>${t("bookedFor")} ${ap.name} (${ap.phone})</div></div>
+        <div>${t("bookedFor")} ${ap.name} (${ap.phone})</div>
+        ${ap.reason?`<div>${t("reasonWord")} ${reasonText(ap.reason)}</div>`:""}
+        ${ap.docName?`<div>📎 ${t("attachedWord")} ${ap.docName}</div>`:""}</div>
       <button class="btn ghost small" onclick="cancelAppt(${i})">${t("cancel")}</button>`;
     box.appendChild(el);
   });
