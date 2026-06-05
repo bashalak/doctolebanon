@@ -81,6 +81,10 @@
   .slots{display:flex;gap:8px;flex-wrap:wrap}
   .slot{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;font-weight:600}
   .slot:hover{background:var(--green);color:#fff}
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-bottom:4px}
+  .plabel{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
+  .psec{margin:18px 0 0;font-size:15px}
+  @media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
   .form-row{margin:12px 0}
   .form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
   .form-row input,.form-row select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:#fff}
@@ -169,13 +173,14 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.3 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.4 · Made to test an idea, not for real medical use yet.</footer>
 
 <script>
 /* ============ FAKE DATA (Lebanon) ============ */
 const CITIES = ["Beirut","Tripoli","Sidon (Saida)","Zahle","Jounieh","Byblos (Jbeil)","Tyre (Sour)","Baabda"];
 const SPECIALTIES = ["General practitioner","Pediatrician","Dentist","Dermatologist","Cardiologist","Gynecologist","Ophthalmologist","Psychiatrist","Orthopedist","ENT specialist"];
 const COLORS = ["#0f8a7e","#2f7dd1","#b8593e","#7a5bb0","#c08a00","#3a9d6b","#c0407a","#5a6b8c"];
+const AREAS = ["Hamra","Achrafieh","Verdun","Mar Mikhael","Gemmayze","Badaro","Sodeco","Sin el Fil","Furn el Chebbak","Jdeideh","Ras Beirut","Dekwaneh"];
 
 const DOCTORS = [
   {n:"Dr. Rana Khoury", s:"Dermatologist", c:"Beirut", r:4.8, langs:["Arabic","French","English"], fee:"50 USD"},
@@ -216,7 +221,8 @@ const I18N = {
     needLang:"Please choose at least one language.",
     profileLive:"Your profile is now live — patients can find and book you in the listings.",
     seeListing:"See my profile in the listings",
-    footer:"DoctoLebanon — prototype v0.3 · Made to test an idea, not for real medical use yet." },
+    viewProfile:"View profile", about:"About", address:"Address", experience:"Experience", availability:"Availability", languagesWord:"Languages", newOnPlatform:"New on DoctoLebanon",
+    footer:"DoctoLebanon — prototype v0.4 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -239,7 +245,8 @@ const I18N = {
     needLang:"Veuillez choisir au moins une langue.",
     profileLive:"Votre profil est maintenant en ligne — les patients peuvent vous trouver et réserver.",
     seeListing:"Voir mon profil dans la liste",
-    footer:"DoctoLebanon — prototype v0.3 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    viewProfile:"Voir le profil", about:"À propos", address:"Adresse", experience:"Expérience", availability:"Disponibilités", languagesWord:"Langues", newOnPlatform:"Nouveau sur DoctoLebanon",
+    footer:"DoctoLebanon — prototype v0.4 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -262,7 +269,8 @@ const I18N = {
     needLang:"يرجى اختيار لغة واحدة على الأقل.",
     profileLive:"ملفك الشخصي أصبح متاحاً الآن — يمكن للمرضى إيجادك وحجز موعد معك.",
     seeListing:"عرض ملفي في القائمة",
-    footer:"دكتو لبنان — نموذج تجريبي v0.3 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    viewProfile:"عرض الملف", about:"نبذة", address:"العنوان", experience:"الخبرة", availability:"المواعيد المتاحة", languagesWord:"اللغات", newOnPlatform:"جديد على دكتو لبنان",
+    footer:"دكتو لبنان — نموذج تجريبي v0.4 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -296,6 +304,13 @@ function countText(n){
   if(lang==="fr") return `${n} ${n===1?"médecin trouvé":"médecins trouvés"}`;
   if(lang==="ar") return `تم العثور على ${n} طبيب`;
   return `${n} ${n===1?"doctor":"doctors"} found`;
+}
+function yearsExp(n){ if(lang==="fr") return `${n} ans d'expérience`; if(lang==="ar") return `${n} سنة خبرة`; return `${n} years of experience`; }
+function bioText(d){
+  const city=cityLabel(d.c);
+  if(lang==="fr") return `${specLabel(d.s)} basé(e) à ${city}, attaché(e) à des soins de qualité et à l'écoute de chaque patient.`;
+  if(lang==="ar") return `${specLabel(d.s)} في ${city}، ملتزمٌ بتقديم رعاية عالية الجودة والإصغاء إلى كل مريض.`;
+  return `${specLabel(d.s)} based in ${city}, dedicated to high-quality, friendly care and to listening to every patient.`;
 }
 
 /* Build a few upcoming days of fake slots (deterministic-ish per doctor) */
@@ -357,7 +372,7 @@ function render(){
       </div>
       <div class="tags">${d.langs.map(l=>`<span class="tag">${langLabel(l)}</span>`).join("")}<span class="tag">${d.fee}</span></div>
       <div class="avail">${next?`${t("nextAvail")} <b>${next.label} ${t("atTime")} ${next.times[0]}</b>`:t("noAvailWeek")}</div>
-      <button class="btn" onclick="openDoctor(${d.id})">${t("book")}</button>`;
+      <button class="btn" onclick="openDoctor(${d.id})">${t("viewProfile")}</button>`;
     g.appendChild(card);
   });
 }
@@ -366,18 +381,30 @@ function render(){
 let pending=null;
 function openDoctor(id){
   const d=getDoctor(id); const days=slotsFor(d);
-  const rating = d.custom ? t("newWord") : `<span class="stars">${stars(d.r)}</span> ${d.r}`;
+  const rating = d.custom
+    ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newWord")}</span>`
+    : `<span class="stars">${stars(d.r)}</span> ${d.r}`;
+  const addr = `${AREAS[d.id % AREAS.length]} — ${cityLabel(d.c)}`;
+  const exp  = d.custom ? t("newOnPlatform") : yearsExp(6 + (d.id % 18));
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
       <div><h3 style="margin:0">${d.n}</h3>
         <div class="spec" style="color:var(--green);font-weight:600">${specLabel(d.s)}</div>
-        <div class="meta" style="color:var(--muted);font-size:13px">📍 ${cityLabel(d.c)} · ${rating} · ${d.fee}</div>
+        <div class="meta" style="color:var(--muted);font-size:13px">📍 ${cityLabel(d.c)} · ${rating}</div>
       </div>
       <button class="close" onclick="closeModal()">×</button>
     </div>
     <div class="modal-body">
-      <p style="margin-top:0;color:var(--muted)">${t("languagesLabel")} ${d.langs.map(langLabel).join(", ")}. ${t("pickSlot")}</p>
+      <div class="profile-grid">
+        <div><div class="plabel">${t("address")}</div><div>📍 ${addr}</div></div>
+        <div><div class="plabel">${t("fee")}</div><div>💵 ${d.fee}</div></div>
+        <div><div class="plabel">${t("languagesWord")}</div><div>${d.langs.map(langLabel).join(", ")}</div></div>
+        <div><div class="plabel">${t("experience")}</div><div>${exp}</div></div>
+      </div>
+      <h4 class="psec">${t("about")}</h4>
+      <p style="color:var(--muted);margin:4px 0 0">${bioText(d)}</p>
+      <h4 class="psec">${t("availability")}</h4>
       ${days.length? days.map(day=>`
         <div class="day"><h4>${day.label}</h4><div class="slots">
           ${day.times.map(tm=>`<button class="slot" onclick="pickSlot(${id},'${day.label}','${tm}')">${tm}</button>`).join("")}

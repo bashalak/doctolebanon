@@ -25,7 +25,11 @@ _Last updated: 2026-06-06_
 - iOS later needs a Mac + Apple acct ($99/yr); user has no Mac. Android works on Windows.
 - Lebanon legal: Law No. 81 (2018) on Electronic Transactions & Personal Data governs medical/personal data — handle in Stage E.
 
-## Current state of the build (v0.3)
+## Current state of the build (v0.4)
+- **v0.4 (2026-06-06): doctor profile pages.** openDoctor() now renders a profile (address, fee, languages, experience in a `.profile-grid`), an "About" bio, THEN availability slots. Card button label changed from book→`viewProfile`. New data is GENERATED not stored: `AREAS` list + `AREAS[d.id % len]` for address; `yearsExp(6 + d.id%18)`; custom doctors show `newOnPlatform`. New i18n keys: viewProfile/about/address/experience/availability/languagesWord/newOnPlatform (+ yearsExp()/bioText() build localized strings). Footer bumped to v0.4. CODE-EXPLAINED §11 documents it.
+- (history) v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.
+
+## (previous) Current state of the build (v0.3)
 - **v0.3 (2026-06-06): trilingual UI (EN/FR/AR) + RTL.** Added `I18N` object (en/fr/ar) + `t(key)` helper; `lang` state persisted in localStorage (`dl_lang`). Header language switcher EN/FR/ع → setLang()/applyLang(). applyLang sets `<html dir=rtl>` for Arabic, updates all static element texts (ids: navFind/navJoin/navApptLabel/heroTitle/heroSub/lblSpecialty/lblCity/lblDocName/btnSearch/demoFlag/listTitle/apptTitle/footerText), repopulates filters, re-renders. Specialty/city/spoken-language DISPLAY translated via SPEC_T/CITY_T/LANG_T while the stored VALUE stays English (so filtering still works). All dynamic views use t()/specLabel()/cityLabel()/langLabel(). CODE-EXPLAINED §10 documents it.
 - (history) earlier: v0.2 doctor sign-up; v0.1 base prototype.
 

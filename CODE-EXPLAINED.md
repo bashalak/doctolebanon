@@ -320,3 +320,25 @@ So filtering compares the stable English value, while the user sees their langua
 - **Lookup tables / dictionaries** — `I18N[lang][key]` to fetch the right text.
 - **`dir="rtl"`** — one attribute flips the whole layout for Arabic.
 - **Separating data from presentation** — store one canonical value, show a translated label.
+
+---
+
+## 11. New in v0.4 — Doctor profile pages
+
+Clicking a doctor used to jump straight to time slots. Now `openDoctor()` shows a **profile first** — address, languages, fee, years of experience, an "About" paragraph — then the availability below.
+
+### Where the profile details come from
+We didn't add a bio/address to all 12 doctors by hand. Instead we **generate** them, which keeps the data clean and teaches a useful trick:
+```js
+const addr = `${AREAS[d.id % AREAS.length]} — ${cityLabel(d.c)}`;     // pick a Beirut-area neighbourhood by id
+const exp  = d.custom ? t("newOnPlatform") : yearsExp(6 + (d.id % 18)); // 6–23 years, derived from the id
+```
+- `d.id % AREAS.length` = the **remainder trick** (modulo): it always lands on a valid spot in the `AREAS` list no matter how big the id is. (You saw `%` before in `slotsFor`.)
+- `bioText(d)` builds a localized sentence from the doctor's specialty + city — so even the bio respects EN/FR/AR.
+- New doctors (from sign-up) have no history, so they show "New on DoctoLebanon" instead of a year count.
+
+### The layout
+A small **CSS grid** (`.profile-grid`) lays the four facts out in two columns (one column on a phone, via a `@media` rule). Then headings (`.psec`) separate "About" and "Availability".
+
+### Concept introduced
+- **Generating display data from existing fields** instead of storing everything — less data to maintain, and it scales automatically to new doctors.

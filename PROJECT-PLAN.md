@@ -67,7 +67,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [x] Add a **doctor sign-up** page — new doctors are saved and appear in search with a "New" badge (v0.2)
 - [x] Add **language toggle** (English / French / Arabic + right-to-left layout for Arabic) — remembers your choice (v0.3)
 - [ ] Improve design details & mobile-phone layout
-- [ ] Add a doctor **profile page** (bio, address, photo)
+- [x] Add a doctor **profile page** (address, languages, fee, experience, About bio — translated) before booking (v0.4)
 
 ### Stage B — Get it ONLINE (fast morale boost)
 - [x] Create a free **GitHub** account (`bashalak`)
@@ -122,6 +122,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.4:** doctor profile (address, languages, fee, experience, About bio) shown before booking; all translated | `index.html` |
 | 2026-06-06 | **v0.3:** trilingual UI (EN/FR/AR) with a language switcher + right-to-left layout for Arabic; choice remembered | `index.html` |
 | 2026-06-06 | **v0.2:** added "Join as a doctor" sign-up page; new doctors saved in browser and shown in search results | `index.html` |
 | 2026-06-06 | 🚀 Deployed live via Netlify — https://tranquil-hummingbird-0732de.netlify.app (auto-deploys on push). **Stage B complete.** | (deploy) |
