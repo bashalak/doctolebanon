@@ -58,7 +58,7 @@
   .avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:20px;flex:none}
   .doc h3{margin:0;font-size:16px}
   .doc .spec{color:var(--green);font-weight:600;font-size:14px;margin:2px 0}
-  .doc .meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:2px}
+  .doc .meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:2px;align-items:center}
   .stars{color:var(--amber);font-size:13px}
   .tags{display:flex;gap:6px;flex-wrap:wrap}
   .tag{background:#eef7f5;color:var(--green-dark);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600}
@@ -78,7 +78,7 @@
   .slot:hover{background:var(--green);color:#fff}
   .form-row{margin:12px 0}
   .form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
-  .form-row input{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font-size:15px}
+  .form-row input,.form-row select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:#fff}
   .notice{background:#eef7f5;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--green-dark);margin-bottom:14px}
   /* ---------- Appointments ---------- */
   .appt{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
@@ -102,6 +102,7 @@
     <div class="logo" onclick="goHome()"><span class="leaf">🌿</span>Docto<span>Lebanon</span></div>
     <div class="spacer"></div>
     <button class="btn link" onclick="goHome()">Find a doctor</button>
+    <button class="btn link" onclick="showSignup()">Join as a doctor</button>
     <button class="btn ghost small" onclick="showAppointments()">My appointments <span id="apptBadge"></span></button>
   </div>
 </header>
@@ -145,6 +146,9 @@
     <div class="results-head"><h2>My appointments</h2></div>
     <div id="apptList"></div>
   </div>
+
+  <!-- Doctor sign-up view (its contents are filled in by showSignup) -->
+  <div id="signupView" class="panel hidden" style="max-width:620px;margin:0 auto"></div>
 </main>
 
 <!-- Doctor / booking modal -->
@@ -153,12 +157,12 @@
 </div>
 
 <footer>
-  DoctoLebanon — prototype v0.1 · Made to test an idea, not for real medical use yet.
+  DoctoLebanon — prototype v0.2 · Made to test an idea, not for real medical use yet.
 </footer>
 
 <script>
 /* ============ FAKE DATA (Lebanon) ============ */
-const CITIES = ["Beirut","Tripoli","Sidon (Saida)","Zahle","Jounieh","Byblos (Jbeil)","Tyre (Sour)","Baabda","Aley"];
+const CITIES = ["Beirut","Tripoli","Sidon (Saida)","Zahle","Jounieh","Byblos (Jbeil)","Tyre (Sour)","Baabda"];
 const SPECIALTIES = ["General practitioner","Pediatrician","Dentist","Dermatologist","Cardiologist","Gynecologist","Ophthalmologist","Psychiatrist","Orthopedist","ENT specialist"];
 const COLORS = ["#0f8a7e","#2f7dd1","#b8593e","#7a5bb0","#c08a00","#3a9d6b","#c0407a","#5a6b8c"];
 
@@ -182,7 +186,7 @@ DOCTORS.forEach((d,i)=>{d.id=i; d.color=COLORS[i%COLORS.length]; d.init=d.n.repl
 const $ = id => document.getElementById(id);
 const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MON  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-function stars(r){const f=Math.round(r);return "★".repeat(f)+"☆".repeat(5-f);}
+function stars(r){const f=Math.round(r)||0;return "★".repeat(f)+"☆".repeat(Math.max(0,5-f));}
 function loadAppts(){try{return JSON.parse(localStorage.getItem("dl_appts")||"[]");}catch(e){return [];}}
 function saveAppts(a){localStorage.setItem("dl_appts", JSON.stringify(a));}
 
@@ -202,6 +206,17 @@ function slotsFor(doc){
   return out;
 }
 
+/* ============ Custom doctors (created via the sign-up form) ============ */
+function loadDocs(){try{return JSON.parse(localStorage.getItem("dl_doctors")||"[]");}catch(e){return [];}}
+function saveDocs(a){localStorage.setItem("dl_doctors", JSON.stringify(a));}
+function initials(name){return name.replace(/^Dr\.?\s*/i,"").split(" ").filter(Boolean).map(w=>w[0]).join("").slice(0,2).toUpperCase();}
+/* The full doctor list = the built-in fake ones + any the user signed up. */
+function allDoctors(){
+  const custom = loadDocs().map((d,i)=>({...d, id:1000+i, color:COLORS[(1000+i)%COLORS.length], init:initials(d.n), custom:true}));
+  return DOCTORS.concat(custom);
+}
+function getDoctor(id){ return allDoctors().find(d=>d.id===id); }
+
 /* ============ Populate filters ============ */
 SPECIALTIES.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;$("fSpec").appendChild(o);});
 CITIES.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;$("fCity").appendChild(o);});
@@ -209,7 +224,7 @@ CITIES.forEach(c=>{const o=document.createElement("option");o.value=c;o.textCont
 /* ============ Render doctor list ============ */
 function render(){
   const spec=$("fSpec").value, city=$("fCity").value, name=$("fName").value.trim().toLowerCase();
-  const list=DOCTORS.filter(d=>
+  const list=allDoctors().filter(d=>
     (!spec||d.s===spec) && (!city||d.c===city) && (!name||d.n.toLowerCase().includes(name))
   );
   $("count").textContent = list.length + (list.length===1?" doctor":" doctors") + " found";
@@ -217,6 +232,9 @@ function render(){
   if(list.length===0){g.innerHTML='<div class="empty">No doctors match your search. Try removing a filter.</div>';return;}
   list.forEach(d=>{
     const next = slotsFor(d)[0];
+    const rating = d.custom
+      ? '<span class="tag" style="background:#fff0d6;color:#8a6100">★ New</span>'
+      : `<span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span>`;
     const card=document.createElement("div"); card.className="doc";
     card.innerHTML=`
       <div class="doc-top">
@@ -224,7 +242,7 @@ function render(){
         <div>
           <h3>${d.n}</h3>
           <div class="spec">${d.s}</div>
-          <div class="meta"><span>📍 ${d.c}</span><span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span></div>
+          <div class="meta"><span>📍 ${d.c}</span>${rating}</div>
         </div>
       </div>
       <div class="tags">${d.langs.map(l=>`<span class="tag">${l}</span>`).join("")}<span class="tag">${d.fee}</span></div>
@@ -237,13 +255,14 @@ function render(){
 /* ============ Doctor modal + booking ============ */
 let pending=null; // {doc, date, time}
 function openDoctor(id){
-  const d=DOCTORS[id]; const days=slotsFor(d);
+  const d=getDoctor(id); const days=slotsFor(d);
+  const rating = d.custom ? "New" : `<span class="stars">${stars(d.r)}</span> ${d.r}`;
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
       <div><h3 style="margin:0">${d.n}</h3>
         <div class="spec" style="color:var(--green);font-weight:600">${d.s}</div>
-        <div class="meta" style="color:var(--muted);font-size:13px">📍 ${d.c} · <span class="stars">${stars(d.r)}</span> ${d.r} · ${d.fee}</div>
+        <div class="meta" style="color:var(--muted);font-size:13px">📍 ${d.c} · ${rating} · ${d.fee}</div>
       </div>
       <button class="close" onclick="closeModal()">×</button>
     </div>
@@ -258,7 +277,7 @@ function openDoctor(id){
 }
 
 function pickSlot(id, dayLabel, time){
-  const d=DOCTORS[id]; pending={doc:d, day:dayLabel, time};
+  const d=getDoctor(id); pending={doc:d, day:dayLabel, time};
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
@@ -295,6 +314,7 @@ function confirmBooking(){
 function showAppointments(){
   $("hero").classList.add("hidden");
   $("listView").classList.add("hidden");
+  $("signupView").classList.add("hidden");
   $("apptView").classList.remove("hidden");
   const a=loadAppts(); const box=$("apptList");
   if(a.length===0){box.innerHTML='<div class="empty">You have no appointments yet.<br><br><button class="btn" onclick="goHome()">Find a doctor</button></div>';return;}
@@ -316,8 +336,56 @@ function cancelAppt(i){
   const a=loadAppts(); a.splice(i,1); saveAppts(a); updateBadge(); showAppointments();
 }
 
+/* ============ Doctor sign-up ============ */
+function showSignup(){
+  $("hero").classList.add("hidden");
+  $("listView").classList.add("hidden");
+  $("apptView").classList.add("hidden");
+  const specOpts = SPECIALTIES.map(s=>`<option value="${s}">${s}</option>`).join("");
+  const cityOpts = CITIES.map(c=>`<option value="${c}">${c}</option>`).join("");
+  $("signupView").innerHTML=`
+    <div class="results-head"><h2>Join DoctoLebanon as a doctor</h2></div>
+    <p style="color:var(--muted);margin-top:0">Create your profile so patients can find and book you. <i>(Demo: saved in your browser only.)</i></p>
+    <div class="form-row"><label>Full name</label><input id="dName" placeholder="e.g. Rana Khoury" /></div>
+    <div class="form-row"><label>Specialty</label><select id="dSpec">${specOpts}</select></div>
+    <div class="form-row"><label>City</label><select id="dCity">${cityOpts}</select></div>
+    <div class="form-row"><label>Languages spoken</label>
+      <div style="display:flex;gap:18px;flex-wrap:wrap;padding-top:4px">
+        <label style="font-weight:400;display:flex;gap:6px;align-items:center"><input type="checkbox" class="dLang" value="Arabic" checked /> Arabic</label>
+        <label style="font-weight:400;display:flex;gap:6px;align-items:center"><input type="checkbox" class="dLang" value="French" /> French</label>
+        <label style="font-weight:400;display:flex;gap:6px;align-items:center"><input type="checkbox" class="dLang" value="English" /> English</label>
+      </div>
+    </div>
+    <div class="form-row"><label>Consultation fee</label><input id="dFee" placeholder="e.g. 50 USD" /></div>
+    <button class="btn" style="width:100%;padding:13px" onclick="submitDoctor()">Create my profile</button>`;
+  $("signupView").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
+function submitDoctor(){
+  let name=$("dName").value.trim();
+  const spec=$("dSpec").value, city=$("dCity").value, fee=$("dFee").value.trim()||"—";
+  const langs=[...document.querySelectorAll(".dLang:checked")].map(c=>c.value);
+  if(!name){alert("Please enter your name.");return;}
+  if(langs.length===0){alert("Please choose at least one language.");return;}
+  if(!/^dr\.?\s/i.test(name)) name = "Dr. " + name;   // politely add "Dr." if missing
+  const docs=loadDocs(); docs.push({n:name, s:spec, c:city, langs, fee}); saveDocs(docs);
+  $("signupView").innerHTML=`
+    <div style="text-align:center;padding:34px 12px">
+      <div style="font-size:54px">🎉</div>
+      <h2 style="margin:8px 0">Welcome, ${name}!</h2>
+      <p style="color:var(--muted)">Your profile is now live — patients can find and book you in the listings.</p>
+      <button class="btn" onclick="$('fCity').value='${city}';goHome();render()">See my profile in the listings</button>
+    </div>`;
+}
+
 /* ============ Nav ============ */
-function goHome(){$("apptView").classList.add("hidden");$("listView").classList.remove("hidden");$("hero").classList.remove("hidden");window.scrollTo(0,0);}
+function goHome(){
+  $("apptView").classList.add("hidden");
+  $("signupView").classList.add("hidden");
+  $("listView").classList.remove("hidden");
+  $("hero").classList.remove("hidden");
+  window.scrollTo(0,0);
+}
 function openOverlay(){$("overlay").classList.add("open");}
 function closeModal(){$("overlay").classList.remove("open");}
 function updateBadge(){const n=loadAppts().length;$("apptBadge").textContent=n?`(${n})`:"";}

@@ -224,3 +224,52 @@ If you want to *understand* the code, learn these one at a time. Ask me to teach
 | Security | Fine for a demo; not for real medical data | Stage E |
 
 These aren't bugs — they're the next chapters of the plan.
+
+---
+
+## 9. New in v0.2 — the Doctor sign-up feature
+
+We added a **"Join as a doctor"** page. Here's the logic, and the new concepts it teaches.
+
+### The idea
+- The page is an empty box: `<div id="signupView">`. JavaScript fills it with a form when you click "Join as a doctor".
+- When you submit, we save the new doctor into the browser (`localStorage`, key `dl_doctors`).
+- The search list now shows **built-in doctors + your saved doctors** combined.
+
+### The key new functions
+```js
+function loadDocs(){ ... }   // read saved doctors from the browser
+function saveDocs(a){ ... }  // write saved doctors to the browser
+```
+Same pattern as `loadAppts`/`saveAppts` from v0.1 — you've seen it before! (Reusing a pattern = you're learning.)
+
+```js
+function allDoctors(){
+  const custom = loadDocs().map((d,i)=>({ ...d, id:1000+i, color:..., init:..., custom:true }));
+  return DOCTORS.concat(custom);
+}
+```
+- `.map(...)` = **transform every item in a list** into a new shape. Here it takes each saved doctor and adds an `id`, a `color`, initials, and a `custom:true` flag.
+- `{ ...d, id:1000+i }` — the `...d` is the **"spread"**: "copy all of d's properties, then add/override these." We give custom doctors ids starting at `1000` so they never clash with the built-in ones (0–11).
+- `.concat(custom)` = **glue two lists together**. So `allDoctors()` = the 12 fake ones + yours.
+- `render()` now loops over `allDoctors()` instead of `DOCTORS`. That one change is why your new doctor appears in search. ✨
+
+```js
+function submitDoctor(){
+  const langs=[...document.querySelectorAll(".dLang:checked")].map(c=>c.value);
+  if(!/^dr\.?\s/i.test(name)) name = "Dr. " + name;
+  ...
+}
+```
+- `document.querySelectorAll(".dLang:checked")` = **find all the ticked checkboxes**.
+- `[... ]` around it turns that result into a real array so we can `.map` it into a list of languages.
+- `/^dr\.?\s/i.test(name)` is a **regular expression** ("regex") — a pattern-matcher. This one asks "does the name already start with 'Dr.'?" If not, we add it. (Regex is advanced — don't worry about the symbols yet; just know it's pattern-matching on text.)
+
+### New concepts this feature introduced (added to your learning list)
+- **`.map()`** — transform a list into a new list (concept #7 from §7).
+- **Spread `...`** — copy an object/array and tweak it.
+- **`.concat()`** — join lists.
+- **Checkboxes + `querySelectorAll`** — reading multiple form inputs.
+- **Regex (a peek)** — matching text patterns.
+
+> Notice we did NOT invent new ideas from scratch — we reused `load/save` + `localStorage` + arrays + objects (Lessons 1–3) and just combined them. That's how real features get built: small known pieces, assembled.

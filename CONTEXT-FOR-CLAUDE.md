@@ -25,11 +25,12 @@ _Last updated: 2026-06-06_
 - iOS later needs a Mac + Apple acct ($99/yr); user has no Mac. Android works on Windows.
 - Lebanon legal: Law No. 81 (2018) on Electronic Transactions & Personal Data governs medical/personal data — handle in Stage E.
 
-## Current state of the build (v0.1)
+## Current state of the build (v0.2)
 - `index.html` = self-contained clickable prototype. Vanilla JS, no dependencies, no installs, opens by double-click.
   - Works: search by specialty/city/name; doctor cards; time-slot booking flow (openDoctor → pickSlot → confirmBooking); "My appointments" persisted in **localStorage**; cancel.
-  - Fake Lebanese doctors in a `DOCTORS` array. Green/cedar theme. Yellow "fake data" demo banner.
-  - NOT yet: shared database, real logins, online hosting, security, SMS. Bookings live only in the user's browser.
+  - **v0.2 (2026-06-06): "Join as a doctor" sign-up page.** New helpers loadDocs/saveDocs (localStorage key `dl_doctors`), `allDoctors()` merges built-in DOCTORS + custom (custom ids start at 1000, flagged `custom:true`, shown with "★ New" badge). render()/openDoctor() now use allDoctors()/getDoctor(id). showSignup() builds the form; submitDoctor() validates (auto-prefixes "Dr."), saves, shows success → returns to listings filtered to the new doctor's city.
+  - Fake Lebanese doctors in a `DOCTORS` array. Green/cedar theme. Yellow "fake data" demo banner. Footer says v0.2.
+  - NOT yet: shared database, real logins, security, SMS. Custom doctors + bookings live only in the user's browser.
 
 ## Git / GitHub
 - Git installed (C:\Program Files\Git). GitHub CLI NOT installed.
