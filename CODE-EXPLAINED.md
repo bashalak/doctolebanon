@@ -273,3 +273,50 @@ function submitDoctor(){
 - **Regex (a peek)** — matching text patterns.
 
 > Notice we did NOT invent new ideas from scratch — we reused `load/save` + `localStorage` + arrays + objects (Lessons 1–3) and just combined them. That's how real features get built: small known pieces, assembled.
+
+---
+
+## 10. New in v0.3 — Languages (English / French / Arabic + RTL)
+
+We made the whole app **trilingual** with a switcher in the header (EN / FR / ع), and Arabic flips the layout to **right-to-left**.
+
+### The core idea: never hard-code text — look it up
+Instead of writing `"Search"` directly in the page, we store every phrase in a big **translations object** and look it up by a short key:
+```js
+const I18N = {
+  en: { search:"Search", lblCity:"City", ... },
+  fr: { search:"Rechercher", lblCity:"Ville", ... },
+  ar: { search:"بحث", lblCity:"المدينة", ... }
+};
+let lang = localStorage.getItem("dl_lang") || "en";   // remembers your choice
+function t(key){ return I18N[lang][key] || I18N.en[key] || key; }
+```
+- `t("search")` returns "Search", "Rechercher", or "بحث" depending on the current `lang`.
+- This `t()` helper (short for "translate") is used **everywhere** text appears.
+- `lang` is saved in `localStorage` so the app reopens in your chosen language.
+
+### Switching language
+```js
+function setLang(l){ lang=l; localStorage.setItem("dl_lang", l); applyLang(); }
+function applyLang(){
+  document.documentElement.setAttribute("dir", lang==="ar" ? "rtl" : "ltr");  // ← right-to-left for Arabic
+  $("heroTitle").textContent = t("heroTitle");   // update each fixed text on the page
+  ...
+  populateFilters();   // dropdowns get translated labels
+  render();            // redraw the doctor list in the new language
+}
+```
+- The single line `setAttribute("dir","rtl")` is what mirrors the entire layout for Arabic — the browser does the flipping for us.
+- `applyLang()` updates the fixed bits (header, hero, footer) and re-runs `render()` so the dynamic bits (doctor cards) come back translated.
+
+### Smart bit: keep DATA in English, translate only the LABEL
+A doctor's specialty is stored as `"Cardiologist"` (English) so the **search filter keeps working**. We only translate it for *display*:
+```js
+function specLabel(v){ return (SPEC_T[lang] && SPEC_T[lang][v]) || v; }  // "Cardiologist" → "طبيب قلب"
+```
+So filtering compares the stable English value, while the user sees their language. (Same trick for cities and spoken languages.)
+
+### New concepts this introduced
+- **Lookup tables / dictionaries** — `I18N[lang][key]` to fetch the right text.
+- **`dir="rtl"`** — one attribute flips the whole layout for Arabic.
+- **Separating data from presentation** — store one canonical value, show a translated label.

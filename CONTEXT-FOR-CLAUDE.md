@@ -25,7 +25,11 @@ _Last updated: 2026-06-06_
 - iOS later needs a Mac + Apple acct ($99/yr); user has no Mac. Android works on Windows.
 - Lebanon legal: Law No. 81 (2018) on Electronic Transactions & Personal Data governs medical/personal data — handle in Stage E.
 
-## Current state of the build (v0.2)
+## Current state of the build (v0.3)
+- **v0.3 (2026-06-06): trilingual UI (EN/FR/AR) + RTL.** Added `I18N` object (en/fr/ar) + `t(key)` helper; `lang` state persisted in localStorage (`dl_lang`). Header language switcher EN/FR/ع → setLang()/applyLang(). applyLang sets `<html dir=rtl>` for Arabic, updates all static element texts (ids: navFind/navJoin/navApptLabel/heroTitle/heroSub/lblSpecialty/lblCity/lblDocName/btnSearch/demoFlag/listTitle/apptTitle/footerText), repopulates filters, re-renders. Specialty/city/spoken-language DISPLAY translated via SPEC_T/CITY_T/LANG_T while the stored VALUE stays English (so filtering still works). All dynamic views use t()/specLabel()/cityLabel()/langLabel(). CODE-EXPLAINED §10 documents it.
+- (history) earlier: v0.2 doctor sign-up; v0.1 base prototype.
+
+## (previous) Current state of the build (v0.2)
 - `index.html` = self-contained clickable prototype. Vanilla JS, no dependencies, no installs, opens by double-click.
   - Works: search by specialty/city/name; doctor cards; time-slot booking flow (openDoctor → pickSlot → confirmBooking); "My appointments" persisted in **localStorage**; cancel.
   - **v0.2 (2026-06-06): "Join as a doctor" sign-up page.** New helpers loadDocs/saveDocs (localStorage key `dl_doctors`), `allDoctors()` merges built-in DOCTORS + custom (custom ids start at 1000, flagged `custom:true`, shown with "★ New" badge). render()/openDoctor() now use allDoctors()/getDoctor(id). showSignup() builds the form; submitDoctor() validates (auto-prefixes "Dr."), saves, shows success → returns to listings filtered to the new doctor's city.
