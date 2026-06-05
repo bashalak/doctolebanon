@@ -25,7 +25,12 @@ _Last updated: 2026-06-06_
 - iOS later needs a Mac + Apple acct ($99/yr); user has no Mac. Android works on Windows.
 - Lebanon legal: Law No. 81 (2018) on Electronic Transactions & Personal Data governs medical/personal data — handle in Stage E.
 
-## Current state of the build (v0.4)
+## Current state of the build (v0.5)
+- **v0.5 (2026-06-06): polish & mobile.** CSS-only refinements: input :focus glow, .btn:active press, hero radial overlay + card base shadow, responsive grid `minmax(min(100%,300px),1fr)`, expanded `@media(max-width:560px)` (full-width search button, tighter nav/main/modal padding, RTL border fix). Footer bumped to v0.5. No new translatable strings. CODE-EXPLAINED §12.
+- **STAGE A COMPLETE.** All Stage A items done.
+- (history) v0.4 profiles; v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.
+
+## (previous) Current state of the build (v0.4)
 - **v0.4 (2026-06-06): doctor profile pages.** openDoctor() now renders a profile (address, fee, languages, experience in a `.profile-grid`), an "About" bio, THEN availability slots. Card button label changed from book→`viewProfile`. New data is GENERATED not stored: `AREAS` list + `AREAS[d.id % len]` for address; `yearsExp(6 + d.id%18)`; custom doctors show `newOnPlatform`. New i18n keys: viewProfile/about/address/experience/availability/languagesWord/newOnPlatform (+ yearsExp()/bioText() build localized strings). Footer bumped to v0.4. CODE-EXPLAINED §11 documents it.
 - (history) v0.3 trilingual+RTL; v0.2 sign-up; v0.1 base.
 

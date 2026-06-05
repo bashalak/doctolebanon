@@ -17,7 +17,8 @@
     --amber:#e08a00;
   }
   *{box-sizing:border-box}
-  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans Arabic",Arial,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
   a{color:inherit}
   /* ---------- Header ---------- */
   header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
@@ -28,6 +29,8 @@
   .nav .spacer{flex:1}
   .btn{border:0;border-radius:9px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;background:var(--green);color:#fff}
   .btn:hover{background:var(--green-dark)}
+  .btn:active{transform:translateY(1px)}
+  .btn:focus-visible,.langswitch button:focus-visible{outline:3px solid rgba(15,138,126,.35);outline-offset:2px}
   .btn.ghost{background:transparent;color:var(--green);border:1px solid var(--green)}
   .btn.ghost:hover{background:#eef7f5}
   .btn.link{background:transparent;color:var(--ink);padding:10px 8px}
@@ -38,7 +41,7 @@
   .langswitch button.active{background:var(--green);color:#fff}
   .langswitch button + button{border-left:1px solid var(--line)}
   /* ---------- Hero / search ---------- */
-  .hero{background:linear-gradient(160deg,#0f8a7e,#0b6a61);color:#fff;padding:46px 20px 64px}
+  .hero{background:radial-gradient(1200px 420px at 82% -12%,rgba(255,255,255,.13),transparent),linear-gradient(160deg,#0f8a7e,#0b6a61);color:#fff;padding:46px 20px 64px}
   .hero-inner{max-width:1100px;margin:0 auto}
   .hero h1{font-size:32px;margin:0 0 8px}
   .hero p{margin:0 0 26px;opacity:.92;font-size:16px}
@@ -49,15 +52,16 @@
   .search select,.search input{border:0;outline:0;font-size:15px;color:var(--ink);background:transparent;padding:4px 0}
   .search .go{align-self:stretch}
   .search .go .btn{height:100%;padding:0 26px;font-size:15px}
+  .search .field:focus-within{background:#f7fbfa;border-radius:10px}
   /* ---------- Layout ---------- */
   main{max-width:1100px;margin:-34px auto 60px;padding:0 20px;position:relative}
   .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
   .results-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
   .results-head h2{font-size:18px;margin:0}
   .results-head .count{color:var(--muted);font-size:14px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:16px}
   /* ---------- Doctor card ---------- */
-  .doc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;transition:.15s}
+  .doc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;transition:.15s;box-shadow:0 1px 2px rgba(19,52,59,.04)}
   .doc:hover{box-shadow:0 8px 22px rgba(15,138,126,.13);transform:translateY(-2px)}
   .doc-top{display:flex;gap:13px}
   .avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:20px;flex:none}
@@ -79,7 +83,7 @@
   .day{margin-bottom:16px}
   .day h4{margin:0 0 8px;font-size:14px;color:var(--muted);text-transform:capitalize}
   .slots{display:flex;gap:8px;flex-wrap:wrap}
-  .slot{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;font-weight:600}
+  .slot{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:8px;padding:10px 14px;font-size:14px;cursor:pointer;font-weight:600}
   .slot:hover{background:var(--green);color:#fff}
   .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;margin-bottom:4px}
   .plabel{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px}
@@ -88,6 +92,7 @@
   .form-row{margin:12px 0}
   .form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
   .form-row input,.form-row select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:#fff}
+  .form-row input:focus,.form-row select:focus{border-color:var(--green);outline:0;box-shadow:0 0 0 3px rgba(15,138,126,.15)}
   .notice{background:#eef7f5;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--green-dark);margin-bottom:14px}
   /* ---------- Appointments ---------- */
   .appt{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
@@ -104,7 +109,19 @@
   /* ---------- Right-to-left (Arabic) tweaks ---------- */
   [dir=rtl] .search .field + .field{border-left:0;border-right:1px solid var(--line)}
   [dir=rtl] .close{margin-left:0;margin-right:auto}
-  @media(max-width:560px){.hero h1{font-size:25px}.search .field + .field{border-left:0;border-top:1px solid var(--line)}}
+  @media(max-width:560px){
+    .hero{padding:34px 16px 54px}
+    .hero h1{font-size:24px}
+    .search .field + .field{border-left:0;border-top:1px solid var(--line)}
+    [dir=rtl] .search .field + .field{border-right:0}
+    .search .go{flex:1 0 100%}
+    .search .go .btn{width:100%;padding:13px}
+    .nav{gap:8px;padding:12px 16px}
+    .logo{font-size:19px}
+    main{padding:0 14px}
+    .overlay{padding:10px}
+    .modal-head,.modal-body{padding:16px}
+  }
 </style>
 </head>
 <body>
@@ -173,7 +190,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.4 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.5 · Made to test an idea, not for real medical use yet.</footer>
 
 <script>
 /* ============ FAKE DATA (Lebanon) ============ */
@@ -222,7 +239,7 @@ const I18N = {
     profileLive:"Your profile is now live — patients can find and book you in the listings.",
     seeListing:"See my profile in the listings",
     viewProfile:"View profile", about:"About", address:"Address", experience:"Experience", availability:"Availability", languagesWord:"Languages", newOnPlatform:"New on DoctoLebanon",
-    footer:"DoctoLebanon — prototype v0.4 · Made to test an idea, not for real medical use yet." },
+    footer:"DoctoLebanon — prototype v0.5 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -246,7 +263,7 @@ const I18N = {
     profileLive:"Votre profil est maintenant en ligne — les patients peuvent vous trouver et réserver.",
     seeListing:"Voir mon profil dans la liste",
     viewProfile:"Voir le profil", about:"À propos", address:"Adresse", experience:"Expérience", availability:"Disponibilités", languagesWord:"Langues", newOnPlatform:"Nouveau sur DoctoLebanon",
-    footer:"DoctoLebanon — prototype v0.4 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    footer:"DoctoLebanon — prototype v0.5 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -270,7 +287,7 @@ const I18N = {
     profileLive:"ملفك الشخصي أصبح متاحاً الآن — يمكن للمرضى إيجادك وحجز موعد معك.",
     seeListing:"عرض ملفي في القائمة",
     viewProfile:"عرض الملف", about:"نبذة", address:"العنوان", experience:"الخبرة", availability:"المواعيد المتاحة", languagesWord:"اللغات", newOnPlatform:"جديد على دكتو لبنان",
-    footer:"دكتو لبنان — نموذج تجريبي v0.4 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    footer:"دكتو لبنان — نموذج تجريبي v0.5 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {

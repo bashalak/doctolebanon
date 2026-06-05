@@ -342,3 +342,29 @@ A small **CSS grid** (`.profile-grid`) lays the four facts out in two columns (o
 
 ### Concept introduced
 - **Generating display data from existing fields** instead of storing everything — less data to maintain, and it scales automatically to new doctors.
+
+---
+
+## 12. New in v0.5 — Polish & mobile (responsive design)
+
+No new features here — just making it look and feel better, especially on phones. The key idea is **responsive design**: the same page rearranges itself for small screens.
+
+### Media queries = "different rules for small screens"
+```css
+@media(max-width:560px){
+  .search .go{flex:1 0 100%}      /* search button takes a full row */
+  .search .go .btn{width:100%}    /* ...and stretches across */
+  .modal-head,.modal-body{padding:16px}  /* tighter spacing on phones */
+}
+```
+- `@media(max-width:560px){ ... }` means "**only apply these rules when the screen is 560px wide or less**" (i.e. a phone). On a laptop they're ignored.
+- This is how one website serves both desktop and mobile without a separate app.
+
+### Small touches that make it feel professional
+- `:focus` styles — a green glow appears when you click into an input (helps people know where they're typing, and helps accessibility).
+- `.btn:active{transform:translateY(1px)}` — buttons "press down" 1px when tapped (tactile feedback).
+- Subtle shadows on the hero and cards add depth.
+- `grid-template-columns: ... minmax(min(100%,300px),1fr)` — a responsive grid that never lets a card overflow a narrow phone.
+
+### Concept introduced
+- **Media queries** (`@media`) — the foundation of mobile-friendly ("responsive") websites.
