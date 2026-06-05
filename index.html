@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DoctoLebanon — Book a doctor in Lebanon</title>
+<style>
+  :root{
+    --green:#0f8a7e;        /* cedar-inspired teal-green */
+    --green-dark:#0b6a61;
+    --ink:#13343b;
+    --muted:#5b7177;
+    --line:#e3eceb;
+    --bg:#f4f8f7;
+    --card:#ffffff;
+    --red:#c0392b;
+    --amber:#e08a00;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  a{color:inherit}
+  /* ---------- Header ---------- */
+  header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+  .nav{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:14px 20px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:21px;cursor:pointer}
+  .logo .leaf{width:30px;height:30px;border-radius:8px;background:var(--green);display:grid;place-items:center;color:#fff;font-size:18px}
+  .logo span{color:var(--green)}
+  .nav .spacer{flex:1}
+  .btn{border:0;border-radius:9px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;background:var(--green);color:#fff}
+  .btn:hover{background:var(--green-dark)}
+  .btn.ghost{background:transparent;color:var(--green);border:1px solid var(--green)}
+  .btn.ghost:hover{background:#eef7f5}
+  .btn.link{background:transparent;color:var(--ink);padding:10px 8px}
+  .btn.small{padding:7px 12px;font-size:13px}
+  /* ---------- Hero / search ---------- */
+  .hero{background:linear-gradient(160deg,#0f8a7e,#0b6a61);color:#fff;padding:46px 20px 64px}
+  .hero-inner{max-width:1100px;margin:0 auto}
+  .hero h1{font-size:32px;margin:0 0 8px}
+  .hero p{margin:0 0 26px;opacity:.92;font-size:16px}
+  .search{background:#fff;border-radius:14px;padding:10px;display:flex;gap:8px;flex-wrap:wrap;box-shadow:0 12px 30px rgba(0,0,0,.18)}
+  .search .field{flex:1;min-width:170px;display:flex;flex-direction:column;padding:6px 12px}
+  .search .field + .field{border-left:1px solid var(--line)}
+  .search label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .search select,.search input{border:0;outline:0;font-size:15px;color:var(--ink);background:transparent;padding:4px 0}
+  .search .go{align-self:stretch}
+  .search .go .btn{height:100%;padding:0 26px;font-size:15px}
+  /* ---------- Layout ---------- */
+  main{max-width:1100px;margin:-34px auto 60px;padding:0 20px;position:relative}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+  .results-head{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px}
+  .results-head h2{font-size:18px;margin:0}
+  .results-head .count{color:var(--muted);font-size:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+  /* ---------- Doctor card ---------- */
+  .doc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;transition:.15s}
+  .doc:hover{box-shadow:0 8px 22px rgba(15,138,126,.13);transform:translateY(-2px)}
+  .doc-top{display:flex;gap:13px}
+  .avatar{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:20px;flex:none}
+  .doc h3{margin:0;font-size:16px}
+  .doc .spec{color:var(--green);font-weight:600;font-size:14px;margin:2px 0}
+  .doc .meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:2px}
+  .stars{color:var(--amber);font-size:13px}
+  .tags{display:flex;gap:6px;flex-wrap:wrap}
+  .tag{background:#eef7f5;color:var(--green-dark);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:600}
+  .avail{font-size:13px;color:var(--muted)}
+  .avail b{color:var(--ink)}
+  /* ---------- Modal ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(19,52,59,.5);display:none;z-index:100;padding:24px;overflow:auto}
+  .overlay.open{display:flex;align-items:flex-start;justify-content:center}
+  .modal{background:#fff;border-radius:16px;max-width:620px;width:100%;margin:auto;overflow:hidden}
+  .modal-head{padding:22px;display:flex;gap:16px;align-items:center;border-bottom:1px solid var(--line)}
+  .modal-body{padding:22px}
+  .close{margin-left:auto;background:#f0f4f4;border:0;width:34px;height:34px;border-radius:50%;font-size:18px;cursor:pointer;color:var(--muted)}
+  .day{margin-bottom:16px}
+  .day h4{margin:0 0 8px;font-size:14px;color:var(--muted);text-transform:capitalize}
+  .slots{display:flex;gap:8px;flex-wrap:wrap}
+  .slot{border:1px solid var(--green);color:var(--green);background:#fff;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer;font-weight:600}
+  .slot:hover{background:var(--green);color:#fff}
+  .form-row{margin:12px 0}
+  .form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
+  .form-row input{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font-size:15px}
+  .notice{background:#eef7f5;border-radius:10px;padding:12px 14px;font-size:13px;color:var(--green-dark);margin-bottom:14px}
+  /* ---------- Appointments ---------- */
+  .appt{display:flex;gap:14px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+  .appt .when{background:#eef7f5;border-radius:10px;padding:10px 14px;text-align:center;min-width:74px}
+  .appt .when .d{font-size:20px;font-weight:800;color:var(--green-dark);line-height:1}
+  .appt .when .m{font-size:12px;color:var(--muted);text-transform:uppercase}
+  .appt .info{flex:1}
+  .appt .info b{font-size:15px}
+  .appt .info div{color:var(--muted);font-size:13px}
+  .empty{text-align:center;color:var(--muted);padding:40px 10px}
+  .hidden{display:none!important}
+  footer{max-width:1100px;margin:0 auto;padding:24px 20px 50px;color:var(--muted);font-size:13px;text-align:center}
+  .demo-flag{background:#fff7e6;border:1px solid #ffe1a8;color:#8a6100;font-size:12.5px;padding:8px 14px;border-radius:10px;max-width:1100px;margin:14px auto 0;text-align:center}
+  @media(max-width:560px){.hero h1{font-size:25px}.search .field + .field{border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <div class="logo" onclick="goHome()"><span class="leaf">🌿</span>Docto<span>Lebanon</span></div>
+    <div class="spacer"></div>
+    <button class="btn link" onclick="goHome()">Find a doctor</button>
+    <button class="btn ghost small" onclick="showAppointments()">My appointments <span id="apptBadge"></span></button>
+  </div>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-inner">
+    <h1>Book a doctor anywhere in Lebanon</h1>
+    <p>Find trusted doctors near you and book an appointment online — for free, in seconds.</p>
+    <div class="search">
+      <div class="field">
+        <label>Specialty</label>
+        <select id="fSpec"><option value="">All specialties</option></select>
+      </div>
+      <div class="field">
+        <label>City</label>
+        <select id="fCity"><option value="">All of Lebanon</option></select>
+      </div>
+      <div class="field">
+        <label>Doctor name</label>
+        <input id="fName" placeholder="e.g. Khoury" oninput="render()" />
+      </div>
+      <div class="go"><div class="btn" onclick="render()">Search</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="demo-flag">⚠️ Demo prototype — all doctors and data here are FAKE, for testing the idea. No real bookings are made.</div>
+
+<main>
+  <!-- Doctor list view -->
+  <div id="listView">
+    <div class="results-head">
+      <h2>Available doctors</h2>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- My appointments view -->
+  <div id="apptView" class="panel hidden">
+    <div class="results-head"><h2>My appointments</h2></div>
+    <div id="apptList"></div>
+  </div>
+</main>
+
+<!-- Doctor / booking modal -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal"></div>
+</div>
+
+<footer>
+  DoctoLebanon — prototype v0.1 · Made to test an idea, not for real medical use yet.
+</footer>
+
+<script>
+/* ============ FAKE DATA (Lebanon) ============ */
+const CITIES = ["Beirut","Tripoli","Sidon (Saida)","Zahle","Jounieh","Byblos (Jbeil)","Tyre (Sour)","Baabda","Aley"];
+const SPECIALTIES = ["General practitioner","Pediatrician","Dentist","Dermatologist","Cardiologist","Gynecologist","Ophthalmologist","Psychiatrist","Orthopedist","ENT specialist"];
+const COLORS = ["#0f8a7e","#2f7dd1","#b8593e","#7a5bb0","#c08a00","#3a9d6b","#c0407a","#5a6b8c"];
+
+const DOCTORS = [
+  {n:"Dr. Rana Khoury", s:"Dermatologist", c:"Beirut", r:4.8, langs:["Arabic","French","English"], fee:"50 USD"},
+  {n:"Dr. Karim Haddad", s:"Cardiologist", c:"Beirut", r:4.9, langs:["Arabic","English"], fee:"70 USD"},
+  {n:"Dr. Maya Saliba", s:"Pediatrician", c:"Jounieh", r:4.7, langs:["Arabic","French"], fee:"40 USD"},
+  {n:"Dr. Georges Aoun", s:"General practitioner", c:"Zahle", r:4.5, langs:["Arabic","English"], fee:"30 USD"},
+  {n:"Dr. Layla Fakhoury", s:"Gynecologist", c:"Tripoli", r:4.8, langs:["Arabic","French","English"], fee:"55 USD"},
+  {n:"Dr. Nabil Chehab", s:"Dentist", c:"Sidon (Saida)", r:4.6, langs:["Arabic"], fee:"35 USD"},
+  {n:"Dr. Hiba Mansour", s:"Ophthalmologist", c:"Beirut", r:4.7, langs:["Arabic","English"], fee:"45 USD"},
+  {n:"Dr. Ziad Nassar", s:"Orthopedist", c:"Byblos (Jbeil)", r:4.9, langs:["Arabic","French"], fee:"60 USD"},
+  {n:"Dr. Carla Rizk", s:"Psychiatrist", c:"Beirut", r:4.8, langs:["Arabic","French","English"], fee:"65 USD"},
+  {n:"Dr. Omar Daher", s:"ENT specialist", c:"Tyre (Sour)", r:4.4, langs:["Arabic","English"], fee:"40 USD"},
+  {n:"Dr. Tania Gemayel", s:"Pediatrician", c:"Baabda", r:4.6, langs:["Arabic","French"], fee:"40 USD"},
+  {n:"Dr. Sami Khalil", s:"General practitioner", c:"Tripoli", r:4.3, langs:["Arabic"], fee:"25 USD"},
+];
+DOCTORS.forEach((d,i)=>{d.id=i; d.color=COLORS[i%COLORS.length]; d.init=d.n.replace("Dr. ","").split(" ").map(w=>w[0]).join("");});
+
+/* ============ Helpers ============ */
+const $ = id => document.getElementById(id);
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON  = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function stars(r){const f=Math.round(r);return "★".repeat(f)+"☆".repeat(5-f);}
+function loadAppts(){try{return JSON.parse(localStorage.getItem("dl_appts")||"[]");}catch(e){return [];}}
+function saveAppts(a){localStorage.setItem("dl_appts", JSON.stringify(a));}
+
+/* Build a few upcoming days of fake slots (deterministic-ish per doctor) */
+function slotsFor(doc){
+  const out=[]; const now=new Date(); const times=["09:00","09:30","10:30","11:30","14:00","15:30","16:30"];
+  let added=0;
+  for(let off=1; off<=6 && added<4; off++){
+    const d=new Date(now); d.setDate(now.getDate()+off);
+    if(d.getDay()===0) continue; // skip Sundays
+    // vary which times are "open" by doctor id + day
+    const open=times.filter((t,ti)=> (doc.id+off+ti)%3 !== 0);
+    if(open.length===0) continue;
+    out.push({date:d, label:`${DAYS[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`, times:open.slice(0,4)});
+    added++;
+  }
+  return out;
+}
+
+/* ============ Populate filters ============ */
+SPECIALTIES.forEach(s=>{const o=document.createElement("option");o.value=s;o.textContent=s;$("fSpec").appendChild(o);});
+CITIES.forEach(c=>{const o=document.createElement("option");o.value=c;o.textContent=c;$("fCity").appendChild(o);});
+
+/* ============ Render doctor list ============ */
+function render(){
+  const spec=$("fSpec").value, city=$("fCity").value, name=$("fName").value.trim().toLowerCase();
+  const list=DOCTORS.filter(d=>
+    (!spec||d.s===spec) && (!city||d.c===city) && (!name||d.n.toLowerCase().includes(name))
+  );
+  $("count").textContent = list.length + (list.length===1?" doctor":" doctors") + " found";
+  const g=$("grid"); g.innerHTML="";
+  if(list.length===0){g.innerHTML='<div class="empty">No doctors match your search. Try removing a filter.</div>';return;}
+  list.forEach(d=>{
+    const next = slotsFor(d)[0];
+    const card=document.createElement("div"); card.className="doc";
+    card.innerHTML=`
+      <div class="doc-top">
+        <div class="avatar" style="background:${d.color}">${d.init}</div>
+        <div>
+          <h3>${d.n}</h3>
+          <div class="spec">${d.s}</div>
+          <div class="meta"><span>📍 ${d.c}</span><span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span></div>
+        </div>
+      </div>
+      <div class="tags">${d.langs.map(l=>`<span class="tag">${l}</span>`).join("")}<span class="tag">${d.fee}</span></div>
+      <div class="avail">${next?`Next available: <b>${next.label} at ${next.times[0]}</b>`:"No availability this week"}</div>
+      <button class="btn" onclick="openDoctor(${d.id})">See availability & book</button>`;
+    g.appendChild(card);
+  });
+}
+
+/* ============ Doctor modal + booking ============ */
+let pending=null; // {doc, date, time}
+function openDoctor(id){
+  const d=DOCTORS[id]; const days=slotsFor(d);
+  $("modal").innerHTML=`
+    <div class="modal-head">
+      <div class="avatar" style="background:${d.color}">${d.init}</div>
+      <div><h3 style="margin:0">${d.n}</h3>
+        <div class="spec" style="color:var(--green);font-weight:600">${d.s}</div>
+        <div class="meta" style="color:var(--muted);font-size:13px">📍 ${d.c} · <span class="stars">${stars(d.r)}</span> ${d.r} · ${d.fee}</div>
+      </div>
+      <button class="close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-top:0;color:var(--muted)">Languages: ${d.langs.join(", ")}. Pick a time slot below.</p>
+      ${days.length? days.map(day=>`
+        <div class="day"><h4>${day.label}</h4><div class="slots">
+          ${day.times.map(t=>`<button class="slot" onclick="pickSlot(${id},'${day.label}','${t}')">${t}</button>`).join("")}
+        </div></div>`).join("") : '<div class="empty">No availability this week.</div>'}
+    </div>`;
+  openOverlay();
+}
+
+function pickSlot(id, dayLabel, time){
+  const d=DOCTORS[id]; pending={doc:d, day:dayLabel, time};
+  $("modal").innerHTML=`
+    <div class="modal-head">
+      <div class="avatar" style="background:${d.color}">${d.init}</div>
+      <div><h3 style="margin:0">Confirm your appointment</h3>
+        <div class="meta" style="color:var(--muted);font-size:13px">${d.n} · ${dayLabel} at ${time}</div></div>
+      <button class="close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="notice">📅 ${d.s} with ${d.n}<br>🕒 ${dayLabel} at ${time} · 📍 ${d.c} · 💵 ${d.fee}</div>
+      <div class="form-row"><label>Your full name</label><input id="bName" placeholder="e.g. Bakr Moussa" /></div>
+      <div class="form-row"><label>Phone number</label><input id="bPhone" placeholder="e.g. 03 123 456" /></div>
+      <button class="btn" style="width:100%;padding:13px" onclick="confirmBooking()">Confirm booking</button>
+    </div>`;
+}
+
+function confirmBooking(){
+  const name=$("bName").value.trim(), phone=$("bPhone").value.trim();
+  if(!name||!phone){alert("Please enter your name and phone number.");return;}
+  const a=loadAppts();
+  a.push({doc:pending.doc.n, spec:pending.doc.s, city:pending.doc.c, color:pending.doc.color,
+          init:pending.doc.init, day:pending.day, time:pending.time, name, phone, fee:pending.doc.fee});
+  saveAppts(a); updateBadge();
+  $("modal").innerHTML=`
+    <div class="modal-body" style="text-align:center;padding:38px 26px">
+      <div style="font-size:54px">✅</div>
+      <h2 style="margin:8px 0">Appointment booked!</h2>
+      <p style="color:var(--muted)">${pending.doc.n} · ${pending.day} at ${pending.time}<br>
+      A confirmation would normally be sent to ${phone} by SMS.</p>
+      <button class="btn" onclick="closeModal();showAppointments()">View my appointments</button>
+    </div>`;
+}
+
+/* ============ Appointments view ============ */
+function showAppointments(){
+  $("hero").classList.add("hidden");
+  $("listView").classList.add("hidden");
+  $("apptView").classList.remove("hidden");
+  const a=loadAppts(); const box=$("apptList");
+  if(a.length===0){box.innerHTML='<div class="empty">You have no appointments yet.<br><br><button class="btn" onclick="goHome()">Find a doctor</button></div>';return;}
+  box.innerHTML="";
+  a.forEach((ap,i)=>{
+    const parts=ap.day.split(" "); // "Mon 9 Jun"
+    const el=document.createElement("div"); el.className="appt";
+    el.innerHTML=`
+      <div class="when"><div class="d">${parts[1]||""}</div><div class="m">${parts[2]||""}</div></div>
+      <div class="info"><b>${ap.doc}</b><div>${ap.spec} · 📍 ${ap.city}</div>
+        <div>🕒 ${ap.day} at ${ap.time} · 💵 ${ap.fee}</div>
+        <div>Booked for: ${ap.name} (${ap.phone})</div></div>
+      <button class="btn ghost small" onclick="cancelAppt(${i})">Cancel</button>`;
+    box.appendChild(el);
+  });
+}
+function cancelAppt(i){
+  if(!confirm("Cancel this appointment?"))return;
+  const a=loadAppts(); a.splice(i,1); saveAppts(a); updateBadge(); showAppointments();
+}
+
+/* ============ Nav ============ */
+function goHome(){$("apptView").classList.add("hidden");$("listView").classList.remove("hidden");$("hero").classList.remove("hidden");window.scrollTo(0,0);}
+function openOverlay(){$("overlay").classList.add("open");}
+function closeModal(){$("overlay").classList.remove("open");}
+function updateBadge(){const n=loadAppts().length;$("apptBadge").textContent=n?`(${n})`:"";}
+
+/* ============ Init ============ */
+render(); updateBadge();
+</script>
+</body>
+</html>

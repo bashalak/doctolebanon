@@ -1,0 +1,8 @@
+# OS / editor junk we don't want to upload
+Thumbs.db
+desktop.ini
+.DS_Store
+*.log
+
+# (later, when we add Node.js, we'll ignore this big folder)
+node_modules/
