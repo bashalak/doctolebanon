@@ -39,6 +39,13 @@ _Last updated: 2026-06-06_
 - Added `README.md` and `.gitignore` for the repo.
 - New files in git: README.md, .gitignore (+ the 5 prior files).
 
+## Deployment (Netlify) — STAGE B COMPLETE
+- LIVE at **https://tranquil-hummingbird-0732de.netlify.app** (verified working 2026-06-06).
+- Netlify account: signed in via Google, but connected to GitHub repo `bashalak/doctolebanon` for continuous deploy.
+- **Every `git push` auto-redeploys the live site** (~seconds). No build step (static index.html).
+- User may rename site to doctolebanon.netlify.app (Site configuration → Site details → Change site name) — update docs if they do.
+- Note: JS-rendered content (doctor cards) appears empty to non-JS fetchers/bots but renders fine in real browsers.
+
 ## Files in D:\doctolebanon\
 - `index.html` — the app (v0.1).
 - `PROJECT-PLAN.md` — LIVING: decisions, glossary, progress, roadmap Stages A–F, changelog. UPDATE on every build/change.
