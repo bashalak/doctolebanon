@@ -2,12 +2,15 @@
 
 Book a doctor anywhere in Lebanon — a Doctolib-inspired appointment-booking web app, built for Lebanon (local cities, Arabic/French/English, local prices).
 
-> **Status:** early prototype (v0.1). Demo data is fake — not for real medical use yet.
+**🔗 Live demo:** https://doctolebanon-app.netlify.app
+
+> **Status:** early prototype (v0.2). Demo data is fake — not for real medical use yet.
 
 ## What it does (so far)
 - Search doctors by specialty, city, and name
 - View a doctor's available time slots and book an appointment
 - "My appointments" page (saved in your browser)
+- "Join as a doctor" sign-up — new doctors appear in search
 
 ## How to run it
 No installation needed — just open **`index.html`** in any web browser.

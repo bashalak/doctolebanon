@@ -41,7 +41,7 @@ _Last updated: 2026-06-06_
 - New files in git: README.md, .gitignore (+ the 5 prior files).
 
 ## Deployment (Netlify) — STAGE B COMPLETE
-- LIVE at **https://tranquil-hummingbird-0732de.netlify.app** (verified working 2026-06-06).
+- LIVE at **https://doctolebanon-app.netlify.app** (renamed from tranquil-hummingbird-0732de; verified working 2026-06-06).
 - Netlify account: signed in via Google, but connected to GitHub repo `bashalak/doctolebanon` for continuous deploy.
 - **Every `git push` auto-redeploys the live site** (~seconds). No build step (static index.html).
 - User may rename site to doctolebanon.netlify.app (Site configuration → Site details → Change site name) — update docs if they do.

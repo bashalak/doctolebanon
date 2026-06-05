@@ -73,9 +73,9 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [x] Create a free **GitHub** account (`bashalak`)
 - [x] Push the code to GitHub → https://github.com/bashalak/doctolebanon (private)
 - [x] Create a free **Netlify** account (signed in via Google; GitHub connected for deploys)
-- [x] Deploy `index.html` → **LIVE at https://tranquil-hummingbird-0732de.netlify.app** (auto-redeploys on every git push)
+- [x] Deploy `index.html` → **LIVE at https://doctolebanon-app.netlify.app** (auto-redeploys on every git push)
+- [x] Renamed site to `doctolebanon-app.netlify.app`
 - [ ] Open it on your phone — share with a friend
-- [ ] (optional) Rename site to `doctolebanon.netlify.app`
 
 ### Stage C — Make it REAL (the big jump: from demo to app)
 - [ ] Install **Node.js** (one tool, I'll guide you) — needed to build modern apps
