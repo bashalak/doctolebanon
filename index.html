@@ -194,16 +194,24 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.7 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.8 · Made to test an idea, not for real medical use yet.</footer>
 
+<!-- Supabase client library — lets the app talk to our cloud database -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* ============ FAKE DATA (Lebanon) ============ */
+/* ============ DATA (Lebanon) ============ */
 const CITIES = ["Beirut","Tripoli","Sidon (Saida)","Zahle","Jounieh","Byblos (Jbeil)","Tyre (Sour)","Baabda"];
 const SPECIALTIES = ["General practitioner","Pediatrician","Dentist","Dermatologist","Cardiologist","Gynecologist","Ophthalmologist","Psychiatrist","Orthopedist","ENT specialist"];
 const COLORS = ["#0f8a7e","#2f7dd1","#b8593e","#7a5bb0","#c08a00","#3a9d6b","#c0407a","#5a6b8c"];
 const AREAS = ["Hamra","Achrafieh","Verdun","Mar Mikhael","Gemmayze","Badaro","Sodeco","Sin el Fil","Furn el Chebbak","Jdeideh","Ras Beirut","Dekwaneh"];
 
-const DOCTORS = [
+/* ---- Connect to Supabase (our cloud database) ---- */
+const SUPABASE_URL = "https://qujudggwzlhdbptohwbp.supabase.co";
+const SUPABASE_KEY = "sb_publishable_S1Q11ku0H659CiuoW4i1Mw_5OwY60-u";  // publishable key — safe to expose in a browser
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* If the database can't be reached, the app falls back to this built-in list so it still works. */
+const FALLBACK_DOCTORS = [
   {n:"Dr. Rana Khoury", s:"Dermatologist", c:"Beirut", r:4.8, langs:["Arabic","French","English"], fee:"50 USD"},
   {n:"Dr. Karim Haddad", s:"Cardiologist", c:"Beirut", r:4.9, langs:["Arabic","English"], fee:"80 USD"},
   {n:"Dr. Maya Saliba", s:"Pediatrician", c:"Jounieh", r:4.7, langs:["Arabic","French"], fee:"40 USD"},
@@ -217,7 +225,23 @@ const DOCTORS = [
   {n:"Dr. Tania Gemayel", s:"Pediatrician", c:"Baabda", r:4.6, langs:["Arabic","French"], fee:"40 USD"},
   {n:"Dr. Sami Khalil", s:"General practitioner", c:"Tripoli", r:4.3, langs:["Arabic"], fee:"25 USD"},
 ];
-DOCTORS.forEach((d,i)=>{d.id=i; d.color=COLORS[i%COLORS.length]; d.init=d.n.replace("Dr. ","").split(" ").map(w=>w[0]).join("");});
+let DOCTORS = [];   // filled from Supabase at startup (see loadDoctorsFromCloud)
+
+/* Turn a database row into the shape the rest of the app expects (d.n, d.s, d.c, ...). */
+function shapeDoctor(row, i){
+  return { id:i, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee,
+           color:COLORS[i%COLORS.length], init:initials(row.name) };
+}
+async function loadDoctorsFromCloud(){
+  try{
+    const { data, error } = await sb.from("doctors").select("*").order("id");
+    if(error) throw error;
+    DOCTORS = data.map(shapeDoctor);
+  }catch(e){
+    console.warn("Could not reach Supabase — using the built-in doctor list.", e);
+    DOCTORS = FALLBACK_DOCTORS.map((d,i)=>({...d, id:i, color:COLORS[i%COLORS.length], init:initials(d.n)}));
+  }
+}
 
 /* ============ TRANSLATIONS (i18n) ============ */
 const I18N = {
@@ -244,7 +268,7 @@ const I18N = {
     seeListing:"See my profile in the listings",
     viewProfile:"View profile", about:"About", address:"Address", experience:"Experience", availability:"Availability", languagesWord:"Languages", newOnPlatform:"New on DoctoLebanon",
     reasonLabel:"Reason for visit", reasonNew:"New consultation", reasonFollow:"Follow-up", reasonUrgent:"Urgent", attachLabel:"Attach a document (optional)", attachHint:"e.g. previous test or lab results", reasonWord:"Reason:", attachedWord:"Attached:",
-    footer:"DoctoLebanon — prototype v0.7 · Made to test an idea, not for real medical use yet." },
+    footer:"DoctoLebanon — prototype v0.8 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -269,7 +293,7 @@ const I18N = {
     seeListing:"Voir mon profil dans la liste",
     viewProfile:"Voir le profil", about:"À propos", address:"Adresse", experience:"Expérience", availability:"Disponibilités", languagesWord:"Langues", newOnPlatform:"Nouveau sur DoctoLebanon",
     reasonLabel:"Motif de la visite", reasonNew:"Nouvelle consultation", reasonFollow:"Suivi", reasonUrgent:"Urgent", attachLabel:"Joindre un document (facultatif)", attachHint:"ex. résultats d'analyses précédents", reasonWord:"Motif :", attachedWord:"Document :",
-    footer:"DoctoLebanon — prototype v0.7 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    footer:"DoctoLebanon — prototype v0.8 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -294,7 +318,7 @@ const I18N = {
     seeListing:"عرض ملفي في القائمة",
     viewProfile:"عرض الملف", about:"نبذة", address:"العنوان", experience:"الخبرة", availability:"المواعيد المتاحة", languagesWord:"اللغات", newOnPlatform:"جديد على دكتو لبنان",
     reasonLabel:"سبب الزيارة", reasonNew:"استشارة جديدة", reasonFollow:"متابعة", reasonUrgent:"حالة عاجلة", attachLabel:"إرفاق مستند (اختياري)", attachHint:"مثال: نتائج فحوصات سابقة", reasonWord:"السبب:", attachedWord:"مرفق:",
-    footer:"دكتو لبنان — نموذج تجريبي v0.7 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    footer:"دكتو لبنان — نموذج تجريبي v0.8 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -615,6 +639,8 @@ function applyLang(){
 
 /* ============ Init ============ */
 applyLang(); updateBadge();
+$("grid").innerHTML = `<div class="empty">⏳</div>`;     // brief "loading" while we fetch from the cloud
+loadDoctorsFromCloud().then(render);                     // get doctors from Supabase, then draw them
 </script>
 </body>
 </html>

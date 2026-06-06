@@ -78,6 +78,11 @@ _Last updated: 2026-06-06_
 - `CONTEXT-FOR-CLAUDE.md` — this file.
 - `COLLABORATION.md` — guide for inviting teammates + avoiding git conflicts (added 2026-06-06; user wants to invite a collaborator). Note: all code still in one file (index.html) = high conflict surface; splitting into files happens in Stage C.
 
+## Current state of the build (v0.8) — CLOUD-CONNECTED
+- **v0.8 (2026-06-06): C2 DONE — doctors load from Supabase.** Added supabase-js CDN + `sb = supabase.createClient(URL, publishableKey)`. `loadDoctorsFromCloud()` does `await sb.from('doctors').select('*').order('id')`, maps rows via `shapeDoctor()` into app shape {n,s,c,r,langs,fee,id,color,init}. `let DOCTORS=[]` filled at startup; init now `applyLang(); loadDoctorsFromCloud().then(render)` with a ⏳ placeholder. `FALLBACK_DOCTORS` (the 12) used if fetch fails. Footer v0.8. Verified working locally (Table Editor edit appeared after refresh).
+- Supabase project: ref `qujudggwzlhdbptohwbp`, URL https://qujudggwzlhdbptohwbp.supabase.co. Publishable key `sb_publishable_S1Q11ku0H659CiuoW4i1Mw_5OwY60-u` (in code, safe). OLD leaked secret key was ROTATED + deleted by user (security resolved). `doctors` table: cols id/name/specialty/city/rating/langs(text[])/fee/created_at; RLS on + public SELECT policy "Public can read doctors". 12 rows seeded.
+- Still browser-only (localStorage): signed-up doctors (loadDocs/saveDocs) and appointments (loadAppts/saveAppts). Those move to cloud in C3+.
+
 ## STAGE C IN PROGRESS (started 2026-06-06)
 - **Refined approach: GENTLE path.** Connect the CURRENT vanilla index.html to Supabase via the Supabase JS CDN (`<script src>`) — NO Node.js, NO React rewrite yet, keep single-file + Netlify deploy. Swap localStorage (loadDocs/saveDocs/loadAppts/saveAppts) for Supabase queries. React/Next rebuild deferred to "later, only if needed".
 - Steps: C1 create Supabase account+project → C2 `doctors` table, load shared → C3 appointments table → C4 Supabase Auth (real logins) → C5 Supabase Storage (real file upload).

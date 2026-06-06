@@ -431,3 +431,52 @@ const docName = docFile ? docFile.name : ""; // we keep only its NAME for now
 ### Concepts introduced
 - **Radio groups** (shared `name`) vs checkboxes — one choice vs many.
 - **File inputs** (`type="file"`, `.files`) — and *why* truly storing files needs a backend.
+
+---
+
+## 15. New in v0.8 — Connecting to a real database (Supabase) 🌍
+
+The biggest upgrade so far: doctors no longer live hard-coded in the file — they come from a **shared cloud database**. Change the data once, and *everyone* sees it.
+
+### 1. Load the Supabase library + connect
+```html
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+```
+```js
+const SUPABASE_URL = "https://qujudggwzlhdbptohwbp.supabase.co";  // WHERE the database is
+const SUPABASE_KEY = "sb_publishable_...";                        // WHO we are (publishable = safe in browser)
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);     // our connection to the cloud
+```
+- The URL is the *address*; the publishable key is the *ID badge*. (The **secret** key is never used here — it would bypass security; it's only for backend servers.)
+
+### 2. Fetch the doctors — and the idea of "async"
+```js
+async function loadDoctorsFromCloud(){
+  const { data, error } = await sb.from("doctors").select("*").order("id");
+  DOCTORS = data.map(shapeDoctor);
+}
+```
+- `sb.from("doctors").select("*")` = "from the doctors table, get all columns." Plain English, and it's a real database query.
+- **`await`** is the key new idea: talking to a server **takes time** (a fraction of a second over the internet). `await` means "wait here for the answer before continuing." A function that waits like this is marked `async`.
+- Because the data arrives *later*, we **render only after it comes back**:
+  ```js
+  loadDoctorsFromCloud().then(render);   // fetch first, THEN draw the list
+  ```
+
+### 3. A safety net (fallback)
+If the internet/database is unreachable, we don't want a blank page — so we catch the error and use the built-in list instead:
+```js
+try { ...load from cloud... }
+catch(e){ DOCTORS = FALLBACK_DOCTORS.map(...); }   // app still works offline
+```
+
+### 4. Matching shapes
+The database columns are `name, specialty, city...`, but our app code expects `n, s, c...`. `shapeDoctor(row)` translates a database row into the shape the rest of the app already understands — so we didn't have to rewrite everything.
+
+### Concepts introduced
+- **Client + server / database** — your code (client) asks a cloud database (server) for data.
+- **`async` / `await`** — handling things that take time (network requests). This is huge and you'll use it forever.
+- **A query** — `select("*")` is real database language (SQL, dressed up in JavaScript).
+- **Publishable vs secret keys** — public ID vs private master key.
+
+> Still TODO in later steps: appointments saved to the cloud (C3), real logins (C4), real file upload (C5). Right now only the doctor *directory* is in the cloud; bookings & signed-up doctors are still browser-only.
