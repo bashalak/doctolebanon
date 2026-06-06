@@ -122,6 +122,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | First Pull Request practice run (branch → PR → review → merge → pull); README updated to v0.7 via PR #1 | `README.md` |
 | 2026-06-06 | Added a collaboration guide (inviting teammates, avoiding conflicts, branches & PRs) | `COLLABORATION.md` |
 | 2026-06-06 | **v0.7:** booking now has a "Reason for visit" (radio buttons) and an optional document attachment; both shown in confirmation & My appointments | `index.html` |
 | 2026-06-06 | **v0.6:** profile now shows a tappable phone (`tel:`) and a clickable address that opens Google Maps; phone added to doctor sign-up | `index.html` |
