@@ -79,6 +79,13 @@ _Last updated: 2026-06-06_
 - `COLLABORATION.md` — guide for inviting teammates + avoiding git conflicts (added 2026-06-06; user wants to invite a collaborator). Note: all code still in one file (index.html) = high conflict surface; splitting into files happens in Stage C.
 - `ARCHITECTURE.md` — plain-English explanation of how PC/GitHub/Netlify/Supabase connect (code path vs data path; why Supabase data changes show without a push; Supabase NOT connected to GitHub). Added 2026-06-06 after user asked how it all communicates. README + CODE-EXPLAINED file tree refreshed to v0.8 at the same time.
 
+## Current state of the build (v0.13) — STAGE C COMPLETE 🏁
+- **v0.13 (2026-06-06): C5 real document upload (Supabase Storage).** confirmBooking() uploads attached file to private bucket `documents` at path `${currentUser.id}/${Date.now()}_${safeName}` via `sb.storage.from('documents').upload()`, stores `doc_path` on the appointment. shapeAppt maps docPath. My-appointments shows the doc name as a link → `openDoc(path)` calls `createSignedUrl(path,60)` + window.open. Footer v0.13. CODE-EXPLAINED §19. Verified working.
+- SQL run by user: created private bucket `documents` (public=false); storage.objects policies "upload own documents"/"read own documents" (authenticated, `(storage.foldername(name))[1] = auth.uid()::text`); `alter table appointments add column doc_path text`.
+- **STAGE C COMPLETE:** C1 project, C2 doctors read, doctor-signup→cloud, C4 auth, C3 private appointments, C5 file upload. Full-stack: shared DB + accounts + private bookings + private files.
+- Open/optional polish: re-enable email confirmation for in-app Sign up (+ real email provider); restrict doctor INSERT policy to authenticated; add favicon. Possible Stage D features: reminders, reschedule, reviews, doctor availability management, full i18n of dynamic doctor data.
+- (history) v0.12 esc-close; v0.11 appts; v0.10 auth; v0.9 doctor signup→cloud; v0.8 doctors read; v0.1–v0.7 prior.
+
 ## Current state of the build (v0.12)
 - **v0.12 (2026-06-06): Esc-to-close safety net.** Added `document.addEventListener("keydown", Escape→closeModal)`. Footer v0.12. Reason: user reported a grey stuck overlay on the LIVE site after login; console showed only harmless noise (extension "message port closed" + favicon 404) → not a code crash. A fresh window worked → it was a STALE-CACHE tab holding old files post-deploy. Fix for users: hard-refresh (Ctrl+Shift+R). Esc-close added as defensive UX (clicking the dim backdrop already closes too). Not a reproduced code bug.
 - NOTE for me: no favicon.ico (404 in console) — could add one later (cosmetic).

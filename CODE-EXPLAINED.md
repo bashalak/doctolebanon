@@ -602,4 +602,39 @@ await sb.from("appointments").delete().eq("id", id);
 - **Per-user RLS** — the database guarantees privacy, regardless of the app code.
 - **`delete` / `.eq()` filters / counting rows** — more of the database toolkit.
 
-> Appointments, doctors, and accounts are all real and in the cloud now. Remaining in Stage C: real document **upload** (C5, Supabase Storage), plus tightening who can add doctors and turning the email-confirm sign-up back on for production.
+> Appointments, doctors, and accounts are all real and in the cloud now.
+
+---
+
+## 19. New in v0.13 — Real document upload (C5, Supabase Storage) 📎
+
+The booking's "attach a document" now **actually uploads the file** to the cloud — privately.
+
+### Files live in "Storage" (separate from the database)
+Databases store *text/numbers*; **files** (PDFs, images) go in **Storage**, organized into **buckets**. We made a **private** bucket called `documents`.
+
+### Uploading
+```js
+const safe = docFile.name.replace(/[^\w.\-]/g,"_");      // make the filename URL-safe
+const docPath = `${currentUser.id}/${Date.now()}_${safe}`; // store it in a folder named after the user
+await sb.storage.from("documents").upload(docPath, docFile);
+```
+- The path starts with the **user's id as a folder** — that's the trick the security rules use to keep files private.
+- We save `docPath` on the appointment row so we know where the file is.
+
+### Privacy = folder-per-user + signed links
+The storage rules (the SQL you ran) say: *"you may only upload to / read from a folder named with your own user id."* So nobody can reach anyone else's files.
+
+To actually view a private file, we generate a **signed URL** — a temporary link that works for 60 seconds, then dies:
+```js
+const { data } = await sb.storage.from("documents").createSignedUrl(path, 60);
+window.open(data.signedUrl, "_blank");
+```
+This is the proper way to share sensitive files: no permanent public link, and only the owner can mint one.
+
+### Concepts introduced
+- **Object storage / buckets** — where files live (vs the database for structured data).
+- **Folder-per-user privacy** + storage RLS.
+- **Signed URLs** — temporary, owner-only links to private files.
+
+> 🏁 **Stage C is complete.** DoctoLebanon now has: a shared cloud database, real accounts, private appointments, and private file upload. That's a real full-stack app. Remaining polish (optional): turn email-confirmation back on for sign-up, and restrict "add a doctor" to logged-in users.

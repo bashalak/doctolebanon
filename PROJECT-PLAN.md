@@ -83,7 +83,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [x] **C2:** Created a `doctors` table; app now loads doctors from Supabase so they're **shared** across all users (v0.8) ✅
 - [x] **C3:** Appointments saved to Supabase, **tied to the logged-in user and private** (each user sees only their own); book / view / cancel all run against the cloud (v0.11) ✅
 - [x] **C4:** Real **accounts** — log in / log out with Supabase Auth; header shows the logged-in email; session persists (v0.10). *(In-app "Sign up" needs the "Confirm email" toggle OFF in Supabase to avoid the email step; meanwhile users can be created in the dashboard with "Auto Confirm".)*
-- [ ] **C5:** Real **document upload** for booking attachments (Supabase Storage)
+- [x] **C5:** Real **document upload** — files go to a private Supabase Storage bucket (each user can only reach their own), viewed via short-lived signed links (v0.13) ✅ **Stage C complete!**
 - [ ] (later) Rebuild front-end with **React + Next.js** + split into multiple files — only when needed (needs Node.js then)
 
 ### Stage D — Make it trustworthy
@@ -123,6 +123,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.13 — C5 (Stage C complete!):** real document upload to a private Storage bucket; view via short-lived signed links | `index.html` |
 | 2026-06-06 | **v0.12:** safety net — press Escape to close any pop-up (after a stale-cache tab left an overlay stuck on the live site; hard-refresh resolves that) | `index.html` |
 | 2026-06-06 | **v0.11 — C3:** appointments saved to Supabase, private per user (book/view/cancel against the cloud; login required to book) | `index.html` |
 | 2026-06-06 | **v0.10 — C4:** real accounts via Supabase Auth (log in / log out, email shown in header, session persists) | `index.html` |
