@@ -123,6 +123,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.14 — doctor dashboard (part 1):** doctor listings owned by accounts, appointments linked to a doctor, "Join as a doctor" now requires login | `index.html` |
 | 2026-06-06 | **v0.13 — C5 (Stage C complete!):** real document upload to a private Storage bucket; view via short-lived signed links | `index.html` |
 | 2026-06-06 | **v0.12:** safety net — press Escape to close any pop-up (after a stale-cache tab left an overlay stuck on the live site; hard-refresh resolves that) | `index.html` |
 | 2026-06-06 | **v0.11 — C3:** appointments saved to Supabase, private per user (book/view/cancel against the cloud; login required to book) | `index.html` |

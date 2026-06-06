@@ -195,7 +195,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.13 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.14 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -230,8 +230,8 @@ let DOCTORS = [];   // filled from Supabase at startup (see loadDoctorsFromCloud
 
 /* Turn a database row into the shape the rest of the app expects (d.n, d.s, d.c, ...). */
 function shapeDoctor(row, i){
-  return { id:i, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee, tel:row.tel,
-           color:COLORS[i%COLORS.length], init:initials(row.name) };
+  return { id:row.id, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee, tel:row.tel,
+           owner:row.owner, color:COLORS[i%COLORS.length], init:initials(row.name) };
 }
 async function loadDoctorsFromCloud(){
   try{
@@ -269,8 +269,8 @@ const I18N = {
     seeListing:"See my profile in the listings",
     viewProfile:"View profile", about:"About", address:"Address", experience:"Experience", availability:"Availability", languagesWord:"Languages", newOnPlatform:"New on DoctoLebanon",
     reasonLabel:"Reason for visit", reasonNew:"New consultation", reasonFollow:"Follow-up", reasonUrgent:"Urgent", attachLabel:"Attach a document (optional)", attachHint:"e.g. previous test or lab results", reasonWord:"Reason:", attachedWord:"Attached:",
-    logIn:"Log in", logOut:"Log out", signUp:"Sign up", email:"Email", password:"Password", loginTitle:"Log in or sign up", loginIntro:"Create an account or log in to book and manage your appointments.", needEmailPass:"Please enter your email and password.", checkEmail:"Account created! Check your email to confirm, then log in.", loginToBook:"Please log in to book and to see your appointments.",
-    footer:"DoctoLebanon — prototype v0.13 · Made to test an idea, not for real medical use yet." },
+    logIn:"Log in", logOut:"Log out", signUp:"Sign up", email:"Email", password:"Password", loginTitle:"Log in or sign up", loginIntro:"Create an account or log in to book and manage your appointments.", needEmailPass:"Please enter your email and password.", checkEmail:"Account created! Check your email to confirm, then log in.", loginToBook:"Please log in to book and to see your appointments.", loginFirst:"Please log in first.",
+    footer:"DoctoLebanon — prototype v0.14 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -295,8 +295,8 @@ const I18N = {
     seeListing:"Voir mon profil dans la liste",
     viewProfile:"Voir le profil", about:"À propos", address:"Adresse", experience:"Expérience", availability:"Disponibilités", languagesWord:"Langues", newOnPlatform:"Nouveau sur DoctoLebanon",
     reasonLabel:"Motif de la visite", reasonNew:"Nouvelle consultation", reasonFollow:"Suivi", reasonUrgent:"Urgent", attachLabel:"Joindre un document (facultatif)", attachHint:"ex. résultats d'analyses précédents", reasonWord:"Motif :", attachedWord:"Document :",
-    logIn:"Connexion", logOut:"Déconnexion", signUp:"Créer un compte", email:"E-mail", password:"Mot de passe", loginTitle:"Connexion ou inscription", loginIntro:"Créez un compte ou connectez-vous pour réserver et gérer vos rendez-vous.", needEmailPass:"Veuillez saisir votre e-mail et votre mot de passe.", checkEmail:"Compte créé ! Vérifiez votre e-mail pour confirmer, puis connectez-vous.", loginToBook:"Veuillez vous connecter pour réserver et voir vos rendez-vous.",
-    footer:"DoctoLebanon — prototype v0.13 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    logIn:"Connexion", logOut:"Déconnexion", signUp:"Créer un compte", email:"E-mail", password:"Mot de passe", loginTitle:"Connexion ou inscription", loginIntro:"Créez un compte ou connectez-vous pour réserver et gérer vos rendez-vous.", needEmailPass:"Veuillez saisir votre e-mail et votre mot de passe.", checkEmail:"Compte créé ! Vérifiez votre e-mail pour confirmer, puis connectez-vous.", loginToBook:"Veuillez vous connecter pour réserver et voir vos rendez-vous.", loginFirst:"Veuillez d'abord vous connecter.",
+    footer:"DoctoLebanon — prototype v0.14 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -321,8 +321,8 @@ const I18N = {
     seeListing:"عرض ملفي في القائمة",
     viewProfile:"عرض الملف", about:"نبذة", address:"العنوان", experience:"الخبرة", availability:"المواعيد المتاحة", languagesWord:"اللغات", newOnPlatform:"جديد على دكتو لبنان",
     reasonLabel:"سبب الزيارة", reasonNew:"استشارة جديدة", reasonFollow:"متابعة", reasonUrgent:"حالة عاجلة", attachLabel:"إرفاق مستند (اختياري)", attachHint:"مثال: نتائج فحوصات سابقة", reasonWord:"السبب:", attachedWord:"مرفق:",
-    logIn:"تسجيل الدخول", logOut:"تسجيل الخروج", signUp:"إنشاء حساب", email:"البريد الإلكتروني", password:"كلمة المرور", loginTitle:"تسجيل الدخول أو إنشاء حساب", loginIntro:"أنشئ حساباً أو سجّل الدخول لحجز وإدارة مواعيدك.", needEmailPass:"يرجى إدخال بريدك الإلكتروني وكلمة المرور.", checkEmail:"تم إنشاء الحساب! تحقق من بريدك للتأكيد ثم سجّل الدخول.", loginToBook:"يرجى تسجيل الدخول للحجز ورؤية مواعيدك.",
-    footer:"دكتو لبنان — نموذج تجريبي v0.13 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    logIn:"تسجيل الدخول", logOut:"تسجيل الخروج", signUp:"إنشاء حساب", email:"البريد الإلكتروني", password:"كلمة المرور", loginTitle:"تسجيل الدخول أو إنشاء حساب", loginIntro:"أنشئ حساباً أو سجّل الدخول لحجز وإدارة مواعيدك.", needEmailPass:"يرجى إدخال بريدك الإلكتروني وكلمة المرور.", checkEmail:"تم إنشاء الحساب! تحقق من بريدك للتأكيد ثم سجّل الدخول.", loginToBook:"يرجى تسجيل الدخول للحجز ورؤية مواعيدك.", loginFirst:"يرجى تسجيل الدخول أولاً.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.14 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -521,7 +521,7 @@ async function confirmBooking(){
   }
   // Save the appointment to the cloud, owned by the current user (user_id fills in automatically)
   const { error } = await sb.from("appointments").insert({
-    doctor_name:pending.doc.n, specialty:pending.doc.s, city:pending.doc.c,
+    doctor_id:pending.doc.id, doctor_name:pending.doc.n, specialty:pending.doc.s, city:pending.doc.c,
     slot_day:pending.day, slot_time:pending.time, fee:pending.doc.fee,
     patient_name:name, phone, reason, doc_name:docName, doc_path:docPath
   });
@@ -607,6 +607,7 @@ function showSignup(){
   window.scrollTo(0,0);
 }
 async function submitDoctor(){
+  if(!currentUser){ alert(t("loginFirst")); showAuth(); return; }   // a doctor listing belongs to an account
   let name=$("dName").value.trim();
   const spec=$("dSpec").value, city=$("dCity").value, fee=$("dFee").value.trim()||"—";
   const tel=$("dPhone").value.trim();
@@ -614,8 +615,8 @@ async function submitDoctor(){
   if(!name){alert(t("needName"));return;}
   if(langs.length===0){alert(t("needLang"));return;}
   if(!/^dr\.?\s/i.test(name)) name = "Dr. " + name;
-  // Save the new doctor into the SHARED cloud database (an "insert")
-  const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel });
+  // Save the new doctor listing, owned by the logged-in account
+  const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel, owner: currentUser.id });
   if(error){ alert("Sorry, could not save your profile: " + error.message); return; }
   await loadDoctorsFromCloud();   // refresh the list so the new doctor is included for everyone
   const welcome = lang==="fr" ? `Bienvenue, ${name} !` : lang==="ar" ? `أهلاً، ${name}!` : `Welcome, ${name}!`;
