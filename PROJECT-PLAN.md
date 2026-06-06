@@ -123,6 +123,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | Added architecture guide (how PC/GitHub/Netlify/Supabase connect); refreshed README & CODE-EXPLAINED file tree to v0.8 | `ARCHITECTURE.md`, `README.md`, `CODE-EXPLAINED.md` |
 | 2026-06-06 | **v0.8 — STAGE C BEGINS:** connected the app to a real **Supabase** cloud database; doctors now load from the cloud (shared across everyone), with a built-in fallback | `index.html` |
 | 2026-06-06 | First Pull Request practice run (branch → PR → review → merge → pull); README updated to v0.7 via PR #1 | `README.md` |
 | 2026-06-06 | Added a collaboration guide (inviting teammates, avoiding conflicts, branches & PRs) | `COLLABORATION.md` |

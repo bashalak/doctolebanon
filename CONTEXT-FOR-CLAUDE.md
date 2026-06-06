@@ -77,6 +77,7 @@ _Last updated: 2026-06-06_
 - `MY-NOTES.md` — the user's learning notebook; I append each lesson + exercise here. (Lesson 1 = Variables + Arrays, done 2026-06-06.)
 - `CONTEXT-FOR-CLAUDE.md` — this file.
 - `COLLABORATION.md` — guide for inviting teammates + avoiding git conflicts (added 2026-06-06; user wants to invite a collaborator). Note: all code still in one file (index.html) = high conflict surface; splitting into files happens in Stage C.
+- `ARCHITECTURE.md` — plain-English explanation of how PC/GitHub/Netlify/Supabase connect (code path vs data path; why Supabase data changes show without a push; Supabase NOT connected to GitHub). Added 2026-06-06 after user asked how it all communicates. README + CODE-EXPLAINED file tree refreshed to v0.8 at the same time.
 
 ## Current state of the build (v0.8) — CLOUD-CONNECTED
 - **v0.8 (2026-06-06): C2 DONE — doctors load from Supabase.** Added supabase-js CDN + `sb = supabase.createClient(URL, publishableKey)`. `loadDoctorsFromCloud()` does `await sb.from('doctors').select('*').order('id')`, maps rows via `shapeDoctor()` into app shape {n,s,c,r,langs,fee,id,color,init}. `let DOCTORS=[]` filled at startup; init now `applyLang(); loadDoctorsFromCloud().then(render)` with a ⏳ placeholder. `FALLBACK_DOCTORS` (the 12) used if fetch fails. Footer v0.8. Verified working locally (Table Editor edit appeared after refresh).

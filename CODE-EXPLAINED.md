@@ -32,11 +32,17 @@ Right now, all three live inside **one file** (`index.html`) to keep things simp
 D:\doctolebanon\
 │
 ├── index.html               ← THE WHOLE APP (HTML + CSS + JavaScript in one file)
-├── PROJECT-PLAN.md           ← the living plan & progress log
+├── README.md                 ← project overview + live link
+├── PROJECT-PLAN.md           ← the living plan, roadmap & changelog
 ├── CODE-EXPLAINED.md         ← this file (how the code works)
+├── ARCHITECTURE.md           ← how PC, GitHub, Netlify & Supabase connect
+├── COLLABORATION.md          ← how to work together without conflicts
 ├── MY-NOTES.md               ← your learning notebook (lessons + your notes)
-└── CONTEXT-FOR-CLAUDE.md     ← Claude's running memory of the project
+├── CONTEXT-FOR-CLAUDE.md     ← Claude's running memory of the project
+└── .gitignore                ← files Git should ignore
 ```
+
+> 🔌 **Want the big picture** of how your PC, GitHub, Netlify and Supabase connect and talk to each other? See **`ARCHITECTURE.md`**.
 
 > As the project grows (Stage C in the plan), this tree will expand into many folders — e.g. `components/`, `pages/`, `lib/`. We'll update this tree each time.
 
