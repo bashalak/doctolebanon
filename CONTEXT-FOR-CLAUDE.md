@@ -76,6 +76,7 @@ _Last updated: 2026-06-06_
 - `CODE-EXPLAINED.md` — LIVING: architecture, file tree, per-block code walkthrough, data-flow diagram, 8 concepts list. UPDATE when code changes.
 - `MY-NOTES.md` — the user's learning notebook; I append each lesson + exercise here. (Lesson 1 = Variables + Arrays, done 2026-06-06.)
 - `CONTEXT-FOR-CLAUDE.md` — this file.
+- `COLLABORATION.md` — guide for inviting teammates + avoiding git conflicts (added 2026-06-06; user wants to invite a collaborator). Note: all code still in one file (index.html) = high conflict surface; splitting into files happens in Stage C.
 
 ## Roadmap (short form; full in PROJECT-PLAN.md)
 - Stage A: polish prototype (doctor sign-up page, AR/FR/EN + RTL toggle, profiles, mobile layout).
