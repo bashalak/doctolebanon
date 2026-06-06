@@ -560,3 +560,46 @@ By default Supabase emails new users a confirmation link before they can log in.
 - **Event listeners** (`onAuthStateChange`) — reacting to things as they happen, instead of checking constantly.
 
 > Next (C3): now that we know *who* the user is, we can save **appointments** that belong to them — real, private bookings.
+
+---
+
+## 18. New in v0.11 — Real, private appointments (C3) 📅
+
+Bookings now live in the cloud, **owned by the user who made them**, and each person sees only their own.
+
+### The table remembers the owner
+```sql
+user_id uuid not null default auth.uid() references auth.users(id)
+```
+- Every appointment row stores a `user_id`. The default `auth.uid()` means "automatically fill in the **currently logged-in user's id**" — so we don't even pass it from the app.
+
+### Privacy comes from the RLS rules
+```sql
+create policy "see own appointments"   on appointments for select using (user_id = auth.uid());
+create policy "create own appointments" on appointments for insert with check (user_id = auth.uid());
+create policy "delete own appointments" on appointments for delete using (user_id = auth.uid());
+```
+- `auth.uid()` = the logged-in user's id. These rules say **"you may only read/add/delete rows that are yours."**
+- So when the app runs `select("*")`, the database **only returns the current user's appointments** — privacy enforced by the database itself, not by our code. That's the safe way to do it.
+
+### The three operations in the app
+```js
+// CREATE — book (user_id auto-filled by the table default)
+await sb.from("appointments").insert({ doctor_name, specialty, ... });
+// READ — only returns YOUR rows, thanks to RLS
+const { data } = await sb.from("appointments").select("*").order("id");
+// DELETE — cancel one by its id
+await sb.from("appointments").delete().eq("id", id);
+```
+- `.eq("id", id)` = "where id equals this" — how you target a specific row.
+- The badge count uses a neat trick: `select("id", { count:"exact", head:true })` returns *just the number* of your appointments, no data.
+
+### Login is now required to book
+`confirmBooking()` checks `if(!currentUser)` and asks the user to log in first — because an appointment must belong to someone.
+
+### Concepts introduced
+- **Ownership column + `auth.uid()`** — tying rows to a user.
+- **Per-user RLS** — the database guarantees privacy, regardless of the app code.
+- **`delete` / `.eq()` filters / counting rows** — more of the database toolkit.
+
+> Appointments, doctors, and accounts are all real and in the cloud now. Remaining in Stage C: real document **upload** (C5, Supabase Storage), plus tightening who can add doctors and turning the email-confirm sign-up back on for production.
