@@ -82,7 +82,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [ ] **C1:** Create a free **Supabase** account + project (cloud database) ← *in progress*
 - [x] **C2:** Created a `doctors` table; app now loads doctors from Supabase so they're **shared** across all users (v0.8) ✅
 - [x] **C3:** Appointments saved to Supabase, **tied to the logged-in user and private** (each user sees only their own); book / view / cancel all run against the cloud (v0.11) ✅
-- [x] **C4:** Real **accounts** — log in / log out with Supabase Auth; header shows the logged-in email; session persists (v0.10). *(In-app "Sign up" needs the "Confirm email" toggle OFF in Supabase to avoid the email step; meanwhile users can be created in the dashboard with "Auto Confirm".)*
+- [x] **C4:** Real **accounts** — sign up / log in / log out with Supabase Auth; header shows the logged-in email; session persists (v0.10). In-app **Sign up now works** (we turned "Confirm email" OFF in Supabase for the demo). *(For a real launch: turn confirmation back ON with a real email service so users verify their address.)*
 - [x] **C5:** Real **document upload** — files go to a private Supabase Storage bucket (each user can only reach their own), viewed via short-lived signed links (v0.13) ✅ **Stage C complete!**
 - [ ] (later) Rebuild front-end with **React + Next.js** + split into multiple files — only when needed (needs Node.js then)
 
