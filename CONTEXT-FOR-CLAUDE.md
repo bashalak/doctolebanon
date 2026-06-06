@@ -89,7 +89,7 @@ _Last updated: 2026-06-06_
 ## Teaching track (the user learns alongside)
 - Method: read CODE-EXPLAINED + "change one thing" loop + DevTools (F12) + ask-me-any-line + MY-NOTES.
 - 8 core concepts order: 1 variables, 2 arrays, 3 objects, 4 functions, 5 the DOM, 6 events, 7 array methods (filter/forEach/map), 8 localStorage+JSON.
-- Lessons delivered: **#1 Variables + Arrays (2026-06-06).** Next up: #2 Objects, then #3 Functions.
+- Lessons delivered: **#1 Variables + Arrays; #2 Objects (both 2026-06-06).** Lesson 2 covered: object literals, dot vs bracket access (tied to why t() uses I18N[lang]), array-of-objects (DOCTORS), nested I18N, adding/changing properties. Next up: #3 Functions, then #4 the DOM.
 
 ## Next step (user is choosing among)
 - Continue lessons (next: Objects), OR build Stage A item (doctor sign-up / language toggle), OR Stage B (deploy online).

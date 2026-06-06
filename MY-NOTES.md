@@ -57,6 +57,57 @@
 
 ---
 
+## Lesson 2 — Objects (2026-06-06)
+
+**The 4 things to remember:**
+1. An **object** `{ }` is **one thing with labeled parts** (properties). Grab a part by its NAME, not a position:
+   ```js
+   const doctor = { n:"Dr. Rana Khoury", s:"Dermatologist", c:"Beirut", r:4.8 };
+   doctor.n   // → "Dr. Rana Khoury"   (the dot reaches inside)
+   doctor.r   // → 4.8
+   ```
+
+2. **Array + object together** (this is `DOCTORS`):
+   ```js
+   DOCTORS[0]        // the first doctor OBJECT
+   DOCTORS[0].n      // "Dr. Rana Khoury"
+   DOCTORS[0].langs  // ["Arabic","French","English"]  ← a list inside an object!
+   ```
+
+3. **Dot vs brackets.** Use brackets when the property name is in a **variable**:
+   ```js
+   doctor.n        // dot: you know the name as you type
+   doctor["n"]     // brackets: same thing
+   let lang = "fr";
+   I18N[lang]          // the French object (because lang = "fr") — can't use a dot here!
+   I18N[lang].search   // "Rechercher"
+   ```
+   👉 This is exactly why the `t()` translate function uses brackets.
+
+4. **Objects can grow/change:**
+   ```js
+   doctor.fee = "60 USD";   // change a property
+   doctor.verified = true;  // add a new one
+   ```
+   (Our code does this: `d.id = i` in the startup loop, and `confirmBooking` builds a new appointment object.)
+
+**🧪 Exercise (browser console, F12):**
+- `DOCTORS[1]` → whole second doctor
+- `DOCTORS[1].n` → their name
+- `DOCTORS[1].langs` → an array inside the object
+- `I18N.ar.search` → Arabic for "Search"
+- `I18N["fr"]["heroTitle"]` → French hero title (brackets!)
+- `lang` then `I18N[lang].myAppts` → the dynamic version
+- **Change-one-thing:** in `index.html`, change `Dr. Karim Haddad`'s `fee:"70 USD"` → `fee:"90 USD"`, save, refresh, find him.
+
+**✍️ What I learned (write in my own words):**
+> _(your turn)_
+
+**❓ My questions:**
+> _(write anything confusing here)_
+
+---
+
 # 🧪 To try (my ideas)
 - _(add things you'd like to change or build)_
 
