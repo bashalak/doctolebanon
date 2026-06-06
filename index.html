@@ -194,7 +194,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.8 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.9 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -229,7 +229,7 @@ let DOCTORS = [];   // filled from Supabase at startup (see loadDoctorsFromCloud
 
 /* Turn a database row into the shape the rest of the app expects (d.n, d.s, d.c, ...). */
 function shapeDoctor(row, i){
-  return { id:i, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee,
+  return { id:i, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee, tel:row.tel,
            color:COLORS[i%COLORS.length], init:initials(row.name) };
 }
 async function loadDoctorsFromCloud(){
@@ -268,7 +268,7 @@ const I18N = {
     seeListing:"See my profile in the listings",
     viewProfile:"View profile", about:"About", address:"Address", experience:"Experience", availability:"Availability", languagesWord:"Languages", newOnPlatform:"New on DoctoLebanon",
     reasonLabel:"Reason for visit", reasonNew:"New consultation", reasonFollow:"Follow-up", reasonUrgent:"Urgent", attachLabel:"Attach a document (optional)", attachHint:"e.g. previous test or lab results", reasonWord:"Reason:", attachedWord:"Attached:",
-    footer:"DoctoLebanon — prototype v0.8 · Made to test an idea, not for real medical use yet." },
+    footer:"DoctoLebanon — prototype v0.9 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -293,7 +293,7 @@ const I18N = {
     seeListing:"Voir mon profil dans la liste",
     viewProfile:"Voir le profil", about:"À propos", address:"Adresse", experience:"Expérience", availability:"Disponibilités", languagesWord:"Langues", newOnPlatform:"Nouveau sur DoctoLebanon",
     reasonLabel:"Motif de la visite", reasonNew:"Nouvelle consultation", reasonFollow:"Suivi", reasonUrgent:"Urgent", attachLabel:"Joindre un document (facultatif)", attachHint:"ex. résultats d'analyses précédents", reasonWord:"Motif :", attachedWord:"Document :",
-    footer:"DoctoLebanon — prototype v0.8 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    footer:"DoctoLebanon — prototype v0.9 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -318,7 +318,7 @@ const I18N = {
     seeListing:"عرض ملفي في القائمة",
     viewProfile:"عرض الملف", about:"نبذة", address:"العنوان", experience:"الخبرة", availability:"المواعيد المتاحة", languagesWord:"اللغات", newOnPlatform:"جديد على دكتو لبنان",
     reasonLabel:"سبب الزيارة", reasonNew:"استشارة جديدة", reasonFollow:"متابعة", reasonUrgent:"حالة عاجلة", attachLabel:"إرفاق مستند (اختياري)", attachHint:"مثال: نتائج فحوصات سابقة", reasonWord:"السبب:", attachedWord:"مرفق:",
-    footer:"دكتو لبنان — نموذج تجريبي v0.8 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    footer:"دكتو لبنان — نموذج تجريبي v0.9 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -390,14 +390,9 @@ function slotsFor(doc){
   return out;
 }
 
-/* ============ Custom doctors (created via the sign-up form) ============ */
-function loadDocs(){try{return JSON.parse(localStorage.getItem("dl_doctors")||"[]");}catch(e){return [];}}
-function saveDocs(a){localStorage.setItem("dl_doctors", JSON.stringify(a));}
+/* ============ The doctor list ============ */
 function initials(name){return name.replace(/^Dr\.?\s*/i,"").split(" ").filter(Boolean).map(w=>w[0]).join("").slice(0,2).toUpperCase();}
-function allDoctors(){
-  const custom = loadDocs().map((d,i)=>({...d, id:1000+i, color:COLORS[(1000+i)%COLORS.length], init:initials(d.n), custom:true}));
-  return DOCTORS.concat(custom);
-}
+function allDoctors(){ return DOCTORS; }   // all doctors now come from the cloud (see loadDoctorsFromCloud)
 function getDoctor(id){ return allDoctors().find(d=>d.id===id); }
 
 /* ============ Filters ============ */
@@ -419,7 +414,7 @@ function render(){
   if(list.length===0){g.innerHTML=`<div class="empty">${t("noMatch")}</div>`;return;}
   list.forEach(d=>{
     const next = slotsFor(d)[0];
-    const rating = d.custom
+    const rating = !d.r
       ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newBadge")}</span>`
       : `<span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span>`;
     const card=document.createElement("div"); card.className="doc";
@@ -443,12 +438,12 @@ function render(){
 let pending=null;
 function openDoctor(id){
   const d=getDoctor(id); const days=slotsFor(d);
-  const rating = d.custom
+  const rating = !d.r
     ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newWord")}</span>`
     : `<span class="stars">${stars(d.r)}</span> ${d.r}`;
   const addr = `${AREAS[d.id % AREAS.length]} — ${cityLabel(d.c)}`;
   const tel  = genTel(d);
-  const exp  = d.custom ? t("newOnPlatform") : yearsExp(6 + (d.id % 18));
+  const exp  = !d.r ? t("newOnPlatform") : yearsExp(6 + (d.id % 18));
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
@@ -577,7 +572,7 @@ function showSignup(){
   $("signupView").classList.remove("hidden");
   window.scrollTo(0,0);
 }
-function submitDoctor(){
+async function submitDoctor(){
   let name=$("dName").value.trim();
   const spec=$("dSpec").value, city=$("dCity").value, fee=$("dFee").value.trim()||"—";
   const tel=$("dPhone").value.trim();
@@ -585,7 +580,10 @@ function submitDoctor(){
   if(!name){alert(t("needName"));return;}
   if(langs.length===0){alert(t("needLang"));return;}
   if(!/^dr\.?\s/i.test(name)) name = "Dr. " + name;
-  const docs=loadDocs(); docs.push({n:name, s:spec, c:city, tel, langs, fee}); saveDocs(docs);
+  // Save the new doctor into the SHARED cloud database (an "insert")
+  const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel });
+  if(error){ alert("Sorry, could not save your profile: " + error.message); return; }
+  await loadDoctorsFromCloud();   // refresh the list so the new doctor is included for everyone
   const welcome = lang==="fr" ? `Bienvenue, ${name} !` : lang==="ar" ? `أهلاً، ${name}!` : `Welcome, ${name}!`;
   $("signupView").innerHTML=`
     <div style="text-align:center;padding:34px 12px">

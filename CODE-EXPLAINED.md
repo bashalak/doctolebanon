@@ -485,4 +485,38 @@ The database columns are `name, specialty, city...`, but our app code expects `n
 - **A query** — `select("*")` is real database language (SQL, dressed up in JavaScript).
 - **Publishable vs secret keys** — public ID vs private master key.
 
-> Still TODO in later steps: appointments saved to the cloud (C3), real logins (C4), real file upload (C5). Right now only the doctor *directory* is in the cloud; bookings & signed-up doctors are still browser-only.
+> Still TODO in later steps: appointments saved to the cloud (C3), real logins (C4), real file upload (C5).
+
+---
+
+## 16. New in v0.9 — Saving to the database (`insert`)
+
+In §15 you learned to **read** from the database (`select`). Now the doctor sign-up **writes** to it (`insert`), so a new doctor is shared with everyone.
+
+```js
+async function submitDoctor(){
+  ...validate the form...
+  const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel });
+  if(error){ alert("Sorry, could not save: " + error.message); return; }
+  await loadDoctorsFromCloud();   // re-fetch so the new doctor shows in the shared list
+}
+```
+- `sb.from("doctors").insert({...})` = "add this row to the doctors table." We pass an **object** whose keys match the table's columns.
+- It's `async`/`await` again, because saving over the internet takes a moment.
+- We check `error` — if the save failed (e.g. no permission), we tell the user instead of pretending it worked.
+- After inserting, we call `loadDoctorsFromCloud()` again so the list refreshes with the new doctor included.
+
+### Two database permissions we set (RLS policies)
+Our `doctors` table now has two rules:
+- **"Public can read doctors"** → anyone may `select` (it's a public directory).
+- **"Public can add doctors"** → anyone may `insert` (for the demo).
+
+> 🔒 For a real product, "anyone can add a doctor" is too open — we'd require the person to be a **logged-in, verified doctor**. That's what **accounts (C4)** unlock. For now it's fine because it's a demo with fake data.
+
+### What changed in the app's structure
+Signed-up doctors used to be saved in the browser (`localStorage`) and merged in. Now **all** doctors — built-in and newly added — come from the one cloud list, so `allDoctors()` simply returns the cloud `DOCTORS`. A doctor counts as "New" (badge) when it has **no rating yet** (`!d.r`), which is true for freshly signed-up doctors.
+
+### Concept introduced
+- **`insert`** — writing a new row to a database (the partner of `select`).
+- **Checking for errors** after a save.
+- **RLS policies** as the database's "who may do what" rules.
