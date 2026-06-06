@@ -520,3 +520,43 @@ Signed-up doctors used to be saved in the browser (`localStorage`) and merged in
 - **`insert`** — writing a new row to a database (the partner of `select`).
 - **Checking for errors** after a save.
 - **RLS policies** as the database's "who may do what" rules.
+
+---
+
+## 17. New in v0.10 — Real accounts (Supabase Auth) 🔑
+
+People can now **log in**. Supabase has a whole authentication system built in, so we didn't build passwords/security ourselves (which is good — auth is easy to get dangerously wrong).
+
+### The handful of commands
+```js
+await sb.auth.signUp({ email, password });              // create an account
+await sb.auth.signInWithPassword({ email, password });  // log in
+await sb.auth.signOut();                                 // log out
+const { data } = await sb.auth.getSession();             // is someone logged in?
+```
+- All `async` (they talk to the server).
+- Supabase securely stores passwords (hashed) and manages the login — we never see or store the raw password.
+
+### Staying in sync with `onAuthStateChange`
+Instead of manually updating the header everywhere, we **listen** for login/logout events:
+```js
+sb.auth.onAuthStateChange((_event, session) => {
+  currentUser = session ? session.user : null;
+  renderAuthUI();   // redraw the header: "Log in" button  ↔  email + "Log out"
+});
+```
+- This fires whenever the user logs in, logs out, or the page loads with an existing session.
+- `currentUser` is our single source of truth for "who is logged in." `renderAuthUI()` just reads it and shows the right thing.
+
+### Why you stay logged in after refresh
+Supabase saves your **session** in the browser automatically. On startup, `refreshAuth()` calls `getSession()` — if a saved session exists, you're still logged in. (This is a *secure token*, not your password.)
+
+### A real-world note (email confirmation)
+By default Supabase emails new users a confirmation link before they can log in. For our demo we either turn that **off** (so sign-up is instant) or create users in the dashboard with **"Auto Confirm."** For a real launch you'd keep confirmation **on** (with a proper email service) so people verify their address — important for a medical app.
+
+### Concept introduced
+- **Authentication** — sign up / log in / log out, handled by a trusted service.
+- **Sessions & tokens** — how a site remembers you're logged in without re-asking for your password.
+- **Event listeners** (`onAuthStateChange`) — reacting to things as they happen, instead of checking constantly.
+
+> Next (C3): now that we know *who* the user is, we can save **appointments** that belong to them — real, private bookings.

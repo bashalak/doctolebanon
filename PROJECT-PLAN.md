@@ -82,7 +82,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [ ] **C1:** Create a free **Supabase** account + project (cloud database) ← *in progress*
 - [x] **C2:** Created a `doctors` table; app now loads doctors from Supabase so they're **shared** across all users (v0.8) ✅
 - [ ] **C3:** Save appointments to Supabase (shared, not browser-only)
-- [ ] **C4:** Real **accounts** — patients & doctors sign up / log in (Supabase Auth)
+- [x] **C4:** Real **accounts** — log in / log out with Supabase Auth; header shows the logged-in email; session persists (v0.10). *(In-app "Sign up" needs the "Confirm email" toggle OFF in Supabase to avoid the email step; meanwhile users can be created in the dashboard with "Auto Confirm".)*
 - [ ] **C5:** Real **document upload** for booking attachments (Supabase Storage)
 - [ ] (later) Rebuild front-end with **React + Next.js** + split into multiple files — only when needed (needs Node.js then)
 
@@ -123,6 +123,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.10 — C4:** real accounts via Supabase Auth (log in / log out, email shown in header, session persists) | `index.html` |
 | 2026-06-06 | **v0.9:** "Join as a doctor" now saves to the shared Supabase database (real `insert`) — new doctors appear for everyone, not just one browser | `index.html` |
 | 2026-06-06 | Added architecture guide (how PC/GitHub/Netlify/Supabase connect); refreshed README & CODE-EXPLAINED file tree to v0.8 | `ARCHITECTURE.md`, `README.md`, `CODE-EXPLAINED.md` |
 | 2026-06-06 | **v0.8 — STAGE C BEGINS:** connected the app to a real **Supabase** cloud database; doctors now load from the cloud (shared across everyone), with a built-in fallback | `index.html` |
