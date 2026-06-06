@@ -78,12 +78,13 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [ ] Open it on your phone — share with a friend
 
 ### Stage C — Make it REAL (the big jump: from demo to app)
-- [ ] Install **Node.js** (one tool, I'll guide you) — needed to build modern apps
-- [ ] Rebuild the front-end with **React + Next.js** (organized, scalable code)
-- [ ] Set up **Supabase** (free shared database + logins)
-- [ ] Real **accounts**: patients and doctors can sign up & log in
-- [ ] Bookings saved in the **shared database** (everyone sees real availability)
-- [ ] Doctors set their **own real availability**
+**Approach (refined 2026-06-06):** connect the CURRENT app to a real cloud database (Supabase) FIRST — gentle, no big installs, keep all existing work. Rebuild in React/Next.js only later, if/when the app grows enough to need it.
+- [ ] **C1:** Create a free **Supabase** account + project (cloud database) ← *in progress*
+- [ ] **C2:** Create a `doctors` table; load doctors from Supabase so they're **shared** across all users
+- [ ] **C3:** Save appointments to Supabase (shared, not browser-only)
+- [ ] **C4:** Real **accounts** — patients & doctors sign up / log in (Supabase Auth)
+- [ ] **C5:** Real **document upload** for booking attachments (Supabase Storage)
+- [ ] (later) Rebuild front-end with **React + Next.js** + split into multiple files — only when needed (needs Node.js then)
 
 ### Stage D — Make it trustworthy
 - [ ] **Email/SMS reminders** for appointments

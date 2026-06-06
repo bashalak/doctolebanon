@@ -78,6 +78,12 @@ _Last updated: 2026-06-06_
 - `CONTEXT-FOR-CLAUDE.md` — this file.
 - `COLLABORATION.md` — guide for inviting teammates + avoiding git conflicts (added 2026-06-06; user wants to invite a collaborator). Note: all code still in one file (index.html) = high conflict surface; splitting into files happens in Stage C.
 
+## STAGE C IN PROGRESS (started 2026-06-06)
+- **Refined approach: GENTLE path.** Connect the CURRENT vanilla index.html to Supabase via the Supabase JS CDN (`<script src>`) — NO Node.js, NO React rewrite yet, keep single-file + Netlify deploy. Swap localStorage (loadDocs/saveDocs/loadAppts/saveAppts) for Supabase queries. React/Next rebuild deferred to "later, only if needed".
+- Steps: C1 create Supabase account+project → C2 `doctors` table, load shared → C3 appointments table → C4 Supabase Auth (real logins) → C5 Supabase Storage (real file upload).
+- Anon/public key is safe to put in client code (designed for it); the service_role key must NEVER be committed. Will need RLS (row-level security) policies; for first demo step use simple public read/insert, tighten later.
+- Waiting on user: create Supabase project (sign in w/ GitHub), save DB password, pick region (EU/Frankfurt reasonable for Lebanon), then report back → next I guide getting Project URL + anon key + creating the doctors table.
+
 ## Roadmap (short form; full in PROJECT-PLAN.md)
 - Stage A: polish prototype (doctor sign-up page, AR/FR/EN + RTL toggle, profiles, mobile layout).
 - Stage B: get ONLINE free (GitHub + Netlify → real link).
