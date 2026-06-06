@@ -123,6 +123,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.12:** safety net — press Escape to close any pop-up (after a stale-cache tab left an overlay stuck on the live site; hard-refresh resolves that) | `index.html` |
 | 2026-06-06 | **v0.11 — C3:** appointments saved to Supabase, private per user (book/view/cancel against the cloud; login required to book) | `index.html` |
 | 2026-06-06 | **v0.10 — C4:** real accounts via Supabase Auth (log in / log out, email shown in header, session persists) | `index.html` |
 | 2026-06-06 | **v0.9:** "Join as a doctor" now saves to the shared Supabase database (real `insert`) — new doctors appear for everyone, not just one browser | `index.html` |
