@@ -92,7 +92,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 **Already done:** ✅ cancel · ✅ multilingual EN/FR/AR + RTL · ✅ document upload · ✅ doctor dashboard · ✅ accounts
 
 **Tier 1 — make it feel real (highest impact)**
-- [ ] **D1 — Real availability + no double-booking.** Doctors set their working hours/slots in their dashboard; patients book only *real* free slots; once booked, a slot becomes unavailable so nobody double-books. *(Replaces today's fake/random slots — THE signature behaviour of a booking platform.)* Needs: a `slots`/availability table; dashboard UI to add slots; booking reads real slots + reserves them.
+- [x] **D1 — Real availability + no double-booking.** ✅ Doctors set real slots in their dashboard; patients book only real free slots; a booked slot locks (atomic reserve) so nobody double-books; cancel frees it. Replaces the old fake slots. (v0.18 doctor availability manager; v0.19 patient books real slots; v0.20 bulk/recurring availability generator.)
 - [x] **D2 — Doctor verification + admin interface (the 3rd role).** ✅ New doctors start unverified & hidden from patients; license-number field; "⏳ pending" badge; an **admin** approves/rejects in an in-app **Admin panel** (v0.16 + v0.17). Three interfaces now: patient · doctor · admin.
 
 **Tier 2 — patient experience**
@@ -139,6 +139,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.18–v0.19 — D1 real availability:** doctors set real slots; patients book real free slots that lock (no double-booking); cancel frees the slot | `index.html` |
 | 2026-06-06 | **v0.17 — D2 part 2 (admin panel):** admins approve/reject pending doctors in-app; 3rd interface (admin) done. **D2 complete.** | `index.html` |
 | 2026-06-06 | **v0.16 — D2 part 1 (verification):** new doctors are unverified & hidden from patients until approved; license-number field; "pending" badge (approve via Supabase for now) | `index.html` |
 | 2026-06-06 | Researched Doctolib (2026) and wrote a prioritized feature plan into Stage D (teleconsultation deferred) | `PROJECT-PLAN.md` |

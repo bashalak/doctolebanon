@@ -209,7 +209,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.17 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.19 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -287,7 +287,8 @@ const I18N = {
     dash:"Dashboard", dashTitle:"Doctor dashboard", dashIntro:"Appointments booked with you as:", noBookings:"No appointments booked with you yet.",
     license:"Medical license number", phLicense:"e.g. 12345", pending:"Pending verification", pendingMsg:"Your profile was submitted and is pending verification — it will appear to patients once approved.", needLicense:"Please enter your medical license number.",
     admin:"Admin", adminTitle:"Pending doctor verifications", approve:"Approve", reject:"Reject", noPending:"No doctors awaiting verification.",
-    footer:"DoctoLebanon — prototype v0.17 · Made to test an idea, not for real medical use yet." },
+    dateLabel:"Date", timeLabel:"Time", addSlot:"Add slot", noSlots:"No availability added yet.", needDateTime:"Please choose a date and time.", slotTaken:"Sorry, that slot was just taken — please pick another.",
+    footer:"DoctoLebanon — prototype v0.19 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -316,7 +317,8 @@ const I18N = {
     dash:"Tableau de bord", dashTitle:"Tableau de bord du médecin", dashIntro:"Rendez-vous pris avec vous en tant que :", noBookings:"Aucun rendez-vous pris avec vous pour l'instant.",
     license:"Numéro de licence médicale", phLicense:"ex. 12345", pending:"En attente de vérification", pendingMsg:"Votre profil a été soumis et est en attente de vérification — il apparaîtra aux patients après approbation.", needLicense:"Veuillez saisir votre numéro de licence médicale.",
     admin:"Admin", adminTitle:"Médecins en attente de vérification", approve:"Approuver", reject:"Rejeter", noPending:"Aucun médecin en attente de vérification.",
-    footer:"DoctoLebanon — prototype v0.17 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    dateLabel:"Date", timeLabel:"Heure", addSlot:"Ajouter un créneau", noSlots:"Aucune disponibilité ajoutée.", needDateTime:"Veuillez choisir une date et une heure.", slotTaken:"Désolé, ce créneau vient d'être pris — veuillez en choisir un autre.",
+    footer:"DoctoLebanon — prototype v0.19 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -345,7 +347,8 @@ const I18N = {
     dash:"لوحة التحكم", dashTitle:"لوحة تحكم الطبيب", dashIntro:"المواعيد المحجوزة معك بصفة:", noBookings:"لا توجد مواعيد محجوزة معك بعد.",
     license:"رقم الترخيص الطبي", phLicense:"مثال: 12345", pending:"في انتظار التحقق", pendingMsg:"تم إرسال ملفك وهو قيد التحقق — سيظهر للمرضى بعد الموافقة.", needLicense:"يرجى إدخال رقم الترخيص الطبي.",
     admin:"الإدارة", adminTitle:"أطباء بانتظار التحقق", approve:"موافقة", reject:"رفض", noPending:"لا يوجد أطباء بانتظار التحقق.",
-    footer:"دكتو لبنان — نموذج تجريبي v0.17 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    dateLabel:"التاريخ", timeLabel:"الوقت", addSlot:"إضافة موعد", noSlots:"لم تتم إضافة أي مواعيد بعد.", needDateTime:"يرجى اختيار التاريخ والوقت.", slotTaken:"عذراً، تم حجز هذا الموعد للتو — يرجى اختيار موعد آخر.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.19 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -370,7 +373,7 @@ function stars(r){const f=Math.round(r)||0;return "★".repeat(f)+"☆".repeat(M
 function shapeAppt(row){
   return { id:row.id, doc:row.doctor_name, spec:row.specialty, city:row.city,
            day:row.slot_day, time:row.slot_time, fee:row.fee,
-           name:row.patient_name, phone:row.phone, reason:row.reason, docName:row.doc_name, docPath:row.doc_path };
+           name:row.patient_name, phone:row.phone, reason:row.reason, docName:row.doc_name, docPath:row.doc_path, slotId:row.slot_id };
 }
 
 /* Language helpers */
@@ -420,6 +423,8 @@ function slotsFor(doc){
   }
   return out;
 }
+/* Format an ISO date (YYYY-MM-DD) like "Mon 26 Jun". */
+function fmtDate(iso){ const p=iso.split("-").map(Number); const dt=new Date(p[0],p[1]-1,p[2]); return `${DAYS[dt.getDay()]} ${p[2]} ${MON[p[1]-1]}`; }
 
 /* ============ The doctor list ============ */
 function initials(name){return name.replace(/^Dr\.?\s*/i,"").split(" ").filter(Boolean).map(w=>w[0]).join("").slice(0,2).toUpperCase();}
@@ -444,7 +449,6 @@ function render(){
   const g=$("grid"); g.innerHTML="";
   if(list.length===0){g.innerHTML=`<div class="empty">${t("noMatch")}</div>`;return;}
   list.forEach(d=>{
-    const next = slotsFor(d)[0];
     const rating = !d.r
       ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newBadge")}</span>`
       : `<span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span>`;
@@ -459,7 +463,6 @@ function render(){
         </div>
       </div>
       <div class="tags">${!d.verified?`<span class="tag" style="background:#fff7e6;color:#8a6100">⏳ ${t("pending")}</span>`:""}${d.langs.map(l=>`<span class="tag">${langLabel(l)}</span>`).join("")}<span class="tag">${d.fee}</span></div>
-      <div class="avail">${next?`${t("nextAvail")} <b>${next.label} ${t("atTime")} ${next.times[0]}</b>`:t("noAvailWeek")}</div>
       <button class="btn" onclick="openDoctor(${d.id})">${t("viewProfile")}</button>`;
     g.appendChild(card);
   });
@@ -467,8 +470,16 @@ function render(){
 
 /* ============ Doctor modal + booking ============ */
 let pending=null;
-function openDoctor(id){
-  const d=getDoctor(id); const days=slotsFor(d);
+async function openDoctor(id){
+  const d=getDoctor(id);
+  const today = new Date().toISOString().slice(0,10);
+  const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", d.id).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time");
+  const byDate = {};
+  (slotRows||[]).forEach(s=>{ (byDate[s.slot_date]=byDate[s.slot_date]||[]).push(s); });
+  const slotDates = Object.keys(byDate).sort();
+  const slotsHtml = slotDates.length
+    ? slotDates.map(dt=>`<div class="day"><h4>${fmtDate(dt)}</h4><div class="slots">${byDate[dt].map(s=>`<button class="slot" onclick="pickSlot(${d.id}, ${s.id}, '${fmtDate(dt)}', '${s.slot_time}')">${s.slot_time}</button>`).join("")}</div></div>`).join("")
+    : `<div class="empty">${t("noAvailWeek")}</div>`;
   const rating = !d.r
     ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newWord")}</span>`
     : `<span class="stars">${stars(d.r)}</span> ${d.r}`;
@@ -495,16 +506,13 @@ function openDoctor(id){
       <h4 class="psec">${t("about")}</h4>
       <p style="color:var(--muted);margin:4px 0 0">${bioText(d)}</p>
       <h4 class="psec">${t("availability")}</h4>
-      ${days.length? days.map(day=>`
-        <div class="day"><h4>${day.label}</h4><div class="slots">
-          ${day.times.map(tm=>`<button class="slot" onclick="pickSlot(${id},'${day.label}','${tm}')">${tm}</button>`).join("")}
-        </div></div>`).join("") : `<div class="empty">${t("noAvailWeek")}</div>`}
+      ${slotsHtml}
     </div>`;
   openOverlay();
 }
 
-function pickSlot(id, dayLabel, time){
-  const d=getDoctor(id); pending={doc:d, day:dayLabel, time};
+function pickSlot(id, slotId, dayLabel, time){
+  const d=getDoctor(id); pending={doc:d, slotId, day:dayLabel, time};
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
@@ -542,13 +550,17 @@ async function confirmBooking(){
     const { error: upErr } = await sb.storage.from("documents").upload(docPath, docFile);
     if(upErr){ alert("Could not upload document: " + upErr.message); return; }
   }
-  // Save the appointment to the cloud, owned by the current user (user_id fills in automatically)
+  // Reserve the slot atomically — succeeds only if it's still free (prevents double-booking)
+  const resv = await sb.from("slots").update({ is_booked:true }).eq("id", pending.slotId).eq("is_booked", false).select();
+  if(resv.error){ alert("Sorry, could not book: " + resv.error.message); return; }
+  if(!resv.data || resv.data.length===0){ alert(t("slotTaken")); closeModal(); openDoctor(pending.doc.id); return; }
+  // Save the appointment, linked to the reserved slot
   const { error } = await sb.from("appointments").insert({
-    doctor_id:pending.doc.id, doctor_name:pending.doc.n, specialty:pending.doc.s, city:pending.doc.c,
+    doctor_id:pending.doc.id, slot_id:pending.slotId, doctor_name:pending.doc.n, specialty:pending.doc.s, city:pending.doc.c,
     slot_day:pending.day, slot_time:pending.time, fee:pending.doc.fee,
     patient_name:name, phone, reason, doc_name:docName, doc_path:docPath
   });
-  if(error){ alert("Sorry, could not book: " + error.message); return; }
+  if(error){ await sb.from("slots").update({ is_booked:false }).eq("id", pending.slotId); alert("Sorry, could not book: " + error.message); return; }
   updateBadge();
   const sms = lang==="fr" ? `Une confirmation serait normalement envoyée au ${phone} par SMS.`
             : lang==="ar" ? `عادةً ما يتم إرسال تأكيد إلى ${phone} عبر رسالة نصية.`
@@ -586,14 +598,15 @@ async function showAppointments(){
         <div>${t("bookedFor")} ${ap.name} (${ap.phone})</div>
         ${ap.reason?`<div>${t("reasonWord")} ${reasonText(ap.reason)}</div>`:""}
         ${ap.docName?`<div>📎 ${t("attachedWord")} ${ap.docPath?`<a class="plink" href="#" onclick="openDoc('${ap.docPath}');return false;">${ap.docName}</a>`:ap.docName}</div>`:""}</div>
-      <button class="btn ghost small" onclick="cancelAppt(${ap.id})">${t("cancel")}</button>`;
+      <button class="btn ghost small" onclick="cancelAppt(${ap.id}, ${ap.slotId||'null'})">${t("cancel")}</button>`;
     box.appendChild(el);
   });
 }
-async function cancelAppt(id){
+async function cancelAppt(id, slotId){
   if(!confirm(t("cancelConfirm")))return;
   const { error } = await sb.from("appointments").delete().eq("id", id);
   if(error){ alert(error.message); return; }
+  if(slotId){ await sb.from("slots").update({ is_booked:false }).eq("id", slotId); }   // free the slot again
   updateBadge(); showAppointments();
 }
 /* Open a private document via a short-lived signed link (only the owner can do this). */
@@ -613,11 +626,30 @@ async function showDashboard(){
   const box=$("dashBody");
   if(!myListings.length){ box.innerHTML=`<div class="empty">${t("noBookings")}</div>`; return; }
   box.innerHTML=`<div class="empty">⏳</div>`;
+  const me = myListings[0];                 // primary listing (availability is managed for this one)
   const ids = myListings.map(d=>d.id);
-  const { data, error } = await sb.from("appointments").select("*").in("doctor_id", ids).order("id");
-  if(error){ box.innerHTML=`<div class="empty">${error.message}</div>`; return; }
-  const appts=(data||[]).map(shapeAppt);
-  let html = `<p style="margin-top:0;color:var(--muted)">${t("dashIntro")} <b>${myListings.map(d=>d.n).join(", ")}</b></p>`;
+  const [slotsRes, apptRes] = await Promise.all([
+    sb.from("slots").select("*").eq("doctor_id", me.id).order("slot_date").order("slot_time"),
+    sb.from("appointments").select("*").in("doctor_id", ids).order("id")
+  ]);
+  const slots = slotsRes.data||[];
+  const appts = (apptRes.data||[]).map(shapeAppt);
+
+  // --- Availability manager (add / remove your real time slots) ---
+  let html = `<h3 class="psec" style="margin-top:0">${t("availability")} — ${me.n}</h3>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:8px 0 10px">
+      <div><div class="plabel">${t("dateLabel")}</div><input type="date" id="avDate"></div>
+      <div><div class="plabel">${t("timeLabel")}</div><input type="time" id="avTime"></div>
+      <button class="btn small" onclick="addSlot(${me.id})">${t("addSlot")}</button>
+    </div>
+    <div class="tags" style="margin-bottom:20px">${
+      slots.length
+        ? slots.map(s=>`<span class="tag" style="${s.is_booked?'background:#eee;color:#999':''}">${fmtDate(s.slot_date)} ${s.slot_time}${s.is_booked?' ✓':` <a href="#" onclick="delSlot(${s.id});return false;" style="color:var(--red);text-decoration:none">✕</a>`}</span>`).join("")
+        : `<span style="color:var(--muted);font-size:13px">${t("noSlots")}</span>`
+    }</div>`;
+
+  // --- Appointments booked with me ---
+  html += `<h3 class="psec">${t("dashIntro")} <b>${myListings.map(d=>d.n).join(", ")}</b></h3>`;
   if(appts.length===0){
     html += `<div class="empty">${t("noBookings")}</div>`;
   } else {
@@ -634,6 +666,18 @@ async function showDashboard(){
     }).join("");
   }
   box.innerHTML = html;
+}
+async function addSlot(docId){
+  const d=$("avDate").value, tm=$("avTime").value;
+  if(!d||!tm){ alert(t("needDateTime")); return; }
+  const { error } = await sb.from("slots").insert({ doctor_id:docId, slot_date:d, slot_time:tm });
+  if(error){ alert(error.message); return; }
+  showDashboard();
+}
+async function delSlot(id){
+  const { error } = await sb.from("slots").delete().eq("id", id);
+  if(error){ alert(error.message); return; }
+  showDashboard();
 }
 
 /* ============ Admin panel (verify doctors) ============ */
