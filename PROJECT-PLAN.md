@@ -97,7 +97,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 **Tier 2 — patient experience**
 - [ ] **D3 — Reschedule** an appointment (move it to another free slot). *Easy; nicer once D1 exists.*
-- [ ] **D10 — Doctor cancels an appointment** (from dashboard/calendar; frees the slot) — *in-app part is easy, do soon.* The **"notify the patient + suggest a new time by email/SMS"** part needs an email/SMS provider → deferred to D4 / Stage E (SMS costs money). *(User idea.)*
+- [x] **D10 — Doctor cancels an appointment (in-app)** ✅ Doctor cancels from the dashboard with an optional note; the slot is freed; the patient sees "Cancelled by the doctor" + the note in My appointments (v0.24). ⏳ Still later: actual **email/SMS** delivery (needs a provider; SMS costs money) → D4 / Stage E.
 - [ ] **D4 — Email reminders / confirmations** for appointments. Needs a Supabase scheduled function + an email provider.
 - [ ] **D5 — Reviews & ratings.** Patients rate a doctor after a visit; show the average on the card/profile. Needs a `reviews` table + display.
 - [ ] **D6 — Book for a family member** (relatives on an account). Needs a `relatives` table + "who is this for?" choice.
@@ -141,6 +141,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.24 — doctor cancel (in-app):** doctor cancels a booking with an optional note; slot freed; patient sees "Cancelled by the doctor" + note | `index.html` |
 | 2026-06-06 | **v0.22–v0.23 — D9 calendar view:** Day/Week/Month calendar of appointments in the doctor dashboard (stores `appt_date` so bookings appear) | `index.html` |
 | 2026-06-06 | **v0.21 — tabbed doctor dashboard:** Appointments | Availability tabs (so the slot list no longer buries bookings) + slot count + "Clear free slots" | `index.html` |
 | 2026-06-06 | **v0.20 — recurring availability:** doctors generate weeks/months of slots at once (date range + weekdays + time range + interval) | `index.html` |
