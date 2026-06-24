@@ -92,6 +92,19 @@
   .plink:hover{text-decoration:underline}
   .radios{display:flex;flex-direction:column;gap:8px;padding-top:4px}
   .radio{font-weight:400;display:flex;gap:8px;align-items:center;cursor:pointer}
+  /* ---------- Calendar ---------- */
+  .calweek{display:grid;grid-template-columns:repeat(7,minmax(96px,1fr));gap:6px;overflow-x:auto}
+  .calcol{border:1px solid var(--line);border-radius:8px;padding:6px;min-height:72px}
+  .calhd{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px}
+  .calitem{font-size:12px;background:#eef7f5;color:var(--green-dark);border-radius:6px;padding:3px 6px;margin-bottom:3px}
+  .calempty{font-size:12px;color:var(--line)}
+  .calhead7{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:5px;text-align:center}
+  .calmonth{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .calcell{border:1px solid var(--line);border-radius:8px;min-height:56px;padding:5px;cursor:pointer;position:relative}
+  .calcell.dim{opacity:.4}
+  .calcell:hover{background:#f7fbfa}
+  .caln{font-size:12px;font-weight:600}
+  .calbadge{position:absolute;bottom:5px;inset-inline-end:5px;background:var(--green);color:#fff;border-radius:10px;font-size:11px;padding:1px 6px}
   @media(max-width:480px){.profile-grid{grid-template-columns:1fr}}
   .form-row{margin:12px 0}
   .form-row label{display:block;font-size:13px;font-weight:600;margin-bottom:5px}
@@ -209,7 +222,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.21 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.23 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -290,7 +303,8 @@ const I18N = {
     dateLabel:"Date", timeLabel:"Time", addSlot:"Add slot", noSlots:"No availability added yet.", needDateTime:"Please choose a date and time.", slotTaken:"Sorry, that slot was just taken — please pick another.",
     recurringTitle:"Set recurring availability", fromLabel:"From", toLabel:"To", startLabel:"Start", endLabel:"End", everyLabel:"Every (min)", generateBtn:"Generate slots", needRange:"Please choose dates, times and at least one day.",
     dashTabAppts:"Appointments", slotsWord:"slots", bookedWord:"booked", clearSlots:"Clear free slots",
-    footer:"DoctoLebanon — prototype v0.21 · Made to test an idea, not for real medical use yet." },
+    calTab:"Calendar", todayWord:"Today", dayView:"Day", weekView:"Week", monthView:"Month",
+    footer:"DoctoLebanon — prototype v0.23 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -322,7 +336,8 @@ const I18N = {
     dateLabel:"Date", timeLabel:"Heure", addSlot:"Ajouter un créneau", noSlots:"Aucune disponibilité ajoutée.", needDateTime:"Veuillez choisir une date et une heure.", slotTaken:"Désolé, ce créneau vient d'être pris — veuillez en choisir un autre.",
     recurringTitle:"Définir des disponibilités récurrentes", fromLabel:"Du", toLabel:"Au", startLabel:"Début", endLabel:"Fin", everyLabel:"Toutes les (min)", generateBtn:"Générer les créneaux", needRange:"Veuillez choisir les dates, les heures et au moins un jour.",
     dashTabAppts:"Rendez-vous", slotsWord:"créneaux", bookedWord:"réservés", clearSlots:"Effacer les créneaux libres",
-    footer:"DoctoLebanon — prototype v0.21 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    calTab:"Calendrier", todayWord:"Aujourd'hui", dayView:"Jour", weekView:"Semaine", monthView:"Mois",
+    footer:"DoctoLebanon — prototype v0.23 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -354,7 +369,8 @@ const I18N = {
     dateLabel:"التاريخ", timeLabel:"الوقت", addSlot:"إضافة موعد", noSlots:"لم تتم إضافة أي مواعيد بعد.", needDateTime:"يرجى اختيار التاريخ والوقت.", slotTaken:"عذراً، تم حجز هذا الموعد للتو — يرجى اختيار موعد آخر.",
     recurringTitle:"تحديد مواعيد متكررة", fromLabel:"من", toLabel:"إلى", startLabel:"البداية", endLabel:"النهاية", everyLabel:"كل (دقيقة)", generateBtn:"إنشاء المواعيد", needRange:"يرجى اختيار التواريخ والأوقات ويوماً واحداً على الأقل.",
     dashTabAppts:"المواعيد", slotsWord:"موعد", bookedWord:"محجوز", clearSlots:"حذف المواعيد المتاحة",
-    footer:"دكتو لبنان — نموذج تجريبي v0.21 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    calTab:"التقويم", todayWord:"اليوم", dayView:"يوم", weekView:"أسبوع", monthView:"شهر",
+    footer:"دكتو لبنان — نموذج تجريبي v0.23 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -484,7 +500,7 @@ async function openDoctor(id){
   (slotRows||[]).forEach(s=>{ (byDate[s.slot_date]=byDate[s.slot_date]||[]).push(s); });
   const slotDates = Object.keys(byDate).sort();
   const slotsHtml = slotDates.length
-    ? slotDates.map(dt=>`<div class="day"><h4>${fmtDate(dt)}</h4><div class="slots">${byDate[dt].map(s=>`<button class="slot" onclick="pickSlot(${d.id}, ${s.id}, '${fmtDate(dt)}', '${s.slot_time}')">${s.slot_time}</button>`).join("")}</div></div>`).join("")
+    ? slotDates.map(dt=>`<div class="day"><h4>${fmtDate(dt)}</h4><div class="slots">${byDate[dt].map(s=>`<button class="slot" onclick="pickSlot(${d.id}, ${s.id}, '${fmtDate(dt)}', '${s.slot_time}', '${dt}')">${s.slot_time}</button>`).join("")}</div></div>`).join("")
     : `<div class="empty">${t("noAvailWeek")}</div>`;
   const rating = !d.r
     ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newWord")}</span>`
@@ -517,8 +533,8 @@ async function openDoctor(id){
   openOverlay();
 }
 
-function pickSlot(id, slotId, dayLabel, time){
-  const d=getDoctor(id); pending={doc:d, slotId, day:dayLabel, time};
+function pickSlot(id, slotId, dayLabel, time, iso){
+  const d=getDoctor(id); pending={doc:d, slotId, day:dayLabel, time, iso};
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
@@ -563,7 +579,7 @@ async function confirmBooking(){
   // Save the appointment, linked to the reserved slot
   const { error } = await sb.from("appointments").insert({
     doctor_id:pending.doc.id, slot_id:pending.slotId, doctor_name:pending.doc.n, specialty:pending.doc.s, city:pending.doc.c,
-    slot_day:pending.day, slot_time:pending.time, fee:pending.doc.fee,
+    slot_day:pending.day, slot_time:pending.time, appt_date:pending.iso, fee:pending.doc.fee,
     patient_name:name, phone, reason, doc_name:docName, doc_path:docPath
   });
   if(error){ await sb.from("slots").update({ is_booked:false }).eq("id", pending.slotId); alert("Sorry, could not book: " + error.message); return; }
@@ -638,6 +654,7 @@ async function showDashboard(){
   const ids = myListings.map(d=>d.id);
   const tabs = `<div class="langswitch" style="margin:0 0 16px">
       <button class="${dashTab==='appts'?'active':''}" onclick="setDashTab('appts')">${t("dashTabAppts")}</button>
+      <button class="${dashTab==='cal'?'active':''}" onclick="setDashTab('cal')">${t("calTab")}</button>
       <button class="${dashTab==='avail'?'active':''}" onclick="setDashTab('avail')">${t("availability")}</button>
     </div>`;
 
@@ -670,6 +687,13 @@ async function showDashboard(){
           ? slots.map(s=>`<span class="tag" style="${s.is_booked?'background:#eee;color:#999':''}">${fmtDate(s.slot_date)} ${s.slot_time}${s.is_booked?' ✓':` <a href="#" onclick="delSlot(${s.id});return false;" style="color:var(--red);text-decoration:none">✕</a>`}</span>`).join("")
           : `<span style="color:var(--muted);font-size:13px">${t("noSlots")}</span>`
       }</div>`;
+  } else if(dashTab==="cal"){
+    // ----- CALENDAR TAB -----
+    if(!calRef) calRef = isoOf(new Date());
+    const { data } = await sb.from("appointments").select("*").in("doctor_id", ids).order("id");
+    const byDate={};
+    (data||[]).forEach(r=>{ if(r.appt_date){ (byDate[r.appt_date]=byDate[r.appt_date]||[]).push(r); } });
+    box.innerHTML = tabs + buildCalendar(byDate);
   } else {
     // ----- APPOINTMENTS TAB -----
     const { data } = await sb.from("appointments").select("*").in("doctor_id", ids).order("id");
@@ -739,6 +763,59 @@ async function clearSlots(docId){
   const { error } = await sb.from("slots").delete().eq("doctor_id", docId).eq("is_booked", false);  // only free slots (keep booked ones)
   if(error){ alert(error.message); return; }
   showDashboard();
+}
+
+/* ============ Doctor calendar (day / week / month) ============ */
+let calView="week", calRef="";
+function isoOf(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`; }
+function parseISO(s){ const p=s.split("-").map(Number); return new Date(p[0],p[1]-1,p[2]); }
+function addDays(dt,n){ const d=new Date(dt); d.setDate(d.getDate()+n); return d; }
+function startOfWeek(dt){ const d=new Date(dt); d.setDate(d.getDate()-((d.getDay()+6)%7)); return d; }  // Monday
+function calSetView(v){ calView=v; showDashboard(); }
+function calToday(){ calRef=isoOf(new Date()); showDashboard(); }
+function calOpenDay(iso){ calRef=iso; calView="day"; showDashboard(); }
+function calNav(dir){
+  const dt=parseISO(calRef);
+  if(calView==="day") dt.setDate(dt.getDate()+dir);
+  else if(calView==="week") dt.setDate(dt.getDate()+dir*7);
+  else dt.setMonth(dt.getMonth()+dir);
+  calRef=isoOf(dt); showDashboard();
+}
+function buildCalendar(byDate){
+  const ref=parseISO(calRef);
+  const label = calView==="month" ? `${MON[ref.getMonth()]} ${ref.getFullYear()}`
+              : calView==="week"  ? fmtDate(isoOf(startOfWeek(ref)))
+              : fmtDate(calRef);
+  const toolbar = `<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+      <button class="btn ghost small" onclick="calNav(-1)">‹</button>
+      <button class="btn ghost small" onclick="calToday()">${t("todayWord")}</button>
+      <button class="btn ghost small" onclick="calNav(1)">›</button>
+      <b style="margin-inline:6px">${label}</b>
+      <span class="langswitch" style="margin-inline-start:auto">
+        <button class="${calView==='day'?'active':''}" onclick="calSetView('day')">${t("dayView")}</button>
+        <button class="${calView==='week'?'active':''}" onclick="calSetView('week')">${t("weekView")}</button>
+        <button class="${calView==='month'?'active':''}" onclick="calSetView('month')">${t("monthView")}</button>
+      </span></div>`;
+  const sortByTime = arr => arr.slice().sort((a,b)=>a.slot_time.localeCompare(b.slot_time));
+  if(calView==="day"){
+    const items=sortByTime(byDate[calRef]||[]);
+    return toolbar + (items.length
+      ? items.map(r=>`<div class="appt"><div class="when"><div class="d">${ref.getDate()}</div><div class="m">${MON[ref.getMonth()]}</div></div>
+          <div class="info"><b>${r.slot_time} — ${r.patient_name}</b><div>🩺 ${r.doctor_name} · ${specLabel(r.specialty)}</div>${r.phone?`<div>${r.phone}</div>`:""}</div></div>`).join("")
+      : `<div class="empty">${t("noBookings")}</div>`);
+  }
+  if(calView==="week"){
+    const start=startOfWeek(ref); let cols="";
+    for(let i=0;i<7;i++){ const dt=addDays(start,i); const items=sortByTime(byDate[isoOf(dt)]||[]);
+      cols += `<div class="calcol"><div class="calhd">${DAYS[dt.getDay()]} ${dt.getDate()}</div>${items.map(r=>`<div class="calitem">${r.slot_time} · ${r.patient_name}</div>`).join("")||'<div class="calempty">—</div>'}</div>`; }
+    return toolbar + `<div class="calweek">${cols}</div>`;
+  }
+  // month
+  const y=ref.getFullYear(), m=ref.getMonth(); const first=new Date(y,m,1); const pad=(first.getDay()+6)%7;
+  let cells="";
+  for(let i=0;i<42;i++){ const dt=addDays(first,i-pad); const iso=isoOf(dt); const inM=dt.getMonth()===m; const n=(byDate[iso]||[]).length;
+    cells += `<div class="calcell ${inM?'':'dim'}" onclick="calOpenDay('${iso}')"><div class="caln">${dt.getDate()}</div>${n?`<div class="calbadge">${n}</div>`:''}</div>`; }
+  return toolbar + `<div class="calhead7">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<div>${d}</div>`).join("")}</div><div class="calmonth">${cells}</div>`;
 }
 
 /* ============ Admin panel (verify doctors) ============ */

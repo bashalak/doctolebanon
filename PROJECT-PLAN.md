@@ -97,6 +97,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 **Tier 2 — patient experience**
 - [ ] **D3 — Reschedule** an appointment (move it to another free slot). *Easy; nicer once D1 exists.*
+- [ ] **D10 — Doctor cancels an appointment** (from dashboard/calendar; frees the slot) — *in-app part is easy, do soon.* The **"notify the patient + suggest a new time by email/SMS"** part needs an email/SMS provider → deferred to D4 / Stage E (SMS costs money). *(User idea.)*
 - [ ] **D4 — Email reminders / confirmations** for appointments. Needs a Supabase scheduled function + an email provider.
 - [ ] **D5 — Reviews & ratings.** Patients rate a doctor after a visit; show the average on the card/profile. Needs a `reviews` table + display.
 - [ ] **D6 — Book for a family member** (relatives on an account). Needs a `relatives` table + "who is this for?" choice.
@@ -104,7 +105,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 **Tier 3 — polish**
 - [ ] **D7 — Better search & filters** (by language, soonest availability, sorting).
 - [ ] **D8 — Doctor edits their own profile** + favicon + small UI polish.
-- [ ] **D9 — Calendar view for the doctor** (day / week / month grid of appointments & availability) — better daily management, like real Doctolib. *(User idea.)*
+- [x] **D9 — Calendar view for the doctor** ✅ Day / Week / Month calendar tab in the dashboard, with navigation; appointments placed by date (`appt_date` stored on booking). (v0.22–v0.23)
 
 **Deferred (later / Stage E):** teleconsultation (video), SMS reminders (cost), payments (Lebanon constraints), secure messaging, multi-location/staff, OCR document sorting, AI phone assistant, native mobile apps, calendar sync, legal (Law No. 81) + real doctor recruitment.
 
@@ -140,6 +141,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.22–v0.23 — D9 calendar view:** Day/Week/Month calendar of appointments in the doctor dashboard (stores `appt_date` so bookings appear) | `index.html` |
 | 2026-06-06 | **v0.21 — tabbed doctor dashboard:** Appointments | Availability tabs (so the slot list no longer buries bookings) + slot count + "Clear free slots" | `index.html` |
 | 2026-06-06 | **v0.20 — recurring availability:** doctors generate weeks/months of slots at once (date range + weekdays + time range + interval) | `index.html` |
 | 2026-06-06 | **v0.18–v0.19 — D1 real availability:** doctors set real slots; patients book real free slots that lock (no double-booking); cancel frees the slot | `index.html` |
