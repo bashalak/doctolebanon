@@ -104,6 +104,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 **Tier 3 — polish**
 - [ ] **D7 — Better search & filters** (by language, soonest availability, sorting).
 - [ ] **D8 — Doctor edits their own profile** + favicon + small UI polish.
+- [ ] **D9 — Calendar view for the doctor** (day / week / month grid of appointments & availability) — better daily management, like real Doctolib. *(User idea.)*
 
 **Deferred (later / Stage E):** teleconsultation (video), SMS reminders (cost), payments (Lebanon constraints), secure messaging, multi-location/staff, OCR document sorting, AI phone assistant, native mobile apps, calendar sync, legal (Law No. 81) + real doctor recruitment.
 
@@ -139,6 +140,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.21 — tabbed doctor dashboard:** Appointments | Availability tabs (so the slot list no longer buries bookings) + slot count + "Clear free slots" | `index.html` |
 | 2026-06-06 | **v0.20 — recurring availability:** doctors generate weeks/months of slots at once (date range + weekdays + time range + interval) | `index.html` |
 | 2026-06-06 | **v0.18–v0.19 — D1 real availability:** doctors set real slots; patients book real free slots that lock (no double-booking); cancel frees the slot | `index.html` |
 | 2026-06-06 | **v0.17 — D2 part 2 (admin panel):** admins approve/reject pending doctors in-app; 3rd interface (admin) done. **D2 complete.** | `index.html` |
