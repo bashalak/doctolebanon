@@ -606,6 +606,46 @@ await sb.from("appointments").delete().eq("id", id);
 
 ---
 
+## 20. New in v0.14–v0.17 — Roles: doctor, admin & verification 🩺🛡️
+
+The app now behaves differently for **three kinds of user** — and the rules live in the **database**, not just the screen.
+
+### A user's "role" is derived from data
+- You're **a doctor** if you *own a doctor listing* (`doctors.owner = your id`).
+- You're **an admin** if your id is in the `admins` table.
+- Otherwise you're **a patient**.
+
+`refreshRoles()` works this out after login, and the header shows the right links (`Dashboard` for doctors, `Admin` for admins).
+
+### Verification: the database hides unverified doctors
+New doctors start `verified = false`. The key is the **read rule**:
+```sql
+create policy "Read verified or own doctors" on doctors for select
+  using ( verified = true or owner = auth.uid() );
+```
+So **patients only ever receive verified doctors** from the database — the hiding is enforced by Postgres itself, not by hoping the app filters correctly. A doctor still sees their own pending listing (the `owner = auth.uid()` part).
+
+### Admin powers via RLS subqueries
+Admins can see *all* doctors and approve them, granted by rules that check the `admins` table:
+```sql
+create policy "admins read all doctors" on doctors for select
+  using ( exists (select 1 from admins a where a.user_id = auth.uid()) );
+create policy "admins update doctors"   on doctors for update
+  using ( exists (select 1 from admins a where a.user_id = auth.uid()) );
+```
+Approving is just an update: `sb.from("doctors").update({ verified:true }).eq("id", id)` — which only succeeds because that policy allows it.
+
+### Why this is the "right" way
+Security lives in the **database rules (RLS)**, so even if the front-end had a bug, a patient still couldn't read unverified doctors and a non-admin couldn't approve anyone. Defense at the data layer — exactly how a real medical app should be built.
+
+### Concepts introduced
+- **Roles derived from data** (own a listing → doctor; in `admins` → admin).
+- **RLS with subqueries** (`exists (select 1 from admins …)`) for permission checks.
+- **`update` to change a row** (approving = flipping `verified`).
+- **Three interfaces, one app** — the screen branches on role, but the database enforces it.
+
+---
+
 ## 19. New in v0.13 — Real document upload (C5, Supabase Storage) 📎
 
 The booking's "attach a document" now **actually uploads the file** to the cloud — privately.

@@ -142,6 +142,7 @@
     <button class="btn link" id="navFind" onclick="goHome()">Find a doctor</button>
     <button class="btn link" id="navJoin" onclick="showSignup()">Join as a doctor</button>
     <button class="btn link hidden" id="navDash" onclick="showDashboard()">Dashboard</button>
+    <button class="btn link hidden" id="navAdmin" onclick="showAdmin()">Admin</button>
     <button class="btn ghost small" onclick="showAppointments()"><span id="navApptLabel">My appointments</span> <span id="apptBadge"></span></button>
     <span id="authArea"></span>
   </div>
@@ -195,6 +196,12 @@
     <div class="results-head"><h2 id="dashTitle">Doctor dashboard</h2></div>
     <div id="dashBody"></div>
   </div>
+
+  <!-- Admin panel (only shown to admins) -->
+  <div id="adminView" class="panel hidden">
+    <div class="results-head"><h2 id="adminTitle">Pending doctor verifications</h2></div>
+    <div id="adminBody"></div>
+  </div>
 </main>
 
 <!-- Doctor / booking modal -->
@@ -202,7 +209,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.16 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.17 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -238,7 +245,7 @@ let DOCTORS = [];   // filled from Supabase at startup (see loadDoctorsFromCloud
 /* Turn a database row into the shape the rest of the app expects (d.n, d.s, d.c, ...). */
 function shapeDoctor(row, i){
   return { id:row.id, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee, tel:row.tel,
-           owner:row.owner, verified:row.verified, color:COLORS[i%COLORS.length], init:initials(row.name) };
+           owner:row.owner, verified:row.verified, license:row.license, color:COLORS[i%COLORS.length], init:initials(row.name) };
 }
 async function loadDoctorsFromCloud(){
   try{
@@ -279,7 +286,8 @@ const I18N = {
     logIn:"Log in", logOut:"Log out", signUp:"Sign up", email:"Email", password:"Password", loginTitle:"Log in or sign up", loginIntro:"Create an account or log in to book and manage your appointments.", needEmailPass:"Please enter your email and password.", checkEmail:"Account created! Check your email to confirm, then log in.", loginToBook:"Please log in to book and to see your appointments.", loginFirst:"Please log in first.",
     dash:"Dashboard", dashTitle:"Doctor dashboard", dashIntro:"Appointments booked with you as:", noBookings:"No appointments booked with you yet.",
     license:"Medical license number", phLicense:"e.g. 12345", pending:"Pending verification", pendingMsg:"Your profile was submitted and is pending verification — it will appear to patients once approved.", needLicense:"Please enter your medical license number.",
-    footer:"DoctoLebanon — prototype v0.16 · Made to test an idea, not for real medical use yet." },
+    admin:"Admin", adminTitle:"Pending doctor verifications", approve:"Approve", reject:"Reject", noPending:"No doctors awaiting verification.",
+    footer:"DoctoLebanon — prototype v0.17 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -307,7 +315,8 @@ const I18N = {
     logIn:"Connexion", logOut:"Déconnexion", signUp:"Créer un compte", email:"E-mail", password:"Mot de passe", loginTitle:"Connexion ou inscription", loginIntro:"Créez un compte ou connectez-vous pour réserver et gérer vos rendez-vous.", needEmailPass:"Veuillez saisir votre e-mail et votre mot de passe.", checkEmail:"Compte créé ! Vérifiez votre e-mail pour confirmer, puis connectez-vous.", loginToBook:"Veuillez vous connecter pour réserver et voir vos rendez-vous.", loginFirst:"Veuillez d'abord vous connecter.",
     dash:"Tableau de bord", dashTitle:"Tableau de bord du médecin", dashIntro:"Rendez-vous pris avec vous en tant que :", noBookings:"Aucun rendez-vous pris avec vous pour l'instant.",
     license:"Numéro de licence médicale", phLicense:"ex. 12345", pending:"En attente de vérification", pendingMsg:"Votre profil a été soumis et est en attente de vérification — il apparaîtra aux patients après approbation.", needLicense:"Veuillez saisir votre numéro de licence médicale.",
-    footer:"DoctoLebanon — prototype v0.16 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    admin:"Admin", adminTitle:"Médecins en attente de vérification", approve:"Approuver", reject:"Rejeter", noPending:"Aucun médecin en attente de vérification.",
+    footer:"DoctoLebanon — prototype v0.17 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -335,7 +344,8 @@ const I18N = {
     logIn:"تسجيل الدخول", logOut:"تسجيل الخروج", signUp:"إنشاء حساب", email:"البريد الإلكتروني", password:"كلمة المرور", loginTitle:"تسجيل الدخول أو إنشاء حساب", loginIntro:"أنشئ حساباً أو سجّل الدخول لحجز وإدارة مواعيدك.", needEmailPass:"يرجى إدخال بريدك الإلكتروني وكلمة المرور.", checkEmail:"تم إنشاء الحساب! تحقق من بريدك للتأكيد ثم سجّل الدخول.", loginToBook:"يرجى تسجيل الدخول للحجز ورؤية مواعيدك.", loginFirst:"يرجى تسجيل الدخول أولاً.",
     dash:"لوحة التحكم", dashTitle:"لوحة تحكم الطبيب", dashIntro:"المواعيد المحجوزة معك بصفة:", noBookings:"لا توجد مواعيد محجوزة معك بعد.",
     license:"رقم الترخيص الطبي", phLicense:"مثال: 12345", pending:"في انتظار التحقق", pendingMsg:"تم إرسال ملفك وهو قيد التحقق — سيظهر للمرضى بعد الموافقة.", needLicense:"يرجى إدخال رقم الترخيص الطبي.",
-    footer:"دكتو لبنان — نموذج تجريبي v0.16 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    admin:"الإدارة", adminTitle:"أطباء بانتظار التحقق", approve:"موافقة", reject:"رفض", noPending:"لا يوجد أطباء بانتظار التحقق.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.17 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -626,6 +636,45 @@ async function showDashboard(){
   box.innerHTML = html;
 }
 
+/* ============ Admin panel (verify doctors) ============ */
+async function showAdmin(){
+  $("hero").classList.add("hidden");
+  $("listView").classList.add("hidden");
+  $("apptView").classList.add("hidden");
+  $("signupView").classList.add("hidden");
+  $("dashView").classList.add("hidden");
+  $("adminView").classList.remove("hidden");
+  const box=$("adminBody");
+  box.innerHTML=`<div class="empty">⏳</div>`;
+  const { data, error } = await sb.from("doctors").select("*").eq("verified", false).order("id");
+  if(error){ box.innerHTML=`<div class="empty">${error.message}</div>`; return; }
+  const docs=(data||[]).map((row,i)=>shapeDoctor(row,i));
+  if(!docs.length){ box.innerHTML=`<div class="empty">${t("noPending")}</div>`; return; }
+  box.innerHTML = docs.map(d=>`
+    <div class="appt">
+      <div class="avatar" style="background:${d.color}">${d.init}</div>
+      <div class="info"><b>${d.n}</b><div>${specLabel(d.s)} · 📍 ${cityLabel(d.c)}</div>
+        <div>${t("license")}: <b>${d.license||"—"}</b> · ${d.fee} · ${d.tel||""}</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn small" onclick="approveDoctor(${d.id})">${t("approve")}</button>
+        <button class="btn ghost small" onclick="rejectDoctor(${d.id})">${t("reject")}</button>
+      </div>
+    </div>`).join("");
+}
+async function approveDoctor(id){
+  const { error } = await sb.from("doctors").update({ verified:true }).eq("id", id);
+  if(error){ alert(error.message); return; }
+  await loadDoctorsFromCloud();   // now visible to patients
+  showAdmin();                    // refresh the pending list
+}
+async function rejectDoctor(id){
+  if(!confirm(t("reject") + "?")) return;
+  const { error } = await sb.from("doctors").delete().eq("id", id);
+  if(error){ alert(error.message); return; }
+  await loadDoctorsFromCloud();
+  showAdmin();
+}
+
 /* ============ Doctor sign-up ============ */
 function showSignup(){
   $("hero").classList.add("hidden");
@@ -668,7 +717,7 @@ async function submitDoctor(){
   const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel, license, owner: currentUser.id });
   if(error){ alert("Sorry, could not save your profile: " + error.message); return; }
   await loadDoctorsFromCloud();          // refresh the public list
-  await refreshDoctorListings();         // they're now a doctor → reveal the Dashboard link
+  await refreshRoles();                  // they're now a doctor → reveal the Dashboard link
   renderAuthUI();
   const welcome = lang==="fr" ? `Bienvenue, ${name} !` : lang==="ar" ? `أهلاً، ${name}!` : `Welcome, ${name}!`;
   $("signupView").innerHTML=`
@@ -685,6 +734,7 @@ function goHome(){
   $("apptView").classList.add("hidden");
   $("signupView").classList.add("hidden");
   $("dashView").classList.add("hidden");
+  $("adminView").classList.add("hidden");
   $("listView").classList.remove("hidden");
   $("hero").classList.remove("hidden");
   window.scrollTo(0,0);
@@ -700,22 +750,26 @@ async function updateBadge(){
 /* ============ Accounts (Supabase Auth) ============ */
 let currentUser = null;
 let myListings = [];   // doctor listings owned by the current user (empty = they're a patient)
+let isAdmin = false;   // can this user approve doctors?
 async function refreshAuth(){
   const { data } = await sb.auth.getSession();
   currentUser = data.session ? data.session.user : null;
-  await refreshDoctorListings();
+  await refreshRoles();
   renderAuthUI();
 }
-/* Find the doctor listings this user owns — that's what makes them "a doctor". */
-async function refreshDoctorListings(){
-  if(!currentUser){ myListings=[]; return; }
-  const { data } = await sb.from("doctors").select("*").eq("owner", currentUser.id).order("id");
-  myListings = (data||[]).map((row,i)=>shapeDoctor(row,i));
+/* Work out the user's roles: which doctor listings they own, and whether they're an admin. */
+async function refreshRoles(){
+  if(!currentUser){ myListings=[]; isAdmin=false; return; }
+  const { data:mine } = await sb.from("doctors").select("*").eq("owner", currentUser.id).order("id");
+  myListings = (mine||[]).map((row,i)=>shapeDoctor(row,i));
+  const { data:adm } = await sb.from("admins").select("user_id").eq("user_id", currentUser.id);
+  isAdmin = !!(adm && adm.length);
 }
 /* Show either a "Log in" button, or the email + a "Log out" button. */
 function renderAuthUI(){
   const el = $("authArea"); if(!el) return;
   const dash=$("navDash"); if(dash) dash.classList.toggle("hidden", !(currentUser && myListings.length));
+  const adm=$("navAdmin"); if(adm) adm.classList.toggle("hidden", !isAdmin);
   if(currentUser){
     el.innerHTML = `<span style="font-size:13px;color:var(--muted)">${currentUser.email}</span> <button class="btn ghost small" onclick="doLogout()">${t("logOut")}</button>`;
   } else {
@@ -774,6 +828,8 @@ function applyLang(){
   $("footerText").textContent=t("footer");
   $("navDash").textContent=t("dash");
   $("dashTitle").textContent=t("dashTitle");
+  $("navAdmin").textContent=t("admin");
+  $("adminTitle").textContent=t("adminTitle");
   renderAuthUI();
   // highlight the active language button
   ["en","fr","ar"].forEach(l=>$("lng_"+l).classList.toggle("active", l===lang));
@@ -788,10 +844,11 @@ function applyLang(){
 applyLang(); updateBadge();
 sb.auth.onAuthStateChange((_event, session)=>{
   currentUser = session ? session.user : null;
-  refreshDoctorListings().then(()=>{
+  refreshRoles().then(()=>{
     renderAuthUI(); updateBadge();
     if(!$("apptView").classList.contains("hidden")) showAppointments();
     if(!$("dashView").classList.contains("hidden")) showDashboard();
+    if(!$("adminView").classList.contains("hidden")) showAdmin();
   });
 });
 refreshAuth();                                            // check if already logged in

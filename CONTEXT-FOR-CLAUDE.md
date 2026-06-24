@@ -65,7 +65,8 @@ _Last updated: 2026-06-06_
 
 ## D2 VERIFICATION (in progress)
 - **v0.16 (D2 part 1, verified working):** doctors `verified boolean default false` + `license text`. Seeded (owner null) set verified=true. Doctors SELECT policy now `verified=true OR owner=auth.uid()`. shapeDoctor maps verified; render() shows "⏳ Pending" tag when !d.verified. Sign-up requires license (needLicense), creates unverified, success→pendingMsg; joinSub updated. i18n: license/phLicense/pending/pendingMsg/needLicense. Footer v0.16. Approve = manual flip of `verified` in Supabase for now.
-- **D2 part 2 = ADMIN PANEL (NEXT):** `admins(user_id uuid pk)` table; RLS lets admin SELECT all doctors + UPDATE verified. App: detect isAdmin, "Admin" header link, admin view of unverified doctors + Approve button → set verified=true.
+- **D2 part 2 ADMIN PANEL DONE (v0.17):** `admins(user_id uuid pk)` table + RLS "see own admin row"; doctors policies "admins read all / update / delete". App: `isAdmin` global, `refreshRoles()` (replaced refreshDoctorListings — sets myListings + isAdmin), header `#navAdmin` link (hidden unless isAdmin), `#adminView`/showAdmin() lists unverified doctors (with license#) + approveDoctor()/rejectDoctor(). shapeDoctor maps license. i18n admin/adminTitle/approve/reject/noPending. Footer v0.17. CODE-EXPLAINED §20. User must add own user_id to `admins` table to be admin. VERIFIED working.
+- **D2 COMPLETE. Three interfaces: patient / doctor / admin.** Next per plan: **D1 real availability + no double-booking**, then D3 reschedule, D5 reviews, D4 reminders, D6 family, D7/D8 polish.
 
 ## Deployment — MIGRATED to GitHub Pages
 - **LIVE at https://bashalak.github.io/doctolebanon/** (GitHub Pages, free, auto-deploys from main on push). Migrated here after Netlify ran out of free credits (deploys disabled). **Repo is now PUBLIC** (no secrets — only the publishable key, fake data). Verified serving 2026-06-(resume).

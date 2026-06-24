@@ -93,7 +93,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 **Tier 1 — make it feel real (highest impact)**
 - [ ] **D1 — Real availability + no double-booking.** Doctors set their working hours/slots in their dashboard; patients book only *real* free slots; once booked, a slot becomes unavailable so nobody double-books. *(Replaces today's fake/random slots — THE signature behaviour of a booking platform.)* Needs: a `slots`/availability table; dashboard UI to add slots; booking reads real slots + reserves them.
-- [ ] **D2 — Doctor verification + admin interface (the 3rd role).** New doctors start `verified=false` and are **hidden from patients**; collect a license number; doctor sees "⏳ pending"; an **admin (you)** approves them in an admin panel. Needs: `verified` column; public list shows only verified; an admin role; an admin view with an Approve button.
+- [x] **D2 — Doctor verification + admin interface (the 3rd role).** ✅ New doctors start unverified & hidden from patients; license-number field; "⏳ pending" badge; an **admin** approves/rejects in an in-app **Admin panel** (v0.16 + v0.17). Three interfaces now: patient · doctor · admin.
 
 **Tier 2 — patient experience**
 - [ ] **D3 — Reschedule** an appointment (move it to another free slot). *Easy; nicer once D1 exists.*
@@ -139,6 +139,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.17 — D2 part 2 (admin panel):** admins approve/reject pending doctors in-app; 3rd interface (admin) done. **D2 complete.** | `index.html` |
 | 2026-06-06 | **v0.16 — D2 part 1 (verification):** new doctors are unverified & hidden from patients until approved; license-number field; "pending" badge (approve via Supabase for now) | `index.html` |
 | 2026-06-06 | Researched Doctolib (2026) and wrote a prioritized feature plan into Stage D (teleconsultation deferred) | `PROJECT-PLAN.md` |
 | 2026-06-06 | Migrated hosting from Netlify (ran out of free credits) to **GitHub Pages** — now live at https://bashalak.github.io/doctolebanon/ (repo made public; free, no credit system) | (hosting) |
