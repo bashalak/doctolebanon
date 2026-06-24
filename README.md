@@ -2,7 +2,7 @@
 
 Book a doctor anywhere in Lebanon — a Doctolib-inspired appointment-booking web app, built for Lebanon (local cities, Arabic/French/English, local prices).
 
-**🔗 Live demo:** https://doctolebanon-app.netlify.app
+**🔗 Live demo:** https://bashalak.github.io/doctolebanon/
 
 > **Status:** early prototype (v0.8). Demo data is fake — not for real medical use yet.
 
@@ -28,7 +28,7 @@ No installation needed — just open **`index.html`** in any web browser.
 ## Tech
 - **Front-end:** plain HTML + CSS + JavaScript (one file, `index.html`)
 - **Database:** Supabase (cloud Postgres) — the doctor directory lives here
-- **Hosting:** Netlify (auto-deploys from GitHub on every push)
+- **Hosting:** GitHub Pages (free, auto-deploys from GitHub on every push)
 - **Planned:** real accounts (Supabase Auth), document upload (Supabase Storage), and a React rebuild later if the app grows enough to need it
 
 ---

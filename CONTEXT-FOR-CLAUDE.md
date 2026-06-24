@@ -63,8 +63,10 @@ _Last updated: 2026-06-06_
 - Added `README.md` and `.gitignore` for the repo.
 - New files in git: README.md, .gitignore (+ the 5 prior files).
 
-## Deployment (Netlify) — STAGE B COMPLETE
-- LIVE at **https://doctolebanon-app.netlify.app** (renamed from tranquil-hummingbird-0732de; verified working 2026-06-06).
+## Deployment — MIGRATED to GitHub Pages
+- **LIVE at https://bashalak.github.io/doctolebanon/** (GitHub Pages, free, auto-deploys from main on push). Migrated here after Netlify ran out of free credits (deploys disabled). **Repo is now PUBLIC** (no secrets — only the publishable key, fake data). Verified serving 2026-06-(resume).
+- Netlify (old, https://doctolebanon-app.netlify.app) is retired/out-of-credits — can optionally delete the Netlify site to stop pings. Supabase unaffected by host change (app talks to it directly via URL+publishable key).
+- (old) LIVE at ~~https://doctolebanon-app.netlify.app~~ (renamed from tranquil-hummingbird-0732de).
 - Netlify account: signed in via Google, but connected to GitHub repo `bashalak/doctolebanon` for continuous deploy.
 - **Every `git push` auto-redeploys the live site** (~seconds). No build step (static index.html).
 - User may rename site to doctolebanon.netlify.app (Site configuration → Site details → Change site name) — update docs if they do.

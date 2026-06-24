@@ -123,6 +123,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | Migrated hosting from Netlify (ran out of free credits) to **GitHub Pages** — now live at https://bashalak.github.io/doctolebanon/ (repo made public; free, no credit system) | (hosting) |
 | 2026-06-06 | **v0.14 — doctor dashboard (part 1):** doctor listings owned by accounts, appointments linked to a doctor, "Join as a doctor" now requires login | `index.html` |
 | 2026-06-06 | **v0.13 — C5 (Stage C complete!):** real document upload to a private Storage bucket; view via short-lived signed links | `index.html` |
 | 2026-06-06 | **v0.12:** safety net — press Escape to close any pop-up (after a stale-cache tab left an overlay stuck on the live site; hard-refresh resolves that) | `index.html` |
