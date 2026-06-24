@@ -222,7 +222,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.24 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.25 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -305,7 +305,8 @@ const I18N = {
     dashTabAppts:"Appointments", slotsWord:"slots", bookedWord:"booked", clearSlots:"Clear free slots",
     calTab:"Calendar", todayWord:"Today", dayView:"Day", weekView:"Week", monthView:"Month",
     notePrompt:"Optional note to the patient (reason, or a suggested new time):", cancelledByDoctor:"Cancelled by the doctor", dismiss:"Dismiss", cancelledLabel:"Cancelled", noteWord:"Note:",
-    footer:"DoctoLebanon — prototype v0.24 · Made to test an idea, not for real medical use yet." },
+    reschedule:"Reschedule", rescheduleTitle:"Pick a new time",
+    footer:"DoctoLebanon — prototype v0.25 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -339,7 +340,8 @@ const I18N = {
     dashTabAppts:"Rendez-vous", slotsWord:"créneaux", bookedWord:"réservés", clearSlots:"Effacer les créneaux libres",
     calTab:"Calendrier", todayWord:"Aujourd'hui", dayView:"Jour", weekView:"Semaine", monthView:"Mois",
     notePrompt:"Note facultative au patient (motif ou nouvel horaire proposé) :", cancelledByDoctor:"Annulé par le médecin", dismiss:"Ignorer", cancelledLabel:"Annulé", noteWord:"Note :",
-    footer:"DoctoLebanon — prototype v0.24 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    reschedule:"Reprogrammer", rescheduleTitle:"Choisir un nouvel horaire",
+    footer:"DoctoLebanon — prototype v0.25 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -373,7 +375,8 @@ const I18N = {
     dashTabAppts:"المواعيد", slotsWord:"موعد", bookedWord:"محجوز", clearSlots:"حذف المواعيد المتاحة",
     calTab:"التقويم", todayWord:"اليوم", dayView:"يوم", weekView:"أسبوع", monthView:"شهر",
     notePrompt:"ملاحظة اختيارية للمريض (السبب أو وقت بديل مقترح):", cancelledByDoctor:"أُلغي من قبل الطبيب", dismiss:"تجاهل", cancelledLabel:"ملغى", noteWord:"ملاحظة:",
-    footer:"دكتو لبنان — نموذج تجريبي v0.24 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    reschedule:"إعادة جدولة", rescheduleTitle:"اختر وقتاً جديداً",
+    footer:"دكتو لبنان — نموذج تجريبي v0.25 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -399,7 +402,7 @@ function shapeAppt(row){
   return { id:row.id, doc:row.doctor_name, spec:row.specialty, city:row.city,
            day:row.slot_day, time:row.slot_time, fee:row.fee,
            name:row.patient_name, phone:row.phone, reason:row.reason, docName:row.doc_name, docPath:row.doc_path, slotId:row.slot_id,
-           status:row.status, doctorNote:row.doctor_note };
+           status:row.status, doctorNote:row.doctor_note, doctorId:row.doctor_id };
 }
 
 /* Language helpers */
@@ -625,9 +628,12 @@ async function showAppointments(){
         ${ap.reason?`<div>${t("reasonWord")} ${reasonText(ap.reason)}</div>`:""}
         ${ap.docName?`<div>📎 ${t("attachedWord")} ${ap.docPath?`<a class="plink" href="#" onclick="openDoc('${ap.docPath}');return false;">${ap.docName}</a>`:ap.docName}</div>`:""}
         ${ap.status==="cancelled_by_doctor"?`<div style="color:var(--red);font-weight:600">${t("cancelledByDoctor")}</div>${ap.doctorNote?`<div>${t("noteWord")} ${ap.doctorNote}</div>`:""}`:""}</div>
-      ${ap.status==="cancelled_by_doctor"
-        ? `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, null)">${t("dismiss")}</button>`
-        : `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, ${ap.slotId||'null'})">${t("cancel")}</button>`}`;
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn small" onclick="startReschedule(${ap.id}, ${ap.doctorId||'null'}, ${ap.slotId||'null'})">${t("reschedule")}</button>
+        ${ap.status==="cancelled_by_doctor"
+          ? `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, null)">${t("dismiss")}</button>`
+          : `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, ${ap.slotId||'null'})">${t("cancel")}</button>`}
+      </div>`;
     box.appendChild(el);
   });
 }
@@ -638,6 +644,28 @@ async function cancelAppt(id, slotId){
   if(slotId){ await sb.from("slots").update({ is_booked:false }).eq("id", slotId); }   // free the slot again
   updateBadge(); showAppointments();
 }
+/* Patient reschedules: pick another free slot for the same doctor. */
+async function startReschedule(apptId, doctorId, oldSlotId){
+  const today = new Date().toISOString().slice(0,10);
+  const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", doctorId).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time");
+  const byDate={}; (slotRows||[]).forEach(s=>{ (byDate[s.slot_date]=byDate[s.slot_date]||[]).push(s); });
+  const dates=Object.keys(byDate).sort();
+  const slotsHtml = dates.length
+    ? dates.map(dt=>`<div class="day"><h4>${fmtDate(dt)}</h4><div class="slots">${byDate[dt].map(s=>`<button class="slot" onclick="doReschedule(${apptId}, ${oldSlotId||'null'}, ${s.id}, '${fmtDate(dt)}', '${s.slot_time}', '${dt}')">${s.slot_time}</button>`).join("")}</div></div>`).join("")
+    : `<div class="empty">${t("noAvailWeek")}</div>`;
+  $("modal").innerHTML = `<div class="modal-head"><h3 style="margin:0">${t("rescheduleTitle")}</h3><button class="close" onclick="closeModal()">×</button></div><div class="modal-body">${slotsHtml}</div>`;
+  openOverlay();
+}
+async function doReschedule(apptId, oldSlotId, newSlotId, dayLabel, time, iso){
+  const resv = await sb.from("slots").update({ is_booked:true }).eq("id", newSlotId).eq("is_booked", false).select();
+  if(resv.error){ alert(resv.error.message); return; }
+  if(!resv.data || !resv.data.length){ alert(t("slotTaken")); closeModal(); showAppointments(); return; }
+  if(oldSlotId){ await sb.from("slots").update({ is_booked:false }).eq("id", oldSlotId); }   // free the old slot
+  const { error } = await sb.from("appointments").update({ slot_id:newSlotId, appt_date:iso, slot_day:dayLabel, slot_time:time, status:"booked", doctor_note:null }).eq("id", apptId);
+  if(error){ await sb.from("slots").update({ is_booked:false }).eq("id", newSlotId); alert(error.message); return; }  // rollback the reserve
+  closeModal(); updateBadge(); showAppointments();
+}
+
 /* Doctor cancels a booking (with an optional note to the patient) and frees the slot. */
 async function docCancel(apptId, slotId){
   const note = prompt(t("notePrompt"));
