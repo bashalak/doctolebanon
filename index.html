@@ -202,7 +202,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.15 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.16 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -238,7 +238,7 @@ let DOCTORS = [];   // filled from Supabase at startup (see loadDoctorsFromCloud
 /* Turn a database row into the shape the rest of the app expects (d.n, d.s, d.c, ...). */
 function shapeDoctor(row, i){
   return { id:row.id, n:row.name, s:row.specialty, c:row.city, r:row.rating, langs:row.langs||[], fee:row.fee, tel:row.tel,
-           owner:row.owner, color:COLORS[i%COLORS.length], init:initials(row.name) };
+           owner:row.owner, verified:row.verified, color:COLORS[i%COLORS.length], init:initials(row.name) };
 }
 async function loadDoctorsFromCloud(){
   try{
@@ -268,7 +268,7 @@ const I18N = {
     viewMyAppts:"View my appointments", noApptsYet:"You have no appointments yet.",
     bookedFor:"Booked for:", cancel:"Cancel", cancelConfirm:"Cancel this appointment?",
     joinTitle:"Join DoctoLebanon as a doctor",
-    joinSub:"Create your profile so patients can find and book you. (Demo: saved in your browser only.)",
+    joinSub:"Create your profile so patients can find and book you. New listings are reviewed before they go live.",
     fullName:"Full name", phDrName:"e.g. Rana Khoury", langsSpoken:"Languages spoken", fee:"Consultation fee",
     phFee:"e.g. 50 USD", createProfile:"Create my profile", needName:"Please enter your name.",
     needLang:"Please choose at least one language.",
@@ -278,7 +278,8 @@ const I18N = {
     reasonLabel:"Reason for visit", reasonNew:"New consultation", reasonFollow:"Follow-up", reasonUrgent:"Urgent", attachLabel:"Attach a document (optional)", attachHint:"e.g. previous test or lab results", reasonWord:"Reason:", attachedWord:"Attached:",
     logIn:"Log in", logOut:"Log out", signUp:"Sign up", email:"Email", password:"Password", loginTitle:"Log in or sign up", loginIntro:"Create an account or log in to book and manage your appointments.", needEmailPass:"Please enter your email and password.", checkEmail:"Account created! Check your email to confirm, then log in.", loginToBook:"Please log in to book and to see your appointments.", loginFirst:"Please log in first.",
     dash:"Dashboard", dashTitle:"Doctor dashboard", dashIntro:"Appointments booked with you as:", noBookings:"No appointments booked with you yet.",
-    footer:"DoctoLebanon — prototype v0.15 · Made to test an idea, not for real medical use yet." },
+    license:"Medical license number", phLicense:"e.g. 12345", pending:"Pending verification", pendingMsg:"Your profile was submitted and is pending verification — it will appear to patients once approved.", needLicense:"Please enter your medical license number.",
+    footer:"DoctoLebanon — prototype v0.16 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -295,7 +296,7 @@ const I18N = {
     viewMyAppts:"Voir mes rendez-vous", noApptsYet:"Vous n'avez pas encore de rendez-vous.",
     bookedFor:"Réservé pour :", cancel:"Annuler", cancelConfirm:"Annuler ce rendez-vous ?",
     joinTitle:"Rejoignez DoctoLebanon en tant que médecin",
-    joinSub:"Créez votre profil pour que les patients puissent vous trouver et réserver. (Démo : enregistré uniquement dans votre navigateur.)",
+    joinSub:"Créez votre profil pour que les patients puissent vous trouver et réserver. Les nouveaux profils sont vérifiés avant leur mise en ligne.",
     fullName:"Nom complet", phDrName:"ex. Rana Khoury", langsSpoken:"Langues parlées", fee:"Tarif de consultation",
     phFee:"ex. 50 USD", createProfile:"Créer mon profil", needName:"Veuillez saisir votre nom.",
     needLang:"Veuillez choisir au moins une langue.",
@@ -305,7 +306,8 @@ const I18N = {
     reasonLabel:"Motif de la visite", reasonNew:"Nouvelle consultation", reasonFollow:"Suivi", reasonUrgent:"Urgent", attachLabel:"Joindre un document (facultatif)", attachHint:"ex. résultats d'analyses précédents", reasonWord:"Motif :", attachedWord:"Document :",
     logIn:"Connexion", logOut:"Déconnexion", signUp:"Créer un compte", email:"E-mail", password:"Mot de passe", loginTitle:"Connexion ou inscription", loginIntro:"Créez un compte ou connectez-vous pour réserver et gérer vos rendez-vous.", needEmailPass:"Veuillez saisir votre e-mail et votre mot de passe.", checkEmail:"Compte créé ! Vérifiez votre e-mail pour confirmer, puis connectez-vous.", loginToBook:"Veuillez vous connecter pour réserver et voir vos rendez-vous.", loginFirst:"Veuillez d'abord vous connecter.",
     dash:"Tableau de bord", dashTitle:"Tableau de bord du médecin", dashIntro:"Rendez-vous pris avec vous en tant que :", noBookings:"Aucun rendez-vous pris avec vous pour l'instant.",
-    footer:"DoctoLebanon — prototype v0.15 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    license:"Numéro de licence médicale", phLicense:"ex. 12345", pending:"En attente de vérification", pendingMsg:"Votre profil a été soumis et est en attente de vérification — il apparaîtra aux patients après approbation.", needLicense:"Veuillez saisir votre numéro de licence médicale.",
+    footer:"DoctoLebanon — prototype v0.16 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -322,7 +324,7 @@ const I18N = {
     viewMyAppts:"عرض مواعيدي", noApptsYet:"ليس لديك أي مواعيد بعد.",
     bookedFor:"محجوز لـ:", cancel:"إلغاء", cancelConfirm:"هل تريد إلغاء هذا الموعد؟",
     joinTitle:"انضم إلى دكتو لبنان كطبيب",
-    joinSub:"أنشئ ملفك الشخصي ليتمكن المرضى من إيجادك وحجز موعد معك. (تجريبي: يُحفظ في متصفحك فقط.)",
+    joinSub:"أنشئ ملفك الشخصي ليتمكن المرضى من إيجادك وحجز موعد معك. تتم مراجعة الملفات الجديدة قبل نشرها.",
     fullName:"الاسم الكامل", phDrName:"مثال: رنا خوري", langsSpoken:"اللغات المتحدث بها", fee:"رسوم الاستشارة",
     phFee:"مثال: 50 دولار", createProfile:"إنشاء ملفي", needName:"يرجى إدخال اسمك.",
     needLang:"يرجى اختيار لغة واحدة على الأقل.",
@@ -332,7 +334,8 @@ const I18N = {
     reasonLabel:"سبب الزيارة", reasonNew:"استشارة جديدة", reasonFollow:"متابعة", reasonUrgent:"حالة عاجلة", attachLabel:"إرفاق مستند (اختياري)", attachHint:"مثال: نتائج فحوصات سابقة", reasonWord:"السبب:", attachedWord:"مرفق:",
     logIn:"تسجيل الدخول", logOut:"تسجيل الخروج", signUp:"إنشاء حساب", email:"البريد الإلكتروني", password:"كلمة المرور", loginTitle:"تسجيل الدخول أو إنشاء حساب", loginIntro:"أنشئ حساباً أو سجّل الدخول لحجز وإدارة مواعيدك.", needEmailPass:"يرجى إدخال بريدك الإلكتروني وكلمة المرور.", checkEmail:"تم إنشاء الحساب! تحقق من بريدك للتأكيد ثم سجّل الدخول.", loginToBook:"يرجى تسجيل الدخول للحجز ورؤية مواعيدك.", loginFirst:"يرجى تسجيل الدخول أولاً.",
     dash:"لوحة التحكم", dashTitle:"لوحة تحكم الطبيب", dashIntro:"المواعيد المحجوزة معك بصفة:", noBookings:"لا توجد مواعيد محجوزة معك بعد.",
-    footer:"دكتو لبنان — نموذج تجريبي v0.15 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    license:"رقم الترخيص الطبي", phLicense:"مثال: 12345", pending:"في انتظار التحقق", pendingMsg:"تم إرسال ملفك وهو قيد التحقق — سيظهر للمرضى بعد الموافقة.", needLicense:"يرجى إدخال رقم الترخيص الطبي.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.16 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -445,7 +448,7 @@ function render(){
           <div class="meta"><span>📍 ${cityLabel(d.c)}</span>${rating}</div>
         </div>
       </div>
-      <div class="tags">${d.langs.map(l=>`<span class="tag">${langLabel(l)}</span>`).join("")}<span class="tag">${d.fee}</span></div>
+      <div class="tags">${!d.verified?`<span class="tag" style="background:#fff7e6;color:#8a6100">⏳ ${t("pending")}</span>`:""}${d.langs.map(l=>`<span class="tag">${langLabel(l)}</span>`).join("")}<span class="tag">${d.fee}</span></div>
       <div class="avail">${next?`${t("nextAvail")} <b>${next.label} ${t("atTime")} ${next.times[0]}</b>`:t("noAvailWeek")}</div>
       <button class="btn" onclick="openDoctor(${d.id})">${t("viewProfile")}</button>`;
     g.appendChild(card);
@@ -645,6 +648,7 @@ function showSignup(){
       </div>
     </div>
     <div class="form-row"><label>${t("fee")}</label><input id="dFee" placeholder="${t("phFee")}" /></div>
+    <div class="form-row"><label>${t("license")}</label><input id="dLicense" placeholder="${t("phLicense")}" /></div>
     <button class="btn" style="width:100%;padding:13px" onclick="submitDoctor()">${t("createProfile")}</button>`;
   $("signupView").classList.remove("hidden");
   window.scrollTo(0,0);
@@ -654,14 +658,16 @@ async function submitDoctor(){
   let name=$("dName").value.trim();
   const spec=$("dSpec").value, city=$("dCity").value, fee=$("dFee").value.trim()||"—";
   const tel=$("dPhone").value.trim();
+  const license=$("dLicense").value.trim();
   const langs=[...document.querySelectorAll(".dLang:checked")].map(c=>c.value);
   if(!name){alert(t("needName"));return;}
+  if(!license){alert(t("needLicense"));return;}
   if(langs.length===0){alert(t("needLang"));return;}
   if(!/^dr\.?\s/i.test(name)) name = "Dr. " + name;
-  // Save the new doctor listing, owned by the logged-in account
-  const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel, owner: currentUser.id });
+  // Save the new doctor listing (unverified by default, pending review), owned by the logged-in account
+  const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel, license, owner: currentUser.id });
   if(error){ alert("Sorry, could not save your profile: " + error.message); return; }
-  await loadDoctorsFromCloud();          // refresh the public list so the new doctor is included
+  await loadDoctorsFromCloud();          // refresh the public list
   await refreshDoctorListings();         // they're now a doctor → reveal the Dashboard link
   renderAuthUI();
   const welcome = lang==="fr" ? `Bienvenue, ${name} !` : lang==="ar" ? `أهلاً، ${name}!` : `Welcome, ${name}!`;
@@ -669,8 +675,8 @@ async function submitDoctor(){
     <div style="text-align:center;padding:34px 12px">
       <div style="font-size:54px">🎉</div>
       <h2 style="margin:8px 0">${welcome}</h2>
-      <p style="color:var(--muted)">${t("profileLive")}</p>
-      <button class="btn" onclick="$('fCity').value='${city}';goHome();render()">${t("seeListing")}</button>
+      <p style="color:var(--muted)">${t("pendingMsg")}</p>
+      <button class="btn" onclick="goHome();render()">${t("seeListing")}</button>
     </div>`;
 }
 

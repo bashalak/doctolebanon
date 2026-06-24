@@ -139,6 +139,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.16 — D2 part 1 (verification):** new doctors are unverified & hidden from patients until approved; license-number field; "pending" badge (approve via Supabase for now) | `index.html` |
 | 2026-06-06 | Researched Doctolib (2026) and wrote a prioritized feature plan into Stage D (teleconsultation deferred) | `PROJECT-PLAN.md` |
 | 2026-06-06 | Migrated hosting from Netlify (ran out of free credits) to **GitHub Pages** — now live at https://bashalak.github.io/doctolebanon/ (repo made public; free, no credit system) | (hosting) |
 | 2026-06-06 | **v0.14 — doctor dashboard (part 1):** doctor listings owned by accounts, appointments linked to a doctor, "Join as a doctor" now requires login | `index.html` |

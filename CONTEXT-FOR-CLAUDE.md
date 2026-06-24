@@ -63,6 +63,10 @@ _Last updated: 2026-06-06_
 - Added `README.md` and `.gitignore` for the repo.
 - New files in git: README.md, .gitignore (+ the 5 prior files).
 
+## D2 VERIFICATION (in progress)
+- **v0.16 (D2 part 1, verified working):** doctors `verified boolean default false` + `license text`. Seeded (owner null) set verified=true. Doctors SELECT policy now `verified=true OR owner=auth.uid()`. shapeDoctor maps verified; render() shows "⏳ Pending" tag when !d.verified. Sign-up requires license (needLicense), creates unverified, success→pendingMsg; joinSub updated. i18n: license/phLicense/pending/pendingMsg/needLicense. Footer v0.16. Approve = manual flip of `verified` in Supabase for now.
+- **D2 part 2 = ADMIN PANEL (NEXT):** `admins(user_id uuid pk)` table; RLS lets admin SELECT all doctors + UPDATE verified. App: detect isAdmin, "Admin" header link, admin view of unverified doctors + Approve button → set verified=true.
+
 ## Deployment — MIGRATED to GitHub Pages
 - **LIVE at https://bashalak.github.io/doctolebanon/** (GitHub Pages, free, auto-deploys from main on push). Migrated here after Netlify ran out of free credits (deploys disabled). **Repo is now PUBLIC** (no secrets — only the publishable key, fake data). Verified serving 2026-06-(resume).
 - Netlify (old, https://doctolebanon-app.netlify.app) is retired/out-of-credits — can optionally delete the Netlify site to stop pings. Supabase unaffected by host change (app talks to it directly via URL+publishable key).
