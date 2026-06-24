@@ -86,12 +86,28 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 - [x] **C5:** Real **document upload** — files go to a private Supabase Storage bucket (each user can only reach their own), viewed via short-lived signed links (v0.13) ✅ **Stage C complete!**
 - [ ] (later) Rebuild front-end with **React + Next.js** + split into multiple files — only when needed (needs Node.js then)
 
-### Stage D — Make it trustworthy
-- [ ] **Email/SMS reminders** for appointments
-- [ ] Cancel / reschedule flow
-- [ ] Basic **teleconsultation** (video link)
-- [ ] Search improvements, reviews, doctor verification
-- [ ] Full multi-language (AR/FR/EN) everywhere
+### Stage D — Toward a real Doctolib (feature plan)
+Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DEFERRED for now (by choice).**
+
+**Already done:** ✅ cancel · ✅ multilingual EN/FR/AR + RTL · ✅ document upload · ✅ doctor dashboard · ✅ accounts
+
+**Tier 1 — make it feel real (highest impact)**
+- [ ] **D1 — Real availability + no double-booking.** Doctors set their working hours/slots in their dashboard; patients book only *real* free slots; once booked, a slot becomes unavailable so nobody double-books. *(Replaces today's fake/random slots — THE signature behaviour of a booking platform.)* Needs: a `slots`/availability table; dashboard UI to add slots; booking reads real slots + reserves them.
+- [ ] **D2 — Doctor verification + admin interface (the 3rd role).** New doctors start `verified=false` and are **hidden from patients**; collect a license number; doctor sees "⏳ pending"; an **admin (you)** approves them in an admin panel. Needs: `verified` column; public list shows only verified; an admin role; an admin view with an Approve button.
+
+**Tier 2 — patient experience**
+- [ ] **D3 — Reschedule** an appointment (move it to another free slot). *Easy; nicer once D1 exists.*
+- [ ] **D4 — Email reminders / confirmations** for appointments. Needs a Supabase scheduled function + an email provider.
+- [ ] **D5 — Reviews & ratings.** Patients rate a doctor after a visit; show the average on the card/profile. Needs a `reviews` table + display.
+- [ ] **D6 — Book for a family member** (relatives on an account). Needs a `relatives` table + "who is this for?" choice.
+
+**Tier 3 — polish**
+- [ ] **D7 — Better search & filters** (by language, soonest availability, sorting).
+- [ ] **D8 — Doctor edits their own profile** + favicon + small UI polish.
+
+**Deferred (later / Stage E):** teleconsultation (video), SMS reminders (cost), payments (Lebanon constraints), secure messaging, multi-location/staff, OCR document sorting, AI phone assistant, native mobile apps, calendar sync, legal (Law No. 81) + real doctor recruitment.
+
+**Suggested order:** D2 (verification + admin) → D1 (real availability) → D3 reschedule → D5 reviews → D4 reminders → D6 family → D7/D8 polish.
 
 ### Stage E — Turn it into a real startup (only after it works)
 - [ ] **Legal:** comply with Lebanon's data-protection **Law No. 81** (consent, encryption, user data rights) — likely talk to a lawyer
@@ -123,6 +139,7 @@ Each step is a milestone. We check them off as we go. `[ ]` = todo, `[x]` = done
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | Researched Doctolib (2026) and wrote a prioritized feature plan into Stage D (teleconsultation deferred) | `PROJECT-PLAN.md` |
 | 2026-06-06 | Migrated hosting from Netlify (ran out of free credits) to **GitHub Pages** — now live at https://bashalak.github.io/doctolebanon/ (repo made public; free, no credit system) | (hosting) |
 | 2026-06-06 | **v0.14 — doctor dashboard (part 1):** doctor listings owned by accounts, appointments linked to a doctor, "Join as a doctor" now requires login | `index.html` |
 | 2026-06-06 | **v0.13 — C5 (Stage C complete!):** real document upload to a private Storage bucket; view via short-lived signed links | `index.html` |
