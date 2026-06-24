@@ -209,7 +209,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.19 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.20 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -288,7 +288,8 @@ const I18N = {
     license:"Medical license number", phLicense:"e.g. 12345", pending:"Pending verification", pendingMsg:"Your profile was submitted and is pending verification — it will appear to patients once approved.", needLicense:"Please enter your medical license number.",
     admin:"Admin", adminTitle:"Pending doctor verifications", approve:"Approve", reject:"Reject", noPending:"No doctors awaiting verification.",
     dateLabel:"Date", timeLabel:"Time", addSlot:"Add slot", noSlots:"No availability added yet.", needDateTime:"Please choose a date and time.", slotTaken:"Sorry, that slot was just taken — please pick another.",
-    footer:"DoctoLebanon — prototype v0.19 · Made to test an idea, not for real medical use yet." },
+    recurringTitle:"Set recurring availability", fromLabel:"From", toLabel:"To", startLabel:"Start", endLabel:"End", everyLabel:"Every (min)", generateBtn:"Generate slots", needRange:"Please choose dates, times and at least one day.",
+    footer:"DoctoLebanon — prototype v0.20 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -318,7 +319,8 @@ const I18N = {
     license:"Numéro de licence médicale", phLicense:"ex. 12345", pending:"En attente de vérification", pendingMsg:"Votre profil a été soumis et est en attente de vérification — il apparaîtra aux patients après approbation.", needLicense:"Veuillez saisir votre numéro de licence médicale.",
     admin:"Admin", adminTitle:"Médecins en attente de vérification", approve:"Approuver", reject:"Rejeter", noPending:"Aucun médecin en attente de vérification.",
     dateLabel:"Date", timeLabel:"Heure", addSlot:"Ajouter un créneau", noSlots:"Aucune disponibilité ajoutée.", needDateTime:"Veuillez choisir une date et une heure.", slotTaken:"Désolé, ce créneau vient d'être pris — veuillez en choisir un autre.",
-    footer:"DoctoLebanon — prototype v0.19 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    recurringTitle:"Définir des disponibilités récurrentes", fromLabel:"Du", toLabel:"Au", startLabel:"Début", endLabel:"Fin", everyLabel:"Toutes les (min)", generateBtn:"Générer les créneaux", needRange:"Veuillez choisir les dates, les heures et au moins un jour.",
+    footer:"DoctoLebanon — prototype v0.20 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -348,7 +350,8 @@ const I18N = {
     license:"رقم الترخيص الطبي", phLicense:"مثال: 12345", pending:"في انتظار التحقق", pendingMsg:"تم إرسال ملفك وهو قيد التحقق — سيظهر للمرضى بعد الموافقة.", needLicense:"يرجى إدخال رقم الترخيص الطبي.",
     admin:"الإدارة", adminTitle:"أطباء بانتظار التحقق", approve:"موافقة", reject:"رفض", noPending:"لا يوجد أطباء بانتظار التحقق.",
     dateLabel:"التاريخ", timeLabel:"الوقت", addSlot:"إضافة موعد", noSlots:"لم تتم إضافة أي مواعيد بعد.", needDateTime:"يرجى اختيار التاريخ والوقت.", slotTaken:"عذراً، تم حجز هذا الموعد للتو — يرجى اختيار موعد آخر.",
-    footer:"دكتو لبنان — نموذج تجريبي v0.19 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    recurringTitle:"تحديد مواعيد متكررة", fromLabel:"من", toLabel:"إلى", startLabel:"البداية", endLabel:"النهاية", everyLabel:"كل (دقيقة)", generateBtn:"إنشاء المواعيد", needRange:"يرجى اختيار التواريخ والأوقات ويوماً واحداً على الأقل.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.20 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -642,6 +645,18 @@ async function showDashboard(){
       <div><div class="plabel">${t("timeLabel")}</div><input type="time" id="avTime"></div>
       <button class="btn small" onclick="addSlot(${me.id})">${t("addSlot")}</button>
     </div>
+    <h4 class="psec">${t("recurringTitle")}</h4>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin:8px 0">
+      <div><div class="plabel">${t("fromLabel")}</div><input type="date" id="recFrom"></div>
+      <div><div class="plabel">${t("toLabel")}</div><input type="date" id="recTo"></div>
+      <div><div class="plabel">${t("startLabel")}</div><input type="time" id="recStart" value="09:00"></div>
+      <div><div class="plabel">${t("endLabel")}</div><input type="time" id="recEnd" value="17:00"></div>
+      <div><div class="plabel">${t("everyLabel")}</div><select id="recStep"><option>15</option><option selected>30</option><option>60</option></select></div>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:0 0 8px">
+      ${[1,2,3,4,5,6,0].map(dn=>`<label style="font-weight:400;display:flex;gap:5px;align-items:center;font-size:13px"><input type="checkbox" class="recDay" value="${dn}" ${(dn>=1&&dn<=5)?'checked':''}/> ${DAYS[dn]}</label>`).join("")}
+    </div>
+    <button class="btn small" style="margin-bottom:18px" onclick="generateSlots(${me.id})">${t("generateBtn")}</button>
     <div class="tags" style="margin-bottom:20px">${
       slots.length
         ? slots.map(s=>`<span class="tag" style="${s.is_booked?'background:#eee;color:#999':''}">${fmtDate(s.slot_date)} ${s.slot_time}${s.is_booked?' ✓':` <a href="#" onclick="delSlot(${s.id});return false;" style="color:var(--red);text-decoration:none">✕</a>`}</span>`).join("")
@@ -677,6 +692,35 @@ async function addSlot(docId){
 async function delSlot(id){
   const { error } = await sb.from("slots").delete().eq("id", id);
   if(error){ alert(error.message); return; }
+  showDashboard();
+}
+/* Generate many slots at once: a weekly pattern across a date range. */
+async function generateSlots(docId){
+  const from=$("recFrom").value, to=$("recTo").value, start=$("recStart").value, end=$("recEnd").value;
+  const step=parseInt($("recStep").value,10);
+  const days=[...document.querySelectorAll(".recDay:checked")].map(c=>parseInt(c.value,10));
+  if(!from||!to||!start||!end||!days.length){ alert(t("needRange")); return; }
+  // build the list of times from start to end, stepping by `step` minutes
+  const times=[]; const [sh,sm]=start.split(":").map(Number); const [eh,em]=end.split(":").map(Number);
+  for(let cur=sh*60+sm, last=eh*60+em; cur<last; cur+=step){
+    times.push(`${String(Math.floor(cur/60)).padStart(2,"0")}:${String(cur%60).padStart(2,"0")}`);
+  }
+  // walk every day in the range; keep the chosen weekdays
+  const rows=[]; const [fy,fm,fd]=from.split("-").map(Number); const [ty,tm,td]=to.split("-").map(Number);
+  let d=new Date(fy,fm-1,fd); const lastDay=new Date(ty,tm-1,td); let guard=0;
+  while(d<=lastDay && guard<400){
+    if(days.includes(d.getDay())){
+      const iso=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      times.forEach(tm2=>rows.push({doctor_id:docId, slot_date:iso, slot_time:tm2}));
+    }
+    d.setDate(d.getDate()+1); guard++;
+  }
+  if(!rows.length){ alert(t("needRange")); return; }
+  if(rows.length>2000){ alert("Too many slots ("+rows.length+"). Pick a shorter range or fewer times."); return; }
+  // upsert with ignoreDuplicates so re-generating doesn't error on existing slots
+  const { error } = await sb.from("slots").upsert(rows, { onConflict:"doctor_id,slot_date,slot_time", ignoreDuplicates:true });
+  if(error){ alert(error.message); return; }
+  alert(rows.length + " " + t("addSlot").toLowerCase());
   showDashboard();
 }
 

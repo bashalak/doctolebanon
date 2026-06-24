@@ -139,6 +139,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.20 — recurring availability:** doctors generate weeks/months of slots at once (date range + weekdays + time range + interval) | `index.html` |
 | 2026-06-06 | **v0.18–v0.19 — D1 real availability:** doctors set real slots; patients book real free slots that lock (no double-booking); cancel frees the slot | `index.html` |
 | 2026-06-06 | **v0.17 — D2 part 2 (admin panel):** admins approve/reject pending doctors in-app; 3rd interface (admin) done. **D2 complete.** | `index.html` |
 | 2026-06-06 | **v0.16 — D2 part 1 (verification):** new doctors are unverified & hidden from patients until approved; license-number field; "pending" badge (approve via Supabase for now) | `index.html` |
