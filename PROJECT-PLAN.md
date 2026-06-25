@@ -103,7 +103,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 - [x] **D6 — Book for a family member** ✅ "Who is this for?" picker in the booking form (Myself / a saved relative / someone new with "save for next time"), and remove a saved person inline. `relatives` table (v0.30–v0.32).
 
 **Tier 3 — polish**
-- [~] **D11 — Account menu + Profile** — account dropdown (Profile · appointments · dashboard · admin · log out); Profile modal to edit name/address/phone/email/password. ✅ part 1 (v0.35). ⏳ part 2: legal info + delete account.
+- [x] **D11 — Account menu + Profile** ✅ Account dropdown (Profile · appointments · dashboard · admin · legal · log out); Profile modal edits name/address/phone/email/password; **Legal info** page + **Delete my account** (wipes your data + logs out; full auth-record deletion = Stage E server function). (v0.35–v0.37)
 - [x] Patient availability shown **one day at a time** with ‹ Prev / Next › (v0.34).
 - [x] **D7 — Better search & filters + pagination** ✅ Filter by language; sort by name/rating; **server-side filtering + pagination** (12/page, Prev/Next) so it scales to thousands of doctors (v0.27–v0.28).
 - [x] **D8 — Doctor edits their own profile** ✅ (name, specialty, city, phone, fee, languages from the dashboard) + **favicon** added (v0.29).
@@ -143,6 +143,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.36–v0.37 — legal info + delete account:** Legal page (placeholder, Law 81 note); Delete my account (in Profile — wipes data + logs out) | `index.html` |
 | 2026-06-06 | **v0.34–v0.35 — account menu + profile:** day-by-day availability (Prev/Next); account dropdown; Profile modal (name/address/phone/email/password) | `index.html` |
 | 2026-06-06 | **v0.30–v0.32 — D6 book for family:** "Who is this for?" in the booking form (self / saved relative / new + save), inline remove; `relatives` table | `index.html` |
 | 2026-06-06 | **v0.29 — D8:** doctor edits own profile (modal from dashboard) + 🌿 favicon | `index.html` |

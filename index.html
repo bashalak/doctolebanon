@@ -236,7 +236,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.35 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.37 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -326,7 +326,9 @@ const I18N = {
     editProfile:"Edit profile", saveProfile:"Save profile",
     familyTitle:"Family members", relName:"Name", relRelation:"Relationship (optional)", addRelative:"Add", noRelatives:"No family members added yet.", forWhom:"Who is this for?", forMyself:"Myself", addSomeone:"Someone else…", saveToFamily:"Save to my family for next time", removeRel:"Remove from my family", showMore:"Show more dates ›",
     profile:"Profile", changeEmail:"Change email", changePassword:"Change password", newPassword:"New password", saved:"Saved",
-    footer:"DoctoLebanon — prototype v0.35 · Made to test an idea, not for real medical use yet." },
+    legal:"Legal info", deleteAccount:"Delete my account", deleteConfirm:"This will permanently delete your data and log you out. Continue?", deleteDone:"Your data has been deleted and you've been logged out.",
+    legalBody:"DoctoLebanon is a demonstration prototype — all doctors and data are fictitious and it is <b>not</b> for real medical use. The service is provided “as is”, without warranty. Personal data would be handled in line with Lebanon's Law No. 81 on Electronic Transactions and Personal Data; in this demo, data is stored in the project's Supabase database. This page is a placeholder, not legal advice — a real launch needs Terms of Service and a Privacy Policy reviewed by a lawyer.",
+    footer:"DoctoLebanon — prototype v0.37 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -367,7 +369,9 @@ const I18N = {
     editProfile:"Modifier le profil", saveProfile:"Enregistrer",
     familyTitle:"Membres de la famille", relName:"Nom", relRelation:"Lien (facultatif)", addRelative:"Ajouter", noRelatives:"Aucun membre ajouté.", forWhom:"Pour qui ?", forMyself:"Moi-même", addSomeone:"Une autre personne…", saveToFamily:"Enregistrer dans ma famille", removeRel:"Retirer de ma famille", showMore:"Voir plus de dates ›",
     profile:"Profil", changeEmail:"Changer l'e-mail", changePassword:"Changer le mot de passe", newPassword:"Nouveau mot de passe", saved:"Enregistré",
-    footer:"DoctoLebanon — prototype v0.35 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    legal:"Mentions légales", deleteAccount:"Supprimer mon compte", deleteConfirm:"Cela supprimera définitivement vos données et vous déconnectera. Continuer ?", deleteDone:"Vos données ont été supprimées et vous avez été déconnecté.",
+    legalBody:"DoctoLebanon est un prototype de démonstration — tous les médecins et données sont fictifs et ce n'est <b>pas</b> destiné à un usage médical réel. Le service est fourni « tel quel », sans garantie. Les données personnelles seraient traitées conformément à la loi libanaise n° 81 sur les transactions électroniques et les données personnelles ; dans cette démo, les données sont stockées dans la base Supabase du projet. Cette page est indicative, et non un avis juridique — un lancement réel nécessite des conditions d'utilisation et une politique de confidentialité revues par un avocat.",
+    footer:"DoctoLebanon — prototype v0.37 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -408,7 +412,9 @@ const I18N = {
     editProfile:"تعديل الملف", saveProfile:"حفظ الملف",
     familyTitle:"أفراد العائلة", relName:"الاسم", relRelation:"صلة القرابة (اختياري)", addRelative:"إضافة", noRelatives:"لم تتم إضافة أفراد بعد.", forWhom:"لمن هذا الموعد؟", forMyself:"أنا", addSomeone:"شخص آخر…", saveToFamily:"حفظ ضمن عائلتي", removeRel:"إزالة من عائلتي", showMore:"عرض المزيد من التواريخ ›",
     profile:"الملف الشخصي", changeEmail:"تغيير البريد الإلكتروني", changePassword:"تغيير كلمة المرور", newPassword:"كلمة مرور جديدة", saved:"تم الحفظ",
-    footer:"دكتو لبنان — نموذج تجريبي v0.35 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    legal:"معلومات قانونية", deleteAccount:"حذف حسابي", deleteConfirm:"سيؤدي هذا إلى حذف بياناتك نهائياً وتسجيل خروجك. هل تريد المتابعة؟", deleteDone:"تم حذف بياناتك وتسجيل خروجك.",
+    legalBody:"دكتو لبنان هو نموذج تجريبي — جميع الأطباء والبيانات وهمية وهو <b>غير</b> مخصص للاستخدام الطبي الفعلي. تُقدَّم الخدمة «كما هي» دون أي ضمان. تُعالَج البيانات الشخصية وفقاً للقانون اللبناني رقم 81 المتعلق بالمعاملات الإلكترونية والبيانات الشخصية؛ في هذا النموذج تُخزَّن البيانات في قاعدة بيانات Supabase الخاصة بالمشروع. هذه الصفحة نص توضيحي وليست استشارة قانونية — الإطلاق الفعلي يتطلب شروط استخدام وسياسة خصوصية يراجعها محامٍ.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.37 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -1195,6 +1201,7 @@ function renderAuthUI(){
       `<button onclick="closeMenu();showAppointments()">📅 ${t("myAppts")} <span id="apptBadge"></span></button>`,
       myListings.length?`<button onclick="closeMenu();showDashboard()">🩺 ${t("dash")}</button>`:"",
       isAdmin?`<button onclick="closeMenu();showAdmin()">🛡️ ${t("admin")}</button>`:"",
+      `<button onclick="closeMenu();showLegal()">📄 ${t("legal")}</button>`,
       `<button onclick="closeMenu();doLogout()" style="color:var(--red)">🚪 ${t("logOut")}</button>`
     ].join("");
     el.innerHTML = `<div class="menu"><button class="btn ghost small" onclick="toggleMenu(event)">${esc(currentUser.email)} ▾</button><div class="menu-panel" id="menuPanel">${items}</div></div>`;
@@ -1225,6 +1232,8 @@ async function showProfile(){
       <h4 class="psec">${t("password")}</h4>
       <div class="form-row"><input id="pfPass" type="password" placeholder="${t("newPassword")}" /></div>
       <button class="btn ghost small" onclick="changePassword()">${t("changePassword")}</button>
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+      <button class="btn ghost small" style="color:var(--red);border-color:var(--red)" onclick="deleteAccount()">🗑️ ${t("deleteAccount")}</button>
     </div>`;
 }
 async function saveProfileInfo(){
@@ -1244,6 +1253,25 @@ async function changePassword(){
   const { error } = await sb.auth.updateUser({ password });
   if(error){ alert(error.message); return; }
   $("pfPass").value=""; alert(t("saved"));
+}
+function showLegal(){
+  $("modal").innerHTML = `<div class="modal-head"><h3 style="margin:0">${t("legal")}</h3><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-body" style="color:var(--muted);line-height:1.7;font-size:14px">${t("legalBody")}</div>`;
+  openOverlay();
+}
+async function deleteAccount(){
+  if(!currentUser) return;
+  if(!confirm(t("deleteConfirm"))) return;
+  const uid=currentUser.id;
+  // delete the user's data (best effort). The auth login record itself needs a server function (Stage E).
+  await sb.from("appointments").delete().eq("user_id", uid);
+  await sb.from("reviews").delete().eq("user_id", uid);
+  await sb.from("relatives").delete().eq("user_id", uid);
+  await sb.from("doctors").delete().eq("owner", uid);
+  await sb.from("profiles").delete().eq("id", uid);
+  await sb.auth.signOut();
+  closeModal();
+  alert(t("deleteDone"));
 }
 function showAuth(){
   $("modal").innerHTML = `
