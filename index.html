@@ -233,7 +233,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.29 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.32 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -321,7 +321,8 @@ const I18N = {
     lblLanguage:"Language", allLanguages:"Any language", lblSort:"Sort by", sortDefault:"Default", sortRating:"Top rated", sortName:"Name (A–Z)",
     prevPage:"‹ Prev", nextPage:"Next ›", pageWord:"Page",
     editProfile:"Edit profile", saveProfile:"Save profile",
-    footer:"DoctoLebanon — prototype v0.29 · Made to test an idea, not for real medical use yet." },
+    familyTitle:"Family members", relName:"Name", relRelation:"Relationship (optional)", addRelative:"Add", noRelatives:"No family members added yet.", forWhom:"Who is this for?", forMyself:"Myself", addSomeone:"Someone else…", saveToFamily:"Save to my family for next time", removeRel:"Remove from my family",
+    footer:"DoctoLebanon — prototype v0.32 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -360,7 +361,8 @@ const I18N = {
     lblLanguage:"Langue", allLanguages:"Toutes les langues", lblSort:"Trier par", sortDefault:"Par défaut", sortRating:"Mieux notés", sortName:"Nom (A–Z)",
     prevPage:"‹ Préc.", nextPage:"Suiv. ›", pageWord:"Page",
     editProfile:"Modifier le profil", saveProfile:"Enregistrer",
-    footer:"DoctoLebanon — prototype v0.29 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    familyTitle:"Membres de la famille", relName:"Nom", relRelation:"Lien (facultatif)", addRelative:"Ajouter", noRelatives:"Aucun membre ajouté.", forWhom:"Pour qui ?", forMyself:"Moi-même", addSomeone:"Une autre personne…", saveToFamily:"Enregistrer dans ma famille", removeRel:"Retirer de ma famille",
+    footer:"DoctoLebanon — prototype v0.32 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -399,7 +401,8 @@ const I18N = {
     lblLanguage:"اللغة", allLanguages:"كل اللغات", lblSort:"ترتيب حسب", sortDefault:"افتراضي", sortRating:"الأعلى تقييماً", sortName:"الاسم (أ–ي)",
     prevPage:"‹ السابق", nextPage:"التالي ›", pageWord:"صفحة",
     editProfile:"تعديل الملف", saveProfile:"حفظ الملف",
-    footer:"دكتو لبنان — نموذج تجريبي v0.29 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    familyTitle:"أفراد العائلة", relName:"الاسم", relRelation:"صلة القرابة (اختياري)", addRelative:"إضافة", noRelatives:"لم تتم إضافة أفراد بعد.", forWhom:"لمن هذا الموعد؟", forMyself:"أنا", addSomeone:"شخص آخر…", saveToFamily:"حفظ ضمن عائلتي", removeRel:"إزالة من عائلتي",
+    footer:"دكتو لبنان — نموذج تجريبي v0.32 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -635,7 +638,16 @@ function pickSlot(id, slotId, dayLabel, time, iso){
     </div>
     <div class="modal-body">
       <div class="notice">📅 ${specLabel(d.s)} — ${d.n}<br>🕒 ${dayLabel} ${t("atTime")} ${time} · 📍 ${cityLabel(d.c)} · 💵 ${d.fee}</div>
+      <div class="form-row"><label>${t("forWhom")}</label>
+        <select id="bFor" onchange="onForChange()">
+          <option value="__me__">${t("forMyself")}</option>
+          ${myRelatives.map(r=>`<option value="${esc(r.name)}">${esc(r.name)}${r.relation?` (${esc(r.relation)})`:""}</option>`).join("")}
+          <option value="__new__">${t("addSomeone")}</option>
+        </select>
+        <a href="#" id="bRemoveRel" onclick="removeSelectedRelative();return false;" style="display:none;font-size:12px;color:var(--red);text-decoration:none;margin-top:6px">✕ ${t("removeRel")}</a>
+      </div>
       <div class="form-row"><label>${t("yourName")}</label><input id="bName" placeholder="${t("phYourName")}" /></div>
+      <div class="form-row" id="saveFamRow" style="display:none"><label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="checkbox" id="bSaveFam" /> ${t("saveToFamily")}</label></div>
       <div class="form-row"><label>${t("phone")}</label><input id="bPhone" placeholder="${t("phPhone")}" /></div>
       <div class="form-row"><label>${t("reasonLabel")}</label>
         <div class="radios">
@@ -649,6 +661,22 @@ function pickSlot(id, slotId, dayLabel, time, iso){
     </div>`;
 }
 
+function onForChange(){
+  const v=$("bFor").value, saveRow=$("saveFamRow"), rm=$("bRemoveRel");
+  if(v==="__me__"){ $("bName").value=""; saveRow.style.display="none"; rm.style.display="none"; }
+  else if(v==="__new__"){ $("bName").value=""; $("bName").focus(); saveRow.style.display=""; rm.style.display="none"; }
+  else { $("bName").value=v; saveRow.style.display="none"; rm.style.display="block"; }   // a saved relative → fill name + allow removing
+}
+async function removeSelectedRelative(){
+  const name=$("bFor").value;
+  const rel=myRelatives.find(r=>r.name===name);
+  if(!rel) return;
+  if(!confirm(t("removeRel")+": "+name+"?")) return;
+  const { error } = await sb.from("relatives").delete().eq("id", rel.id);
+  if(error){ alert(error.message); return; }
+  await loadRelatives();
+  pickSlot(pending.doc.id, pending.slotId, pending.day, pending.time, pending.iso);   // rebuild the form, person gone
+}
 async function confirmBooking(){
   if(!currentUser){ alert(t("loginToBook")); showAuth(); return; }   // must be logged in to book
   const name=$("bName").value.trim(), phone=$("bPhone").value.trim();
@@ -675,6 +703,10 @@ async function confirmBooking(){
   });
   if(error){ await sb.from("slots").update({ is_booked:false }).eq("id", pending.slotId); alert("Sorry, could not book: " + error.message); return; }
   updateBadge();
+  // if booking for a new person and they ticked "save", remember them for next time
+  if($("bFor") && $("bFor").value==="__new__" && $("bSaveFam") && $("bSaveFam").checked && name){
+    await sb.from("relatives").insert({ name });
+  }
   const sms = lang==="fr" ? `Une confirmation serait normalement envoyée au ${phone} par SMS.`
             : lang==="ar" ? `عادةً ما يتم إرسال تأكيد إلى ${phone} عبر رسالة نصية.`
             : `A confirmation would normally be sent to ${phone} by SMS.`;
@@ -692,34 +724,58 @@ async function showAppointments(){
   $("hero").classList.add("hidden");
   $("listView").classList.add("hidden");
   $("signupView").classList.add("hidden");
+  $("dashView").classList.add("hidden");
+  $("adminView").classList.add("hidden");
   $("apptView").classList.remove("hidden");
   const box=$("apptList");
   if(!currentUser){ box.innerHTML=`<div class="empty">${t("loginToBook")}<br><br><button class="btn" onclick="showAuth()">${t("logIn")}</button></div>`; return; }
   box.innerHTML=`<div class="empty">⏳</div>`;
+  await loadRelatives();
   const { data, error } = await sb.from("appointments").select("*").order("id");
   if(error){ box.innerHTML=`<div class="empty">${error.message}</div>`; return; }
   const appts=(data||[]).map(shapeAppt);
-  if(appts.length===0){box.innerHTML=`<div class="empty">${t("noApptsYet")}<br><br><button class="btn" onclick="goHome()">${t("findDoctor")}</button></div>`;return;}
-  box.innerHTML="";
-  appts.forEach(ap=>{
-    const parts=ap.day.split(" ");
-    const el=document.createElement("div"); el.className="appt";
-    el.innerHTML=`
-      <div class="when"><div class="d">${parts[1]||""}</div><div class="m">${parts[2]||""}</div></div>
-      <div class="info"><b>${ap.doc}</b><div>${specLabel(ap.spec)} · 📍 ${cityLabel(ap.city)}</div>
-        <div>🕒 ${ap.day} ${t("atTime")} ${ap.time} · 💵 ${ap.fee}</div>
-        <div>${t("bookedFor")} ${ap.name} (${ap.phone})</div>
-        ${ap.reason?`<div>${t("reasonWord")} ${reasonText(ap.reason)}</div>`:""}
-        ${ap.docName?`<div>📎 ${t("attachedWord")} ${ap.docPath?`<a class="plink" href="#" onclick="openDoc('${ap.docPath}');return false;">${ap.docName}</a>`:ap.docName}</div>`:""}
-        ${ap.status==="cancelled_by_doctor"?`<div style="color:var(--red);font-weight:600">${t("cancelledByDoctor")}</div>${ap.doctorNote?`<div>${t("noteWord")} ${ap.doctorNote}</div>`:""}`:""}</div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn small" onclick="startReschedule(${ap.id}, ${ap.doctorId||'null'}, ${ap.slotId||'null'})">${t("reschedule")}</button>
-        ${ap.status==="cancelled_by_doctor"
-          ? `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, null)">${t("dismiss")}</button>`
-          : `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, ${ap.slotId||'null'})">${t("cancel")}</button>`}
-      </div>`;
-    box.appendChild(el);
-  });
+  let html = "";
+  if(!appts.length){
+    html += `<div class="empty">${t("noApptsYet")}<br><br><button class="btn" onclick="goHome()">${t("findDoctor")}</button></div>`;
+  } else {
+    html += appts.map(ap=>{
+      const parts=ap.day.split(" ");
+      return `<div class="appt">
+        <div class="when"><div class="d">${parts[1]||""}</div><div class="m">${parts[2]||""}</div></div>
+        <div class="info"><b>${ap.doc}</b><div>${specLabel(ap.spec)} · 📍 ${cityLabel(ap.city)}</div>
+          <div>🕒 ${ap.day} ${t("atTime")} ${ap.time} · 💵 ${ap.fee}</div>
+          <div>${t("bookedFor")} ${esc(ap.name)} (${esc(ap.phone)})</div>
+          ${ap.reason?`<div>${t("reasonWord")} ${reasonText(ap.reason)}</div>`:""}
+          ${ap.docName?`<div>📎 ${t("attachedWord")} ${ap.docPath?`<a class="plink" href="#" onclick="openDoc('${ap.docPath}');return false;">${esc(ap.docName)}</a>`:esc(ap.docName)}</div>`:""}
+          ${ap.status==="cancelled_by_doctor"?`<div style="color:var(--red);font-weight:600">${t("cancelledByDoctor")}</div>${ap.doctorNote?`<div>${t("noteWord")} ${esc(ap.doctorNote)}</div>`:""}`:""}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button class="btn small" onclick="startReschedule(${ap.id}, ${ap.doctorId||'null'}, ${ap.slotId||'null'})">${t("reschedule")}</button>
+          ${ap.status==="cancelled_by_doctor"
+            ? `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, null)">${t("dismiss")}</button>`
+            : `<button class="btn ghost small" onclick="cancelAppt(${ap.id}, ${ap.slotId||'null'})">${t("cancel")}</button>`}
+        </div></div>`;
+    }).join("");
+  }
+  box.innerHTML = html;
+}
+/* Family members the patient can book for */
+let myRelatives=[];
+async function loadRelatives(){
+  if(!currentUser){ myRelatives=[]; return; }
+  const { data } = await sb.from("relatives").select("*").order("id");
+  myRelatives = data||[];
+}
+async function addRelative(){
+  const name=$("relName").value.trim(), relation=$("relRel").value.trim();
+  if(!name){ alert(t("relName")); return; }
+  const { error } = await sb.from("relatives").insert({ name, relation });
+  if(error){ alert(error.message); return; }
+  showAppointments();
+}
+async function delRelative(id){
+  const { error } = await sb.from("relatives").delete().eq("id", id);
+  if(error){ alert(error.message); return; }
+  showAppointments();
 }
 async function cancelAppt(id, slotId){
   if(!confirm(t("cancelConfirm")))return;
@@ -1106,11 +1162,12 @@ async function refreshAuth(){
 }
 /* Work out the user's roles: which doctor listings they own, and whether they're an admin. */
 async function refreshRoles(){
-  if(!currentUser){ myListings=[]; isAdmin=false; return; }
+  if(!currentUser){ myListings=[]; isAdmin=false; myRelatives=[]; return; }
   const { data:mine } = await sb.from("doctors").select("*").eq("owner", currentUser.id).order("id");
   myListings = (mine||[]).map((row,i)=>shapeDoctor(row,i));
   const { data:adm } = await sb.from("admins").select("user_id").eq("user_id", currentUser.id);
   isAdmin = !!(adm && adm.length);
+  await loadRelatives();   // so the "Booking for" picker is ready
 }
 /* Show either a "Log in" button, or the email + a "Log out" button. */
 function renderAuthUI(){

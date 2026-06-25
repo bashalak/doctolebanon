@@ -100,7 +100,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 - [x] **D10 — Doctor cancels an appointment (in-app)** ✅ Doctor cancels from the dashboard with an optional note; the slot is freed; the patient sees "Cancelled by the doctor" + the note in My appointments (v0.24). ⏳ Still later: actual **email/SMS** delivery (needs a provider; SMS costs money) → D4 / Stage E.
 - [ ] **D4 — Email reminders / confirmations** for appointments. Needs a Supabase scheduled function + an email provider.
 - [x] **D5 — Reviews & ratings.** ✅ Patients leave a rating + comment; the real average shows on cards and profiles; one review per patient per doctor (editable) (v0.26).
-- [ ] **D6 — Book for a family member** (relatives on an account). Needs a `relatives` table + "who is this for?" choice.
+- [x] **D6 — Book for a family member** ✅ "Who is this for?" picker in the booking form (Myself / a saved relative / someone new with "save for next time"), and remove a saved person inline. `relatives` table (v0.30–v0.32).
 
 **Tier 3 — polish**
 - [x] **D7 — Better search & filters + pagination** ✅ Filter by language; sort by name/rating; **server-side filtering + pagination** (12/page, Prev/Next) so it scales to thousands of doctors (v0.27–v0.28).
@@ -141,6 +141,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.30–v0.32 — D6 book for family:** "Who is this for?" in the booking form (self / saved relative / new + save), inline remove; `relatives` table | `index.html` |
 | 2026-06-06 | **v0.29 — D8:** doctor edits own profile (modal from dashboard) + 🌿 favicon | `index.html` |
 | 2026-06-06 | **v0.27–v0.28 — D7 search & scale:** language filter + sort; **server-side filtering + pagination** (12/page) so the list scales to thousands of doctors | `index.html` |
 | 2026-06-06 | **v0.26 — D5 reviews & ratings:** patients rate + comment; real averages on cards/profiles (`reviews` table) | `index.html` |
