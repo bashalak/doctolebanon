@@ -143,6 +143,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | Added `ROAD-TO-LAUNCH.md` (demo → real-launch checklist) + started security hardening (lock the `verified` column) | `ROAD-TO-LAUNCH.md` |
 | 2026-06-06 | **v0.36–v0.37 — legal info + delete account:** Legal page (placeholder, Law 81 note); Delete my account (in Profile — wipes data + logs out) | `index.html` |
 | 2026-06-06 | **v0.34–v0.35 — account menu + profile:** day-by-day availability (Prev/Next); account dropdown; Profile modal (name/address/phone/email/password) | `index.html` |
 | 2026-06-06 | **v0.30–v0.32 — D6 book for family:** "Who is this for?" in the booking form (self / saved relative / new + save), inline remove; `relatives` table | `index.html` |

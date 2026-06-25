@@ -22,6 +22,7 @@ No installation needed — just open **`index.html`** in any web browser.
 - **`PROJECT-PLAN.md`** — the roadmap and progress log
 - **`CODE-EXPLAINED.md`** — how the code works (for learning)
 - **`ARCHITECTURE.md`** — how the PC, GitHub, Netlify & Supabase fit together
+- **`ROAD-TO-LAUNCH.md`** — what's left to go from demo to a real launch
 - **`MY-NOTES.md`** — learning notebook
 - **`COLLABORATION.md`** — how to work together without conflicts
 
