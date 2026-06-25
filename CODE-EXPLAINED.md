@@ -646,6 +646,98 @@ Security lives in the **database rules (RLS)**, so even if the front-end had a b
 
 ---
 
+## 21. Real availability & no double-booking (v0.18–v0.20) 🗓️
+
+Before this, time slots were **fake** (made up by code). Now they're **real**: doctors create their slots, patients book them, and a slot can be taken only once.
+
+### The `slots` table
+Each row is one bookable time for a doctor:
+```
+slots: id · doctor_id · slot_date · slot_time · is_booked
+```
+- Doctors **add** slots (an `insert`) from their dashboard.
+- The **recurring generator** builds many at once: a loop walks each day in a date range, and for each chosen weekday it adds the times — then one bulk `upsert` saves them all (`ignoreDuplicates` so re-running is safe).
+
+### Booking without double-booking (the clever bit)
+When a patient books, we don't just trust the screen — we ask the database to reserve it **only if it's still free**:
+```js
+sb.from("slots").update({ is_booked:true }).eq("id", slotId).eq("is_booked", false).select()
+```
+- `.eq("id", slotId).eq("is_booked", false)` = "this slot, **but only if it's still free**."
+- If it returns **0 rows**, someone grabbed it a split second earlier → we tell the patient "just taken." This is **race-safe** — even two simultaneous clicks can't both win.
+- Cancelling sets `is_booked` back to `false` so the slot reopens.
+
+### Concepts
+- **A status flag (`is_booked`) + a conditional update** = safe reservations.
+- **Generating data in a loop** + bulk `upsert`.
+
+---
+
+## 22. The doctor dashboard: tabs & calendar (v0.21–v0.23) 📅
+
+### Tabs from one variable
+The dashboard shows **one section at a time** using a single state variable:
+```js
+let dashTab = "appts";              // "appts" | "cal" | "avail"
+function setDashTab(t){ dashTab=t; showDashboard(); }
+```
+`showDashboard()` checks `dashTab` and renders only that section. Clicking a tab changes the variable and re-draws. (Same idea you'll see in every app: *state → re-render*.)
+
+### The calendar
+- Each appointment stores its date as **`appt_date`** (a real date), so we can place it on a grid.
+- We **bucket** appointments by date: `byDate[appt_date] = [appointments…]`.
+- **Date math** builds the views: start-of-week (to line up Mon–Sun), and a 42-cell month grid (6 weeks). `calNav()` moves the reference date by a day/week/month.
+
+### Concept
+- **State-driven views** (one variable decides what's shown) and **working with dates** (grouping, grids, navigation).
+
+---
+
+## 23. Cancelling & rescheduling (v0.24–v0.25) 🔁
+
+### A `status` instead of deleting
+When a doctor cancels, we **don't delete** the appointment — we mark it:
+```
+appointments.status = 'cancelled_by_doctor',  appointments.doctor_note = '...'
+```
+Why? So the **patient can still see** it happened (and the doctor's note). A deleted row would just vanish silently. Representing situations with a **status field** is a core data-modelling idea.
+
+### Reschedule = move between slots
+`doReschedule()` does three careful steps:
+1. **Reserve** the new slot (the same race-safe conditional update).
+2. **Free** the old slot.
+3. **Update** the appointment to point at the new slot/date/time (and reset status to `booked`).
+If step 3 fails, we roll back step 1 (free the new slot again) so nothing is left half-done.
+
+### Concept
+- **Status fields** to model real-world states; **multi-step updates** with a rollback if something fails.
+
+---
+
+## 24. Reviews & ratings (v0.26) ⭐
+
+### Averages from rows
+Each review is a row (`doctor_id`, `rating`, `comment`). We load them all and compute each doctor's **average**:
+```js
+reviewStats[doctor_id] = { sum, count }   // average = sum / count
+```
+`ratingTag()` then shows: the **review average** if any, else the seeded rating, else "New".
+
+### One review per patient (editable)
+`unique (doctor_id, user_id)` + `upsert` means a patient has exactly one review per doctor, and submitting again **updates** it.
+
+### Safety: escaping user text
+Reviews are free text from anyone, so before putting a comment on the page we **escape** it:
+```js
+function esc(s){ return s.replace(/[&<>"]/g, …) }   // turns < into &lt;, etc.
+```
+This prevents someone sneaking HTML/script into a comment (a class of bug called **XSS**). Always escape untrusted text you display.
+
+### Concept
+- **Aggregating data** (averages from many rows), **upsert** for one-per-user records, and **escaping user input** for safety.
+
+---
+
 ## 19. New in v0.13 — Real document upload (C5, Supabase Storage) 📎
 
 The booking's "attach a document" now **actually uploads the file** to the cloud — privately.
