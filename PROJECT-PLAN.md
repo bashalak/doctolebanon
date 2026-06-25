@@ -99,7 +99,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 - [x] **D3 — Reschedule** ✅ Patient moves a booking to another free slot (old slot freed, new reserved); also lets a patient take a doctor's suggested new time after a cancellation (v0.25).
 - [x] **D10 — Doctor cancels an appointment (in-app)** ✅ Doctor cancels from the dashboard with an optional note; the slot is freed; the patient sees "Cancelled by the doctor" + the note in My appointments (v0.24). ⏳ Still later: actual **email/SMS** delivery (needs a provider; SMS costs money) → D4 / Stage E.
 - [ ] **D4 — Email reminders / confirmations** for appointments. Needs a Supabase scheduled function + an email provider.
-- [ ] **D5 — Reviews & ratings.** Patients rate a doctor after a visit; show the average on the card/profile. Needs a `reviews` table + display.
+- [x] **D5 — Reviews & ratings.** ✅ Patients leave a rating + comment; the real average shows on cards and profiles; one review per patient per doctor (editable) (v0.26).
 - [ ] **D6 — Book for a family member** (relatives on an account). Needs a `relatives` table + "who is this for?" choice.
 
 **Tier 3 — polish**
@@ -141,6 +141,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.26 — D5 reviews & ratings:** patients rate + comment; real averages on cards/profiles (`reviews` table) | `index.html` |
 | 2026-06-06 | **v0.25 — D3 reschedule:** patient moves a booking to another free slot (old freed, new reserved); also takes a doctor's suggested time after a cancellation | `index.html` |
 | 2026-06-06 | **v0.24 — doctor cancel (in-app):** doctor cancels a booking with an optional note; slot freed; patient sees "Cancelled by the doctor" + note | `index.html` |
 | 2026-06-06 | **v0.22–v0.23 — D9 calendar view:** Day/Week/Month calendar of appointments in the doctor dashboard (stores `appt_date` so bookings appear) | `index.html` |

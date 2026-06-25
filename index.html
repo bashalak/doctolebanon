@@ -222,7 +222,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.25 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.26 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -306,7 +306,8 @@ const I18N = {
     calTab:"Calendar", todayWord:"Today", dayView:"Day", weekView:"Week", monthView:"Month",
     notePrompt:"Optional note to the patient (reason, or a suggested new time):", cancelledByDoctor:"Cancelled by the doctor", dismiss:"Dismiss", cancelledLabel:"Cancelled", noteWord:"Note:",
     reschedule:"Reschedule", rescheduleTitle:"Pick a new time",
-    footer:"DoctoLebanon — prototype v0.25 · Made to test an idea, not for real medical use yet." },
+    reviewsTitle:"Reviews", noReviews:"No reviews yet.", yourRating:"Your rating", reviewComment:"Your comment (optional)", submitReview:"Submit review", loginToReview:"Log in to leave a review.",
+    footer:"DoctoLebanon — prototype v0.26 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -341,7 +342,8 @@ const I18N = {
     calTab:"Calendrier", todayWord:"Aujourd'hui", dayView:"Jour", weekView:"Semaine", monthView:"Mois",
     notePrompt:"Note facultative au patient (motif ou nouvel horaire proposé) :", cancelledByDoctor:"Annulé par le médecin", dismiss:"Ignorer", cancelledLabel:"Annulé", noteWord:"Note :",
     reschedule:"Reprogrammer", rescheduleTitle:"Choisir un nouvel horaire",
-    footer:"DoctoLebanon — prototype v0.25 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    reviewsTitle:"Avis", noReviews:"Aucun avis pour l'instant.", yourRating:"Votre note", reviewComment:"Votre commentaire (facultatif)", submitReview:"Envoyer l'avis", loginToReview:"Connectez-vous pour laisser un avis.",
+    footer:"DoctoLebanon — prototype v0.26 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -376,7 +378,8 @@ const I18N = {
     calTab:"التقويم", todayWord:"اليوم", dayView:"يوم", weekView:"أسبوع", monthView:"شهر",
     notePrompt:"ملاحظة اختيارية للمريض (السبب أو وقت بديل مقترح):", cancelledByDoctor:"أُلغي من قبل الطبيب", dismiss:"تجاهل", cancelledLabel:"ملغى", noteWord:"ملاحظة:",
     reschedule:"إعادة جدولة", rescheduleTitle:"اختر وقتاً جديداً",
-    footer:"دكتو لبنان — نموذج تجريبي v0.25 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    reviewsTitle:"التقييمات", noReviews:"لا توجد تقييمات بعد.", yourRating:"تقييمك", reviewComment:"تعليقك (اختياري)", submitReview:"إرسال التقييم", loginToReview:"سجّل الدخول لترك تقييم.",
+    footer:"دكتو لبنان — نموذج تجريبي v0.26 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -460,6 +463,33 @@ function initials(name){return name.replace(/^Dr\.?\s*/i,"").split(" ").filter(B
 function allDoctors(){ return DOCTORS; }   // all doctors now come from the cloud (see loadDoctorsFromCloud)
 function getDoctor(id){ return allDoctors().find(d=>d.id===id); }
 
+/* ============ Reviews ============ */
+let allReviews=[], reviewStats={};
+async function loadReviews(){
+  const { data } = await sb.from("reviews").select("*");
+  allReviews = data||[];
+  reviewStats = {};
+  allReviews.forEach(r=>{ const s=(reviewStats[r.doctor_id]=reviewStats[r.doctor_id]||{sum:0,count:0}); s.sum+=r.rating; s.count++; });
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
+/* The star rating to show: real review average if any, else the seeded rating, else "New". */
+function ratingTag(d){
+  const s=reviewStats[d.id];
+  if(s && s.count) return `<span class="stars">${stars(s.sum/s.count)} <span style="color:var(--muted)">${(s.sum/s.count).toFixed(1)} (${s.count})</span></span>`;
+  if(d.r) return `<span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span>`;
+  return `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newBadge")}</span>`;
+}
+async function submitReview(doctorId){
+  if(!currentUser){ alert(t("loginToReview")); return; }
+  const rating = parseInt($("revRating").value,10);
+  const comment = $("revComment").value.trim();
+  const { error } = await sb.from("reviews").upsert({ doctor_id:doctorId, user_id:currentUser.id, rating, comment }, { onConflict:"doctor_id,user_id" });
+  if(error){ alert(error.message); return; }
+  await loadReviews();
+  render();
+  openDoctor(doctorId);   // refresh the profile with the new review + average
+}
+
 /* ============ Filters ============ */
 function populateFilters(){
   const curSpec=$("fSpec").value, curCity=$("fCity").value;
@@ -478,9 +508,7 @@ function render(){
   const g=$("grid"); g.innerHTML="";
   if(list.length===0){g.innerHTML=`<div class="empty">${t("noMatch")}</div>`;return;}
   list.forEach(d=>{
-    const rating = !d.r
-      ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newBadge")}</span>`
-      : `<span class="stars">${stars(d.r)} <span style="color:var(--muted)">${d.r}</span></span>`;
+    const rating = ratingTag(d);
     const card=document.createElement("div"); card.className="doc";
     card.innerHTML=`
       <div class="doc-top">
@@ -509,12 +537,21 @@ async function openDoctor(id){
   const slotsHtml = slotDates.length
     ? slotDates.map(dt=>`<div class="day"><h4>${fmtDate(dt)}</h4><div class="slots">${byDate[dt].map(s=>`<button class="slot" onclick="pickSlot(${d.id}, ${s.id}, '${fmtDate(dt)}', '${s.slot_time}', '${dt}')">${s.slot_time}</button>`).join("")}</div></div>`).join("")
     : `<div class="empty">${t("noAvailWeek")}</div>`;
-  const rating = !d.r
-    ? `<span class="tag" style="background:#fff0d6;color:#8a6100">${t("newWord")}</span>`
-    : `<span class="stars">${stars(d.r)}</span> ${d.r}`;
+  const rating = ratingTag(d);
   const addr = `${AREAS[d.id % AREAS.length]} — ${cityLabel(d.c)}`;
   const tel  = genTel(d);
   const exp  = !d.r ? t("newOnPlatform") : yearsExp(6 + (d.id % 18));
+  const myRevs = allReviews.filter(r=>r.doctor_id===d.id).sort((a,b)=>(b.id||0)-(a.id||0));
+  const reviewsHtml = `<h4 class="psec">${t("reviewsTitle")}</h4>
+    ${myRevs.length ? myRevs.map(r=>`<div style="border-top:1px solid var(--line);padding:7px 0"><span class="stars">${stars(r.rating)}</span>${r.comment?` <span style="color:var(--muted)">${esc(r.comment)}</span>`:""}</div>`).join("") : `<p style="color:var(--muted);font-size:13px;margin:4px 0">${t("noReviews")}</p>`}
+    ${currentUser
+      ? `<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px">
+          <div class="plabel">${t("yourRating")}</div>
+          <select id="revRating" style="padding:9px;border:1px solid var(--line);border-radius:8px"><option value="5">★★★★★</option><option value="4">★★★★☆</option><option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option><option value="1">★☆☆☆☆</option></select>
+          <input id="revComment" placeholder="${t("reviewComment")}" style="display:block;width:100%;margin-top:8px;padding:10px;border:1px solid var(--line);border-radius:9px" />
+          <button class="btn small" style="margin-top:8px" onclick="submitReview(${d.id})">${t("submitReview")}</button>
+        </div>`
+      : `<p style="color:var(--muted);font-size:13px">${t("loginToReview")}</p>`}`;
   $("modal").innerHTML=`
     <div class="modal-head">
       <div class="avatar" style="background:${d.color}">${d.init}</div>
@@ -536,6 +573,7 @@ async function openDoctor(id){
       <p style="color:var(--muted);margin:4px 0 0">${bioText(d)}</p>
       <h4 class="psec">${t("availability")}</h4>
       ${slotsHtml}
+      ${reviewsHtml}
     </div>`;
   openOverlay();
 }
@@ -1083,7 +1121,7 @@ sb.auth.onAuthStateChange((_event, session)=>{
 refreshAuth();                                            // check if already logged in
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });  // Esc always closes a pop-up
 $("grid").innerHTML = `<div class="empty">⏳</div>`;     // brief "loading" while we fetch from the cloud
-loadDoctorsFromCloud().then(render);                     // get doctors from Supabase, then draw them
+Promise.all([loadDoctorsFromCloud(), loadReviews()]).then(render);   // doctors + review averages, then draw
 </script>
 </body>
 </html>
