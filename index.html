@@ -41,6 +41,12 @@
   .langswitch{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .langswitch button{border:0;background:#fff;padding:7px 11px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
   .langswitch button.active{background:var(--green);color:#fff}
+  /* ---------- Account menu ---------- */
+  .menu{position:relative}
+  .menu-panel{position:absolute;inset-inline-end:0;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(19,52,59,.14);min-width:210px;z-index:60;overflow:hidden;display:none}
+  .menu-panel.open{display:block}
+  .menu-panel button{display:block;width:100%;text-align:start;border:0;background:#fff;padding:11px 14px;font-size:14px;cursor:pointer;color:var(--ink)}
+  .menu-panel button:hover{background:#f4f8f7}
   .langswitch button + button{border-left:1px solid var(--line)}
   /* ---------- Hero / search ---------- */
   .hero{background:radial-gradient(1200px 420px at 82% -12%,rgba(255,255,255,.13),transparent),linear-gradient(160deg,#0f8a7e,#0b6a61);color:#fff;padding:46px 20px 64px}
@@ -156,9 +162,6 @@
     </div>
     <button class="btn link" id="navFind" onclick="goHome()">Find a doctor</button>
     <button class="btn link" id="navJoin" onclick="showSignup()">Join as a doctor</button>
-    <button class="btn link hidden" id="navDash" onclick="showDashboard()">Dashboard</button>
-    <button class="btn link hidden" id="navAdmin" onclick="showAdmin()">Admin</button>
-    <button class="btn ghost small" onclick="showAppointments()"><span id="navApptLabel">My appointments</span> <span id="apptBadge"></span></button>
     <span id="authArea"></span>
   </div>
 </header>
@@ -233,7 +236,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.32 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.35 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -321,8 +324,9 @@ const I18N = {
     lblLanguage:"Language", allLanguages:"Any language", lblSort:"Sort by", sortDefault:"Default", sortRating:"Top rated", sortName:"Name (A–Z)",
     prevPage:"‹ Prev", nextPage:"Next ›", pageWord:"Page",
     editProfile:"Edit profile", saveProfile:"Save profile",
-    familyTitle:"Family members", relName:"Name", relRelation:"Relationship (optional)", addRelative:"Add", noRelatives:"No family members added yet.", forWhom:"Who is this for?", forMyself:"Myself", addSomeone:"Someone else…", saveToFamily:"Save to my family for next time", removeRel:"Remove from my family",
-    footer:"DoctoLebanon — prototype v0.32 · Made to test an idea, not for real medical use yet." },
+    familyTitle:"Family members", relName:"Name", relRelation:"Relationship (optional)", addRelative:"Add", noRelatives:"No family members added yet.", forWhom:"Who is this for?", forMyself:"Myself", addSomeone:"Someone else…", saveToFamily:"Save to my family for next time", removeRel:"Remove from my family", showMore:"Show more dates ›",
+    profile:"Profile", changeEmail:"Change email", changePassword:"Change password", newPassword:"New password", saved:"Saved",
+    footer:"DoctoLebanon — prototype v0.35 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -361,8 +365,9 @@ const I18N = {
     lblLanguage:"Langue", allLanguages:"Toutes les langues", lblSort:"Trier par", sortDefault:"Par défaut", sortRating:"Mieux notés", sortName:"Nom (A–Z)",
     prevPage:"‹ Préc.", nextPage:"Suiv. ›", pageWord:"Page",
     editProfile:"Modifier le profil", saveProfile:"Enregistrer",
-    familyTitle:"Membres de la famille", relName:"Nom", relRelation:"Lien (facultatif)", addRelative:"Ajouter", noRelatives:"Aucun membre ajouté.", forWhom:"Pour qui ?", forMyself:"Moi-même", addSomeone:"Une autre personne…", saveToFamily:"Enregistrer dans ma famille", removeRel:"Retirer de ma famille",
-    footer:"DoctoLebanon — prototype v0.32 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    familyTitle:"Membres de la famille", relName:"Nom", relRelation:"Lien (facultatif)", addRelative:"Ajouter", noRelatives:"Aucun membre ajouté.", forWhom:"Pour qui ?", forMyself:"Moi-même", addSomeone:"Une autre personne…", saveToFamily:"Enregistrer dans ma famille", removeRel:"Retirer de ma famille", showMore:"Voir plus de dates ›",
+    profile:"Profil", changeEmail:"Changer l'e-mail", changePassword:"Changer le mot de passe", newPassword:"Nouveau mot de passe", saved:"Enregistré",
+    footer:"DoctoLebanon — prototype v0.35 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -401,8 +406,9 @@ const I18N = {
     lblLanguage:"اللغة", allLanguages:"كل اللغات", lblSort:"ترتيب حسب", sortDefault:"افتراضي", sortRating:"الأعلى تقييماً", sortName:"الاسم (أ–ي)",
     prevPage:"‹ السابق", nextPage:"التالي ›", pageWord:"صفحة",
     editProfile:"تعديل الملف", saveProfile:"حفظ الملف",
-    familyTitle:"أفراد العائلة", relName:"الاسم", relRelation:"صلة القرابة (اختياري)", addRelative:"إضافة", noRelatives:"لم تتم إضافة أفراد بعد.", forWhom:"لمن هذا الموعد؟", forMyself:"أنا", addSomeone:"شخص آخر…", saveToFamily:"حفظ ضمن عائلتي", removeRel:"إزالة من عائلتي",
-    footer:"دكتو لبنان — نموذج تجريبي v0.32 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    familyTitle:"أفراد العائلة", relName:"الاسم", relRelation:"صلة القرابة (اختياري)", addRelative:"إضافة", noRelatives:"لم تتم إضافة أفراد بعد.", forWhom:"لمن هذا الموعد؟", forMyself:"أنا", addSomeone:"شخص آخر…", saveToFamily:"حفظ ضمن عائلتي", removeRel:"إزالة من عائلتي", showMore:"عرض المزيد من التواريخ ›",
+    profile:"الملف الشخصي", changeEmail:"تغيير البريد الإلكتروني", changePassword:"تغيير كلمة المرور", newPassword:"كلمة مرور جديدة", saved:"تم الحفظ",
+    footer:"دكتو لبنان — نموذج تجريبي v0.35 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -574,17 +580,28 @@ async function render(){
 
 /* ============ Doctor modal + booking ============ */
 let pending=null;
+let profileDoctorId=null, slotDayIdx=0;   // which available day the open profile is showing
+function slotPrevDay(){ slotDayIdx=Math.max(0,slotDayIdx-1); openDoctor(profileDoctorId); }
+function slotNextDay(){ slotDayIdx++; openDoctor(profileDoctorId); }
 async function openDoctor(id){
   let d=getDoctor(id);
   if(!d){ const { data } = await sb.from("doctors").select("*").eq("id", id).single(); if(data) d=shapeDoctor(data,0); }
   if(!d) return;
+  if(id!==profileDoctorId){ slotDayIdx=0; profileDoctorId=id; }   // reset to the first day when opening a different doctor
   const today = new Date().toISOString().slice(0,10);
-  const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", d.id).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time");
+  const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", d.id).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time").limit(300);
   const byDate = {};
   (slotRows||[]).forEach(s=>{ (byDate[s.slot_date]=byDate[s.slot_date]||[]).push(s); });
-  const slotDates = Object.keys(byDate).sort();
-  const slotsHtml = slotDates.length
-    ? slotDates.map(dt=>`<div class="day"><h4>${fmtDate(dt)}</h4><div class="slots">${byDate[dt].map(s=>`<button class="slot" onclick="pickSlot(${d.id}, ${s.id}, '${fmtDate(dt)}', '${s.slot_time}', '${dt}')">${s.slot_time}</button>`).join("")}</div></div>`).join("")
+  const allDates = Object.keys(byDate).sort();
+  if(slotDayIdx > allDates.length-1) slotDayIdx = Math.max(0, allDates.length-1);
+  const cur = allDates[slotDayIdx];
+  const slotsHtml = allDates.length
+    ? `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+         <button class="btn ghost small" ${slotDayIdx<=0?"disabled":""} onclick="slotPrevDay()">‹</button>
+         <b style="font-size:14px">${fmtDate(cur)}</b>
+         <button class="btn ghost small" ${slotDayIdx>=allDates.length-1?"disabled":""} onclick="slotNextDay()">›</button>
+       </div>
+       <div class="slots">${byDate[cur].map(s=>`<button class="slot" onclick="pickSlot(${d.id}, ${s.id}, '${fmtDate(cur)}', '${s.slot_time}', '${cur}')">${s.slot_time}</button>`).join("")}</div>`
     : `<div class="empty">${t("noAvailWeek")}</div>`;
   const rating = ratingTag(d);
   const addr = `${AREAS[d.id % AREAS.length]} — ${cityLabel(d.c)}`;
@@ -787,7 +804,7 @@ async function cancelAppt(id, slotId){
 /* Patient reschedules: pick another free slot for the same doctor. */
 async function startReschedule(apptId, doctorId, oldSlotId){
   const today = new Date().toISOString().slice(0,10);
-  const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", doctorId).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time");
+  const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", doctorId).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time").limit(120);
   const byDate={}; (slotRows||[]).forEach(s=>{ (byDate[s.slot_date]=byDate[s.slot_date]||[]).push(s); });
   const dates=Object.keys(byDate).sort();
   const slotsHtml = dates.length
@@ -1172,13 +1189,61 @@ async function refreshRoles(){
 /* Show either a "Log in" button, or the email + a "Log out" button. */
 function renderAuthUI(){
   const el = $("authArea"); if(!el) return;
-  const dash=$("navDash"); if(dash) dash.classList.toggle("hidden", !(currentUser && myListings.length));
-  const adm=$("navAdmin"); if(adm) adm.classList.toggle("hidden", !isAdmin);
   if(currentUser){
-    el.innerHTML = `<span style="font-size:13px;color:var(--muted)">${currentUser.email}</span> <button class="btn ghost small" onclick="doLogout()">${t("logOut")}</button>`;
+    const items = [
+      `<button onclick="closeMenu();showProfile()">👤 ${t("profile")}</button>`,
+      `<button onclick="closeMenu();showAppointments()">📅 ${t("myAppts")} <span id="apptBadge"></span></button>`,
+      myListings.length?`<button onclick="closeMenu();showDashboard()">🩺 ${t("dash")}</button>`:"",
+      isAdmin?`<button onclick="closeMenu();showAdmin()">🛡️ ${t("admin")}</button>`:"",
+      `<button onclick="closeMenu();doLogout()" style="color:var(--red)">🚪 ${t("logOut")}</button>`
+    ].join("");
+    el.innerHTML = `<div class="menu"><button class="btn ghost small" onclick="toggleMenu(event)">${esc(currentUser.email)} ▾</button><div class="menu-panel" id="menuPanel">${items}</div></div>`;
   } else {
     el.innerHTML = `<button class="btn ghost small" onclick="showAuth()">${t("logIn")}</button>`;
   }
+  updateBadge();
+}
+function toggleMenu(e){ if(e) e.stopPropagation(); const p=$("menuPanel"); if(p) p.classList.toggle("open"); }
+function closeMenu(){ const p=$("menuPanel"); if(p) p.classList.remove("open"); }
+
+/* ============ Profile (account) ============ */
+async function showProfile(){
+  if(!currentUser){ showAuth(); return; }
+  $("modal").innerHTML=`<div class="modal-body"><div class="empty">⏳</div></div>`; openOverlay();
+  const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
+  const p = data||{};
+  $("modal").innerHTML = `
+    <div class="modal-head"><h3 style="margin:0">${t("profile")}</h3><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>${t("fullName")}</label><input id="pfName" value="${esc(p.name||"")}" /></div>
+      <div class="form-row"><label>${t("address")}</label><input id="pfAddr" value="${esc(p.address||"")}" /></div>
+      <div class="form-row"><label>${t("phone")}</label><input id="pfPhone" value="${esc(p.phone||"")}" /></div>
+      <button class="btn" style="width:100%;padding:12px" onclick="saveProfileInfo()">${t("saveProfile")}</button>
+      <h4 class="psec">${t("email")}</h4>
+      <div class="form-row"><input id="pfEmail" value="${esc(currentUser.email)}" /></div>
+      <button class="btn ghost small" onclick="changeEmail()">${t("changeEmail")}</button>
+      <h4 class="psec">${t("password")}</h4>
+      <div class="form-row"><input id="pfPass" type="password" placeholder="${t("newPassword")}" /></div>
+      <button class="btn ghost small" onclick="changePassword()">${t("changePassword")}</button>
+    </div>`;
+}
+async function saveProfileInfo(){
+  const name=$("pfName").value.trim(), address=$("pfAddr").value.trim(), phone=$("pfPhone").value.trim();
+  const { error } = await sb.from("profiles").upsert({ id:currentUser.id, name, address, phone });
+  if(error){ alert(error.message); return; }
+  alert(t("saved"));
+}
+async function changeEmail(){
+  const email=$("pfEmail").value.trim(); if(!email) return;
+  const { error } = await sb.auth.updateUser({ email });
+  if(error){ alert(error.message); return; }
+  alert(t("saved"));
+}
+async function changePassword(){
+  const password=$("pfPass").value; if(!password) return;
+  const { error } = await sb.auth.updateUser({ password });
+  if(error){ alert(error.message); return; }
+  $("pfPass").value=""; alert(t("saved"));
 }
 function showAuth(){
   $("modal").innerHTML = `
@@ -1218,7 +1283,6 @@ function applyLang(){
   // static texts
   $("navFind").textContent=t("findDoctor");
   $("navJoin").textContent=t("joinDoctor");
-  $("navApptLabel").textContent=t("myAppts");
   $("heroTitle").textContent=t("heroTitle");
   $("heroSub").textContent=t("heroSub");
   $("lblSpecialty").textContent=t("lblSpecialty");
@@ -1232,9 +1296,7 @@ function applyLang(){
   $("listTitle").textContent=t("availDoctors");
   $("apptTitle").textContent=t("myAppts");
   $("footerText").textContent=t("footer");
-  $("navDash").textContent=t("dash");
   $("dashTitle").textContent=t("dashTitle");
-  $("navAdmin").textContent=t("admin");
   $("adminTitle").textContent=t("adminTitle");
   renderAuthUI();
   // highlight the active language button
@@ -1259,6 +1321,7 @@ sb.auth.onAuthStateChange((_event, session)=>{
 });
 refreshAuth();                                            // check if already logged in
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });  // Esc always closes a pop-up
+document.addEventListener("click", e=>{ if(!e.target.closest(".menu")) closeMenu(); });  // click outside closes the account menu
 $("grid").innerHTML = `<div class="empty">⏳</div>`;     // brief "loading" while we fetch from the cloud
 loadReviews().then(render);   // load review averages, then fetch + draw the first page of doctors
 </script>

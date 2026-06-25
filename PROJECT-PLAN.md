@@ -103,6 +103,8 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 - [x] **D6 — Book for a family member** ✅ "Who is this for?" picker in the booking form (Myself / a saved relative / someone new with "save for next time"), and remove a saved person inline. `relatives` table (v0.30–v0.32).
 
 **Tier 3 — polish**
+- [~] **D11 — Account menu + Profile** — account dropdown (Profile · appointments · dashboard · admin · log out); Profile modal to edit name/address/phone/email/password. ✅ part 1 (v0.35). ⏳ part 2: legal info + delete account.
+- [x] Patient availability shown **one day at a time** with ‹ Prev / Next › (v0.34).
 - [x] **D7 — Better search & filters + pagination** ✅ Filter by language; sort by name/rating; **server-side filtering + pagination** (12/page, Prev/Next) so it scales to thousands of doctors (v0.27–v0.28).
 - [x] **D8 — Doctor edits their own profile** ✅ (name, specialty, city, phone, fee, languages from the dashboard) + **favicon** added (v0.29).
 - [x] **D9 — Calendar view for the doctor** ✅ Day / Week / Month calendar tab in the dashboard, with navigation; appointments placed by date (`appt_date` stored on booking). (v0.22–v0.23)
@@ -141,6 +143,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.34–v0.35 — account menu + profile:** day-by-day availability (Prev/Next); account dropdown; Profile modal (name/address/phone/email/password) | `index.html` |
 | 2026-06-06 | **v0.30–v0.32 — D6 book for family:** "Who is this for?" in the booking form (self / saved relative / new + save), inline remove; `relatives` table | `index.html` |
 | 2026-06-06 | **v0.29 — D8:** doctor edits own profile (modal from dashboard) + 🌿 favicon | `index.html` |
 | 2026-06-06 | **v0.27–v0.28 — D7 search & scale:** language filter + sort; **server-side filtering + pagination** (12/page) so the list scales to thousands of doctors | `index.html` |
