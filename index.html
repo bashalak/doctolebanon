@@ -35,6 +35,7 @@
   .btn.ghost:hover{background:#eef7f5}
   .btn.link{background:transparent;color:var(--ink);padding:10px 8px}
   .btn.small{padding:7px 12px;font-size:13px}
+  .btn:disabled{opacity:.45;cursor:default}
   /* ---------- Language switch ---------- */
   .langswitch{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
   .langswitch button{border:0;background:#fff;padding:7px 11px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
@@ -168,17 +169,25 @@
     <div class="search">
       <div class="field">
         <label id="lblSpecialty">Specialty</label>
-        <select id="fSpec"></select>
+        <select id="fSpec" onchange="search()"></select>
       </div>
       <div class="field">
         <label id="lblCity">City</label>
-        <select id="fCity"></select>
+        <select id="fCity" onchange="search()"></select>
+      </div>
+      <div class="field">
+        <label id="lblLanguage">Language</label>
+        <select id="fLang" onchange="search()"></select>
       </div>
       <div class="field">
         <label id="lblDocName">Doctor name</label>
-        <input id="fName" placeholder="e.g. Khoury" oninput="render()" />
+        <input id="fName" placeholder="e.g. Khoury" oninput="search()" />
       </div>
-      <div class="go"><div class="btn" id="btnSearch" onclick="render()">Search</div></div>
+      <div class="field">
+        <label id="lblSort">Sort by</label>
+        <select id="fSort" onchange="search()"></select>
+      </div>
+      <div class="go"><div class="btn" id="btnSearch" onclick="search()">Search</div></div>
     </div>
   </div>
 </section>
@@ -193,6 +202,7 @@
       <span class="count" id="count"></span>
     </div>
     <div class="grid" id="grid"></div>
+    <div id="pager" style="margin-top:18px;display:flex;gap:10px;align-items:center;justify-content:center"></div>
   </div>
 
   <!-- My appointments view -->
@@ -222,7 +232,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.26 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.28 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -307,7 +317,9 @@ const I18N = {
     notePrompt:"Optional note to the patient (reason, or a suggested new time):", cancelledByDoctor:"Cancelled by the doctor", dismiss:"Dismiss", cancelledLabel:"Cancelled", noteWord:"Note:",
     reschedule:"Reschedule", rescheduleTitle:"Pick a new time",
     reviewsTitle:"Reviews", noReviews:"No reviews yet.", yourRating:"Your rating", reviewComment:"Your comment (optional)", submitReview:"Submit review", loginToReview:"Log in to leave a review.",
-    footer:"DoctoLebanon — prototype v0.26 · Made to test an idea, not for real medical use yet." },
+    lblLanguage:"Language", allLanguages:"Any language", lblSort:"Sort by", sortDefault:"Default", sortRating:"Top rated", sortName:"Name (A–Z)",
+    prevPage:"‹ Prev", nextPage:"Next ›", pageWord:"Page",
+    footer:"DoctoLebanon — prototype v0.28 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -343,7 +355,9 @@ const I18N = {
     notePrompt:"Note facultative au patient (motif ou nouvel horaire proposé) :", cancelledByDoctor:"Annulé par le médecin", dismiss:"Ignorer", cancelledLabel:"Annulé", noteWord:"Note :",
     reschedule:"Reprogrammer", rescheduleTitle:"Choisir un nouvel horaire",
     reviewsTitle:"Avis", noReviews:"Aucun avis pour l'instant.", yourRating:"Votre note", reviewComment:"Votre commentaire (facultatif)", submitReview:"Envoyer l'avis", loginToReview:"Connectez-vous pour laisser un avis.",
-    footer:"DoctoLebanon — prototype v0.26 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    lblLanguage:"Langue", allLanguages:"Toutes les langues", lblSort:"Trier par", sortDefault:"Par défaut", sortRating:"Mieux notés", sortName:"Nom (A–Z)",
+    prevPage:"‹ Préc.", nextPage:"Suiv. ›", pageWord:"Page",
+    footer:"DoctoLebanon — prototype v0.28 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -379,7 +393,9 @@ const I18N = {
     notePrompt:"ملاحظة اختيارية للمريض (السبب أو وقت بديل مقترح):", cancelledByDoctor:"أُلغي من قبل الطبيب", dismiss:"تجاهل", cancelledLabel:"ملغى", noteWord:"ملاحظة:",
     reschedule:"إعادة جدولة", rescheduleTitle:"اختر وقتاً جديداً",
     reviewsTitle:"التقييمات", noReviews:"لا توجد تقييمات بعد.", yourRating:"تقييمك", reviewComment:"تعليقك (اختياري)", submitReview:"إرسال التقييم", loginToReview:"سجّل الدخول لترك تقييم.",
-    footer:"دكتو لبنان — نموذج تجريبي v0.26 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    lblLanguage:"اللغة", allLanguages:"كل اللغات", lblSort:"ترتيب حسب", sortDefault:"افتراضي", sortRating:"الأعلى تقييماً", sortName:"الاسم (أ–ي)",
+    prevPage:"‹ السابق", nextPage:"التالي ›", pageWord:"صفحة",
+    footer:"دكتو لبنان — نموذج تجريبي v0.28 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -473,6 +489,7 @@ async function loadReviews(){
 }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c])); }
 /* The star rating to show: real review average if any, else the seeded rating, else "New". */
+function avgOf(d){ const s=reviewStats[d.id]; return (s&&s.count)? s.sum/s.count : (d.r||0); }
 function ratingTag(d){
   const s=reviewStats[d.id];
   if(s && s.count) return `<span class="stars">${stars(s.sum/s.count)} <span style="color:var(--muted)">${(s.sum/s.count).toFixed(1)} (${s.count})</span></span>`;
@@ -492,22 +509,40 @@ async function submitReview(doctorId){
 
 /* ============ Filters ============ */
 function populateFilters(){
-  const curSpec=$("fSpec").value, curCity=$("fCity").value;
+  const curSpec=$("fSpec").value, curCity=$("fCity").value, curLang=$("fLang").value, curSort=$("fSort").value;
   $("fSpec").innerHTML = `<option value="">${t("allSpec")}</option>` + SPECIALTIES.map(s=>`<option value="${s}">${specLabel(s)}</option>`).join("");
   $("fCity").innerHTML = `<option value="">${t("allCities")}</option>` + CITIES.map(c=>`<option value="${c}">${cityLabel(c)}</option>`).join("");
-  $("fSpec").value=curSpec; $("fCity").value=curCity;
+  $("fLang").innerHTML = `<option value="">${t("allLanguages")}</option>` + ["Arabic","French","English"].map(l=>`<option value="${l}">${langLabel(l)}</option>`).join("");
+  $("fSort").innerHTML = `<option value="">${t("sortDefault")}</option><option value="rating">${t("sortRating")}</option><option value="name">${t("sortName")}</option>`;
+  $("fSpec").value=curSpec; $("fCity").value=curCity; $("fLang").value=curLang; $("fSort").value=curSort;
 }
 
 /* ============ Render doctor list ============ */
-function render(){
-  const spec=$("fSpec").value, city=$("fCity").value, name=$("fName").value.trim().toLowerCase();
-  const list=allDoctors().filter(d=>
-    (!spec||d.s===spec) && (!city||d.c===city) && (!name||d.n.toLowerCase().includes(name))
-  );
-  $("count").textContent = countText(list.length);
-  const g=$("grid"); g.innerHTML="";
-  if(list.length===0){g.innerHTML=`<div class="empty">${t("noMatch")}</div>`;return;}
-  list.forEach(d=>{
+let page=0;                                  // which page of results we're on
+const PAGE_SIZE=12;
+function search(){ page=0; render(); }       // filter changed → back to first page
+function gotoPage(n){ page=n; render(); window.scrollTo(0,0); }
+async function render(){
+  const spec=$("fSpec").value, city=$("fCity").value, name=$("fName").value.trim();
+  const langF=$("fLang").value, sortF=$("fSort").value;
+  const g=$("grid"); g.innerHTML=`<div class="empty">⏳</div>`;
+  // Ask the DATABASE for just this page of matching doctors (server-side filtering + pagination)
+  let q = sb.from("doctors").select("*", { count:"exact" }).eq("verified", true);
+  if(spec)  q = q.eq("specialty", spec);
+  if(city)  q = q.eq("city", city);
+  if(name)  q = q.ilike("name", `%${name}%`);
+  if(langF) q = q.contains("langs", [langF]);
+  q = (sortF==="name") ? q.order("name") : q.order("id");
+  q = q.range(page*PAGE_SIZE, page*PAGE_SIZE+PAGE_SIZE-1);
+  const { data, count, error } = await q;
+  if(error){ g.innerHTML=`<div class="empty">${error.message}</div>`; $("count").textContent=""; $("pager").innerHTML=""; return; }
+  DOCTORS = (data||[]).map((row,i)=>shapeDoctor(row,i));   // current page only (getDoctor reads this)
+  if(sortF==="rating") DOCTORS.sort((a,b)=>avgOf(b)-avgOf(a));  // sorts within the current page
+  const total = count||0;
+  $("count").textContent = countText(total);
+  g.innerHTML="";
+  if(!DOCTORS.length){ g.innerHTML=`<div class="empty">${t("noMatch")}</div>`; $("pager").innerHTML=""; return; }
+  DOCTORS.forEach(d=>{
     const rating = ratingTag(d);
     const card=document.createElement("div"); card.className="doc";
     card.innerHTML=`
@@ -519,16 +554,23 @@ function render(){
           <div class="meta"><span>📍 ${cityLabel(d.c)}</span>${rating}</div>
         </div>
       </div>
-      <div class="tags">${!d.verified?`<span class="tag" style="background:#fff7e6;color:#8a6100">⏳ ${t("pending")}</span>`:""}${d.langs.map(l=>`<span class="tag">${langLabel(l)}</span>`).join("")}<span class="tag">${d.fee}</span></div>
+      <div class="tags">${d.langs.map(l=>`<span class="tag">${langLabel(l)}</span>`).join("")}<span class="tag">${d.fee}</span></div>
       <button class="btn" onclick="openDoctor(${d.id})">${t("viewProfile")}</button>`;
     g.appendChild(card);
   });
+  const pages=Math.ceil(total/PAGE_SIZE);
+  $("pager").innerHTML = pages>1 ? `
+    <button class="btn ghost small" ${page<=0?"disabled":""} onclick="gotoPage(${page-1})">${t("prevPage")}</button>
+    <span style="color:var(--muted);font-size:13px">${t("pageWord")} ${page+1} / ${pages}</span>
+    <button class="btn ghost small" ${page>=pages-1?"disabled":""} onclick="gotoPage(${page+1})">${t("nextPage")}</button>` : "";
 }
 
 /* ============ Doctor modal + booking ============ */
 let pending=null;
 async function openDoctor(id){
-  const d=getDoctor(id);
+  let d=getDoctor(id);
+  if(!d){ const { data } = await sb.from("doctors").select("*").eq("id", id).single(); if(data) d=shapeDoctor(data,0); }
+  if(!d) return;
   const today = new Date().toISOString().slice(0,10);
   const { data:slotRows } = await sb.from("slots").select("*").eq("doctor_id", d.id).eq("is_booked", false).gte("slot_date", today).order("slot_date").order("slot_time");
   const byDate = {};
@@ -931,8 +973,7 @@ async function showAdmin(){
 async function approveDoctor(id){
   const { error } = await sb.from("doctors").update({ verified:true }).eq("id", id);
   if(error){ alert(error.message); return; }
-  await loadDoctorsFromCloud();   // now visible to patients
-  showAdmin();                    // refresh the pending list
+  showAdmin();                    // refresh the pending list (public search re-queries on next render)
 }
 async function rejectDoctor(id){
   if(!confirm(t("reject") + "?")) return;
@@ -983,7 +1024,6 @@ async function submitDoctor(){
   // Save the new doctor listing (unverified by default, pending review), owned by the logged-in account
   const { error } = await sb.from("doctors").insert({ name, specialty:spec, city, langs, fee, tel, license, owner: currentUser.id });
   if(error){ alert("Sorry, could not save your profile: " + error.message); return; }
-  await loadDoctorsFromCloud();          // refresh the public list
   await refreshRoles();                  // they're now a doctor → reveal the Dashboard link
   renderAuthUI();
   const welcome = lang==="fr" ? `Bienvenue, ${name} !` : lang==="ar" ? `أهلاً، ${name}!` : `Welcome, ${name}!`;
@@ -1086,7 +1126,9 @@ function applyLang(){
   $("heroSub").textContent=t("heroSub");
   $("lblSpecialty").textContent=t("lblSpecialty");
   $("lblCity").textContent=t("lblCity");
+  $("lblLanguage").textContent=t("lblLanguage");
   $("lblDocName").textContent=t("lblDocName");
+  $("lblSort").textContent=t("lblSort");
   $("fName").placeholder=t("phName");
   $("btnSearch").textContent=t("search");
   $("demoFlag").textContent=t("demo");
@@ -1121,7 +1163,7 @@ sb.auth.onAuthStateChange((_event, session)=>{
 refreshAuth();                                            // check if already logged in
 document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });  // Esc always closes a pop-up
 $("grid").innerHTML = `<div class="empty">⏳</div>`;     // brief "loading" while we fetch from the cloud
-Promise.all([loadDoctorsFromCloud(), loadReviews()]).then(render);   // doctors + review averages, then draw
+loadReviews().then(render);   // load review averages, then fetch + draw the first page of doctors
 </script>
 </body>
 </html>

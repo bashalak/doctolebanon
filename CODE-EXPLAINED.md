@@ -714,6 +714,32 @@ If step 3 fails, we roll back step 1 (free the new slot again) so nothing is lef
 
 ---
 
+## 25. Search at scale: server-side filtering + pagination (v0.27–v0.28) 🚀
+
+The old way fetched **every** doctor into the browser and filtered here — fine for 12, terrible for 10,000. Now the **database does the work** and sends back only one page.
+
+### Ask the database, not the browser
+```js
+let q = sb.from("doctors").select("*", { count:"exact" }).eq("verified", true);
+if(spec)  q = q.eq("specialty", spec);     // filters run in the database…
+if(city)  q = q.eq("city", city);
+if(name)  q = q.ilike("name", `%${name}%`); // ilike = case-insensitive "contains"
+if(langF) q = q.contains("langs", [langF]); // array column contains this value
+q = q.range(page*12, page*12+11);           // …and only THIS page of 12 rows comes back
+const { data, count } = await q;
+```
+- `count:"exact"` tells us the **total** matches (for "Page 1 / N") without downloading them.
+- `range(0,11)` = rows 0–11; `range(12,23)` = the next page. The database skips the rest.
+- So the browser only ever receives **12 doctors**, whether the total is 12 or 12,000. That's how it scales.
+
+### State + re-render again
+`page` is a state variable; **Prev/Next** change it and re-run the query. Changing a filter resets to page 0 (`search()`), so you don't get stranded on a page that no longer exists.
+
+### Concept
+- **Server-side querying** (`.eq/.ilike/.contains`) and **pagination** (`.range`, `count`) — the standard way to handle large lists without melting the browser.
+
+---
+
 ## 24. Reviews & ratings (v0.26) ⭐
 
 ### Averages from rows
