@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DoctoLebanon — Book a doctor in Lebanon</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
 <style>
   :root{
     --green:#0f8a7e;        /* cedar-inspired teal-green */
@@ -232,7 +233,7 @@
   <div class="modal" id="modal"></div>
 </div>
 
-<footer id="footerText">DoctoLebanon — prototype v0.28 · Made to test an idea, not for real medical use yet.</footer>
+<footer id="footerText">DoctoLebanon — prototype v0.29 · Made to test an idea, not for real medical use yet.</footer>
 
 <!-- Supabase client library — lets the app talk to our cloud database -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -319,7 +320,8 @@ const I18N = {
     reviewsTitle:"Reviews", noReviews:"No reviews yet.", yourRating:"Your rating", reviewComment:"Your comment (optional)", submitReview:"Submit review", loginToReview:"Log in to leave a review.",
     lblLanguage:"Language", allLanguages:"Any language", lblSort:"Sort by", sortDefault:"Default", sortRating:"Top rated", sortName:"Name (A–Z)",
     prevPage:"‹ Prev", nextPage:"Next ›", pageWord:"Page",
-    footer:"DoctoLebanon — prototype v0.28 · Made to test an idea, not for real medical use yet." },
+    editProfile:"Edit profile", saveProfile:"Save profile",
+    footer:"DoctoLebanon — prototype v0.29 · Made to test an idea, not for real medical use yet." },
 
   fr:{ findDoctor:"Trouver un médecin", joinDoctor:"Devenir médecin", myAppts:"Mes rendez-vous",
     heroTitle:"Prenez rendez-vous avec un médecin partout au Liban",
@@ -357,7 +359,8 @@ const I18N = {
     reviewsTitle:"Avis", noReviews:"Aucun avis pour l'instant.", yourRating:"Votre note", reviewComment:"Votre commentaire (facultatif)", submitReview:"Envoyer l'avis", loginToReview:"Connectez-vous pour laisser un avis.",
     lblLanguage:"Langue", allLanguages:"Toutes les langues", lblSort:"Trier par", sortDefault:"Par défaut", sortRating:"Mieux notés", sortName:"Nom (A–Z)",
     prevPage:"‹ Préc.", nextPage:"Suiv. ›", pageWord:"Page",
-    footer:"DoctoLebanon — prototype v0.28 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
+    editProfile:"Modifier le profil", saveProfile:"Enregistrer",
+    footer:"DoctoLebanon — prototype v0.29 · Conçu pour tester une idée, pas encore pour un usage médical réel." },
 
   ar:{ findDoctor:"ابحث عن طبيب", joinDoctor:"انضم كطبيب", myAppts:"مواعيدي",
     heroTitle:"احجز موعداً مع طبيب في أي مكان في لبنان",
@@ -395,7 +398,8 @@ const I18N = {
     reviewsTitle:"التقييمات", noReviews:"لا توجد تقييمات بعد.", yourRating:"تقييمك", reviewComment:"تعليقك (اختياري)", submitReview:"إرسال التقييم", loginToReview:"سجّل الدخول لترك تقييم.",
     lblLanguage:"اللغة", allLanguages:"كل اللغات", lblSort:"ترتيب حسب", sortDefault:"افتراضي", sortRating:"الأعلى تقييماً", sortName:"الاسم (أ–ي)",
     prevPage:"‹ السابق", nextPage:"التالي ›", pageWord:"صفحة",
-    footer:"دكتو لبنان — نموذج تجريبي v0.28 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
+    editProfile:"تعديل الملف", saveProfile:"حفظ الملف",
+    footer:"دكتو لبنان — نموذج تجريبي v0.29 · صُمّم لاختبار فكرة، وليس للاستخدام الطبي الفعلي بعد." }
 };
 /* Specialty / city / language display labels (the stored value stays English so filtering still works) */
 const SPEC_T = {
@@ -776,10 +780,13 @@ async function showDashboard(){
   box.innerHTML=`<div class="empty">⏳</div>`;
   const me = myListings[0];                 // primary listing (availability is managed for this one)
   const ids = myListings.map(d=>d.id);
-  const tabs = `<div class="langswitch" style="margin:0 0 16px">
-      <button class="${dashTab==='appts'?'active':''}" onclick="setDashTab('appts')">${t("dashTabAppts")}</button>
-      <button class="${dashTab==='cal'?'active':''}" onclick="setDashTab('cal')">${t("calTab")}</button>
-      <button class="${dashTab==='avail'?'active':''}" onclick="setDashTab('avail')">${t("availability")}</button>
+  const tabs = `<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 16px">
+      <div class="langswitch">
+        <button class="${dashTab==='appts'?'active':''}" onclick="setDashTab('appts')">${t("dashTabAppts")}</button>
+        <button class="${dashTab==='cal'?'active':''}" onclick="setDashTab('cal')">${t("calTab")}</button>
+        <button class="${dashTab==='avail'?'active':''}" onclick="setDashTab('avail')">${t("availability")}</button>
+      </div>
+      <button class="btn ghost small" onclick="showEditProfile()">✎ ${t("editProfile")}</button>
     </div>`;
 
   if(dashTab==="avail"){
@@ -890,6 +897,39 @@ async function clearSlots(docId){
   const { error } = await sb.from("slots").delete().eq("doctor_id", docId).eq("is_booked", false);  // only free slots (keep booked ones)
   if(error){ alert(error.message); return; }
   showDashboard();
+}
+/* Doctor edits their own listing (name, specialty, city, phone, fee, languages). */
+function showEditProfile(){
+  const me = myListings[0]; if(!me) return;
+  const specOpts = SPECIALTIES.map(s=>`<option value="${s}" ${s===me.s?"selected":""}>${specLabel(s)}</option>`).join("");
+  const cityOpts = CITIES.map(c=>`<option value="${c}" ${c===me.c?"selected":""}>${cityLabel(c)}</option>`).join("");
+  $("modal").innerHTML = `
+    <div class="modal-head"><h3 style="margin:0">${t("editProfile")}</h3><button class="close" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-row"><label>${t("fullName")}</label><input id="epName" value="${esc(me.n)}" /></div>
+      <div class="form-row"><label>${t("lblSpecialty")}</label><select id="epSpec">${specOpts}</select></div>
+      <div class="form-row"><label>${t("lblCity")}</label><select id="epCity">${cityOpts}</select></div>
+      <div class="form-row"><label>${t("phone")}</label><input id="epTel" value="${esc(me.tel||"")}" /></div>
+      <div class="form-row"><label>${t("fee")}</label><input id="epFee" value="${esc(me.fee||"")}" /></div>
+      <div class="form-row"><label>${t("langsSpoken")}</label>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;padding-top:4px">
+          ${["Arabic","French","English"].map(l=>`<label style="font-weight:400;display:flex;gap:6px;align-items:center"><input type="checkbox" class="epLang" value="${l}" ${(me.langs||[]).includes(l)?"checked":""}/> ${langLabel(l)}</label>`).join("")}
+        </div>
+      </div>
+      <button class="btn" style="width:100%;padding:13px" onclick="saveProfile(${me.id})">${t("saveProfile")}</button>
+    </div>`;
+  openOverlay();
+}
+async function saveProfile(docId){
+  let name=$("epName").value.trim();
+  if(!name){ alert(t("needName")); return; }
+  if(!/^dr\.?\s/i.test(name)) name = "Dr. " + name;
+  const spec=$("epSpec").value, city=$("epCity").value, tel=$("epTel").value.trim(), fee=$("epFee").value.trim()||"—";
+  const langs=[...document.querySelectorAll(".epLang:checked")].map(c=>c.value);
+  if(!langs.length){ alert(t("needLang")); return; }
+  const { error } = await sb.from("doctors").update({ name, specialty:spec, city, tel, fee, langs }).eq("id", docId);
+  if(error){ alert(error.message); return; }
+  await refreshRoles(); closeModal(); showDashboard();
 }
 
 /* ============ Doctor calendar (day / week / month) ============ */

@@ -104,7 +104,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 **Tier 3 — polish**
 - [x] **D7 — Better search & filters + pagination** ✅ Filter by language; sort by name/rating; **server-side filtering + pagination** (12/page, Prev/Next) so it scales to thousands of doctors (v0.27–v0.28).
-- [ ] **D8 — Doctor edits their own profile** + favicon + small UI polish.
+- [x] **D8 — Doctor edits their own profile** ✅ (name, specialty, city, phone, fee, languages from the dashboard) + **favicon** added (v0.29).
 - [x] **D9 — Calendar view for the doctor** ✅ Day / Week / Month calendar tab in the dashboard, with navigation; appointments placed by date (`appt_date` stored on booking). (v0.22–v0.23)
 
 **Deferred (later / Stage E):** teleconsultation (video), SMS reminders (cost), payments (Lebanon constraints), secure messaging, multi-location/staff, OCR document sorting, AI phone assistant, native mobile apps, calendar sync, legal (Law No. 81) + real doctor recruitment.
@@ -141,6 +141,7 @@ Based on a 2026 feature comparison with Doctolib. **Teleconsultation / video: DE
 
 | Date | What changed | Files |
 |---|---|---|
+| 2026-06-06 | **v0.29 — D8:** doctor edits own profile (modal from dashboard) + 🌿 favicon | `index.html` |
 | 2026-06-06 | **v0.27–v0.28 — D7 search & scale:** language filter + sort; **server-side filtering + pagination** (12/page) so the list scales to thousands of doctors | `index.html` |
 | 2026-06-06 | **v0.26 — D5 reviews & ratings:** patients rate + comment; real averages on cards/profiles (`reviews` table) | `index.html` |
 | 2026-06-06 | **v0.25 — D3 reschedule:** patient moves a booking to another free slot (old freed, new reserved); also takes a doctor's suggested time after a cancellation | `index.html` |
